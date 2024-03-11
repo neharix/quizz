@@ -1,11 +1,14 @@
 from django.contrib import admin
 from django.urls import path
 
-from .views import AnswerAPIView, ChallengeAPIView, QuestionAPIView, UserAnswerAPIView
+from .views import *
 
 urlpatterns = [
-    path("answerlist/", AnswerAPIView.as_view()),
-    path("challengelist/", ChallengeAPIView.as_view()),
-    path("questionlist/", QuestionAPIView.as_view()),
+    path("answerlist/", AnswerListAPIView.as_view()),
+    path("answerdetail/<int:pk>/", AnswerDetailAPIView.as_view()),
+    path("challengelist/", ChallengeListAPIView.as_view()),
+    path("challengedetail/<int:pk>/", ChallengeDetailAPIView.as_view()),
+    path("questionlist/", QuestionListAPIView.as_view()),
+    path("questiondetail/<int:pk>/", QuestionDetailAPIView.as_view()),
     path("useranswer_create/", UserAnswerAPIView.as_view()),
 ]

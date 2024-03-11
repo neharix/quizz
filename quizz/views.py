@@ -12,17 +12,32 @@ from .serializers import (
 )
 
 
-class AnswerAPIView(generics.ListAPIView):
+class AnswerListAPIView(generics.ListAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
 
 
-class ChallengeAPIView(generics.ListAPIView):
+class AnswerDetailAPIView(generics.RetrieveAPIView):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+
+
+class ChallengeListAPIView(generics.ListAPIView):
     queryset = Challenge.objects.all()
     serializer_class = ChallengeSerializer
 
 
-class QuestionAPIView(generics.ListAPIView):
+class ChallengeDetailAPIView(generics.RetrieveAPIView):
+    queryset = Challenge.objects.all()
+    serializer_class = ChallengeSerializer
+
+
+class QuestionListAPIView(generics.ListAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+
+class QuestionDetailAPIView(generics.RetrieveAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
 

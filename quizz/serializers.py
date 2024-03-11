@@ -19,7 +19,7 @@ class UserAnswerSerializer(serializers.Serializer):
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ("answer", "question", "is_true")
+        fields = ("answer", "question")
 
 
 class ChallengeSerializer(serializers.ModelSerializer):
