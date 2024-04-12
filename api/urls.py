@@ -1,0 +1,19 @@
+from django.contrib import admin
+from django.urls import include, path, re_path
+
+from .views import *
+
+urlpatterns = [
+    path("", echo),
+    path("answerlist/", AnswerListAPIView.as_view()),
+    path("answerfilter/<int:pk>/", AnswerFilterAPIView.as_view()),
+    path("challengelist/", ChallengeListAPIView.as_view()),
+    path("questionlist/", QuestionListAPIView.as_view()),
+    path("questionfilter/<int:pk>/", QuestionFilterAPIView.as_view()),
+    path("useranswer_create/", UserAnswerAPIView.as_view()),
+    path("auth-journal/create", AuthJournalAPIView.as_view()),
+    path("auth-journal/<str:username>/", AuthJournalFilterAPIView.as_view()),
+    path("session-auth/", include("rest_framework.urls")),
+    path("auth/", include("djoser.urls")),
+    re_path(r"^auth/", include("djoser.urls.authtoken")),
+]
