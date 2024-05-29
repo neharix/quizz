@@ -7,11 +7,11 @@ class Question(models.Model):
     point = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return self.question
 
 
 class Challenge(models.Model):
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=150, unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_start = models.DateTimeField()
     date_finish = models.DateTimeField()

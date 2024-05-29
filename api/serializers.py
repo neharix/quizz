@@ -33,10 +33,10 @@ class AuthJournalSerializer(serializers.ModelSerializer):
 class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
-        fields = ("name", "is_public", "date_start", "date_finish")
+        fields = ("id", "name", "is_public", "date_start", "date_finish")
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ("name", "question", "challenge", "point")
+        fields = ("question", "challenge", "point")

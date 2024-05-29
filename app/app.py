@@ -1,7 +1,9 @@
 import os
 import pathlib
 import random
+import shelve
 import sys
+from pathlib import Path
 
 import requests
 from PyQt5.QtCore import *
@@ -12,6 +14,11 @@ from ui.custom_objects import AnimationShadowEffect
 from ui.login import Ui_LoginWindow
 from ui.quizz import Ui_MainWindow
 from ui.table import Ui_TableWindow
+
+file_path = str(Path(__file__).parent).replace("\\", "/") + "/"
+
+with shelve.open(file_path + "data") as file:
+    api_url = file["api_url"]
 
 
 class TimerThread(QThread):
@@ -84,9 +91,9 @@ class AuthorizationRequestThread(QThread):
             else:
                 password += enable_chars[1][random.randint(0, 9)]
         try:
-            user_url = "http://127.0.0.1:8000/api/v1/auth/users/"
-            journal_url = "http://127.0.0.1:8000/api/v1/auth-journal/create"
-            login_url = "http://127.0.0.1:8000/api/v1/auth/token/login"
+            user_url = f"{api_url}/api/v1/auth/users/"
+            journal_url = f"{api_url}/api/v1/auth-journal/create"
+            login_url = f"{api_url}/api/v1/auth/token/login"
 
             payload = {
                 "first_name": self.name,
@@ -115,7 +122,7 @@ class AuthorizationRequestThread(QThread):
                 or self.user_response["username"][0]
                 == "Пользователь с таким именем уже существует."
             ):
-                url = "http://127.0.0.1:8000/api/v1/auth-journal/" + username
+                url = f"{api_url}/api/v1/auth-journal/" + username
                 response = requests.request(
                     "GET", url, headers=headers, files=files
                 ).json()
@@ -147,7 +154,7 @@ class ChallengeListRequestThread(QThread):
         self.token = auth_token
 
     def run(self):
-        url = "http://127.0.0.1:8000/api/v1/challengelist/"
+        url = f"{api_url}/api/v1/challengelist/"
 
         payload = {}
         files = []
@@ -287,6 +294,47 @@ class MainWindow(QMainWindow):
 
         self.ui.toggle_btn.clicked.connect(self.toggle_menu)
 
+        self.ui.page = 0
+        print(self.ui.page)
+
+        self.ui.btns_list = (
+            self.ui.btn1,
+            self.ui.btn2,
+            self.ui.btn3,
+            self.ui.btn4,
+            self.ui.btn5,
+            self.ui.btn6,
+            self.ui.btn7,
+            self.ui.btn8,
+            self.ui.btn9,
+            self.ui.btn10,
+        )
+
+        self.ui.paginated_question_list = [[]]
+        random.shuffle(self.selected_challenge)
+        print(self.selected_challenge)
+        j = 0
+        for i in self.selected_challenge:
+            self.ui.paginated_question_list[j].append(i)
+            if len(self.ui.paginated_question_list[j]) == 10:
+                self.ui.paginated_question_list.append([])
+                j += 1
+
+        if self.ui.paginated_question_list[j] == []:
+            self.ui.paginated_question_list.pop(j)
+
+        print(self.ui.paginated_question_list)
+
+        if len(self.ui.paginated_question_list[self.ui.page]) < 10:
+            for btn in self.ui.btns_list[
+                len(self.ui.paginated_question_list[self.ui.page]) : 10
+            ]:
+                btn.setHidden(True)
+
+        for i in range(len(self.ui.paginated_question_list[self.ui.page])):
+            label = (self.ui.page * 10) + (i + 1)
+            self.ui.btns_list[i].setText(f"Sorag {label}")
+
         self.ui.next_btn.setStyleSheet(self.stylesheet)
         self.ui.prev_btn.setStyleSheet(self.stylesheet)
         self.ui.next_question.setStyleSheet(self.stylesheet)
@@ -300,10 +348,63 @@ class MainWindow(QMainWindow):
 
         self.ui.next_question.hover.connect(self.button_question_hover)
         self.ui.next_question.setGraphicsEffect(self.next_question_ani)
+
         self.ui.btn_a.clicked.connect(self.select_a)
         self.ui.btn_b.clicked.connect(self.select_b)
         self.ui.btn_c.clicked.connect(self.select_c)
         self.ui.btn_d.clicked.connect(self.select_d)
+
+        self.ui.prev_btn.clicked.connect(self.prev_question_page)
+        self.ui.next_btn.clicked.connect(self.next_question_page)
+
+        self.ui.btn1.clicked.connect(lambda: self.select_question(self.ui.btn1.text()))
+        self.ui.btn2.clicked.connect(lambda: self.select_question(self.ui.btn2.text()))
+        self.ui.btn3.clicked.connect(lambda: self.select_question(self.ui.btn3.text()))
+        self.ui.btn4.clicked.connect(lambda: self.select_question(self.ui.btn4.text()))
+        self.ui.btn5.clicked.connect(lambda: self.select_question(self.ui.btn5.text()))
+        self.ui.btn6.clicked.connect(lambda: self.select_question(self.ui.btn6.text()))
+        self.ui.btn7.clicked.connect(lambda: self.select_question(self.ui.btn7.text()))
+        self.ui.btn8.clicked.connect(lambda: self.select_question(self.ui.btn8.text()))
+        self.ui.btn9.clicked.connect(lambda: self.select_question(self.ui.btn9.text()))
+        self.ui.btn10.clicked.connect(
+            lambda: self.select_question(self.ui.btn10.text())
+        )
+
+    def select_question(self, question: str):
+        question_id = int(question.split()[1]) - 1
+
+    def prev_question_page(self):
+        self.ui.page -= 1 if self.ui.page > 0 else 0
+
+        for btn in self.ui.btns_list:
+            btn.setHidden(False)
+        if len(self.ui.paginated_question_list[self.ui.page]) < 10:
+            for btn in self.ui.btns_list[
+                len(self.ui.paginated_question_list[self.ui.page]) : 10
+            ]:
+                btn.setHidden(True)
+
+        for i in range(len(self.ui.paginated_question_list[self.ui.page])):
+            label = (self.ui.page * 10) + (i + 1)
+            self.ui.btns_list[i].setText(f"Sorag {label}")
+
+    def next_question_page(self):
+        self.ui.page += (
+            1 if self.ui.page < len(self.ui.paginated_question_list) - 1 else 0
+        )
+
+        for btn in self.ui.btns_list:
+            btn.setHidden(False)
+
+        if len(self.ui.paginated_question_list[self.ui.page]) < 10:
+            for btn in self.ui.btns_list[
+                len(self.ui.paginated_question_list[self.ui.page]) : 10
+            ]:
+                btn.setHidden(True)
+
+        for i in range(len(self.ui.paginated_question_list[self.ui.page])):
+            label = (self.ui.page * 10) + (i + 1)
+            self.ui.btns_list[i].setText(f"Sorag {label}")
 
     def select_a(self):
         self.ui.btn_b.setChecked(False)
@@ -330,6 +431,18 @@ class MainWindow(QMainWindow):
 
     def choose_challenge(self, challenge_name):
         del self.table_ui
+
+        for challenge in self.challenge_list:
+            if challenge["name"] == challenge_name:
+                selected_challenge_id = challenge["id"]
+
+        url = f"{api_url}/api/v1/questionfilter/{selected_challenge_id}/"
+        headers = {"Authorization": self.token}
+
+        self.selected_challenge = requests.request(
+            "GET", url=url, headers=headers
+        ).json()
+
         self.create_main_ui()
 
         self.time = [2, 0]
@@ -339,6 +452,7 @@ class MainWindow(QMainWindow):
         self.ui.label.setText(self.time_str)
 
         self.ui.label.setText(self.time_str)
+
         self.timer_thread = TimerThread(2)
         self.timer_thread.start(QThread.Priority.InheritPriority)
 
