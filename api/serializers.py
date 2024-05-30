@@ -39,4 +39,4 @@ class ChallengeSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ("question", "challenge", "point")
+        fields = ("id", "question", "challenge", "point")

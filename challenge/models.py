@@ -3,7 +3,7 @@ from django.db import models
 
 class Question(models.Model):
     question = models.TextField()
-    challenge = models.ForeignKey("Challenge", on_delete=models.PROTECT)
+    challenge = models.ForeignKey("Challenge", on_delete=models.CASCADE)
     point = models.IntegerField()
 
     def __str__(self):
@@ -24,7 +24,7 @@ class Challenge(models.Model):
 
 class Answer(models.Model):
     answer = models.TextField()
-    question = models.ForeignKey("Question", on_delete=models.PROTECT)
+    question = models.ForeignKey("Question", on_delete=models.CASCADE)
     is_true = models.BooleanField(default=False)
 
     def __str__(self):
@@ -32,7 +32,7 @@ class Answer(models.Model):
 
 
 class UserAnswer(models.Model):
-    question = models.IntegerField()
+    question = models.ForeignKey("Question", on_delete=models.CASCADE)
     answer = models.IntegerField()
     is_true = models.BooleanField(default=False)
 

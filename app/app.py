@@ -323,8 +323,6 @@ class MainWindow(QMainWindow):
         if self.ui.paginated_question_list[j] == []:
             self.ui.paginated_question_list.pop(j)
 
-        print(self.ui.paginated_question_list)
-
         if len(self.ui.paginated_question_list[self.ui.page]) < 10:
             for btn in self.ui.btns_list[
                 len(self.ui.paginated_question_list[self.ui.page]) : 10
@@ -334,6 +332,24 @@ class MainWindow(QMainWindow):
         for i in range(len(self.ui.paginated_question_list[self.ui.page])):
             label = (self.ui.page * 10) + (i + 1)
             self.ui.btns_list[i].setText(f"Sorag {label}")
+
+        self.ui.question.setText(
+            self.ui.paginated_question_list[self.ui.page][0]["question"]
+        )
+
+        question_id = self.ui.paginated_question_list[self.ui.page][0]["id"]
+
+        self.current_answers = requests.request(
+            "GET",
+            url=f"{api_url}/api/v1/answerfilter/{question_id}/",
+            headers={"Authorization": self.token},
+        ).json()
+        random.shuffle(self.current_answers)
+
+        label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
+
+        for index in range(len(self.current_answers)):
+            label_tuple[index].setText(self.current_answers[index]["answer"])
 
         self.ui.next_btn.setStyleSheet(self.stylesheet)
         self.ui.prev_btn.setStyleSheet(self.stylesheet)
@@ -371,7 +387,29 @@ class MainWindow(QMainWindow):
         )
 
     def select_question(self, question: str):
-        question_id = int(question.split()[1]) - 1
+        question_index = int(question.split()[1]) - 1
+
+        self.ui.question.setText(
+            self.ui.paginated_question_list[self.ui.page][question_index]["question"]
+        )
+
+        question_id = self.ui.paginated_question_list[self.ui.page][question_index][
+            "id"
+        ]
+
+        url = f"{api_url}/api/v1/answerfilter/{question_id}/"
+        headers = {"Authorization": self.token}
+
+        self.current_answers = requests.request("GET", url=url, headers=headers).json()
+        random.shuffle(self.current_answers)
+
+        try:
+            label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
+
+            for index in range(len(self.current_answers)):
+                label_tuple[index].setText(self.current_answers[index]["answer"])
+        except:
+            pass
 
     def prev_question_page(self):
         self.ui.page -= 1 if self.ui.page > 0 else 0
