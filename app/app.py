@@ -312,9 +312,9 @@ class MainWindow(QMainWindow):
 
         self.ui.paginated_question_list = [[]]
         random.shuffle(self.selected_challenge)
-        print(self.selected_challenge)
         j = 0
         for i in self.selected_challenge:
+            i["is_answered"] = False
             self.ui.paginated_question_list[j].append(i)
             if len(self.ui.paginated_question_list[j]) == 10:
                 self.ui.paginated_question_list.append([])
@@ -351,6 +351,8 @@ class MainWindow(QMainWindow):
         for index in range(len(self.current_answers)):
             label_tuple[index].setText(self.current_answers[index]["answer"])
 
+        self.ui.question_id.setText("Sorag №1")
+
         self.ui.next_btn.setStyleSheet(self.stylesheet)
         self.ui.prev_btn.setStyleSheet(self.stylesheet)
         self.ui.next_question.setStyleSheet(self.stylesheet)
@@ -385,9 +387,14 @@ class MainWindow(QMainWindow):
         self.ui.btn10.clicked.connect(
             lambda: self.select_question(self.ui.btn10.text())
         )
+        self.ui.next_question.clicked.connect(
+            lambda: self.next_question(self.ui.question_id.text())
+        )
 
     def select_question(self, question: str):
         question_index = int(question.split()[1]) - 1
+
+        self.ui.question_id.setText(f"Sorag №{question_index + 1}")
 
         self.ui.question.setText(
             self.ui.paginated_question_list[self.ui.page][question_index]["question"]
@@ -466,6 +473,54 @@ class MainWindow(QMainWindow):
 
     def set_text(self, text):
         self.ui.label.setText(text)
+
+    def next_question(self, question: str):
+
+        is_answered = True
+
+        question_index = int(question.split("№")[1]) - 1
+
+        self.ui.paginated_question_list[self.ui.page][question_index][
+            "is_answered"
+        ] = True
+
+        while is_answered:
+            try:
+                question_index += 1
+                is_answered = self.ui.paginated_question_list[self.ui.page][
+                    question_index
+                ]["is_answered"]
+            except IndexError:
+                question_index = 0
+                if self.ui.page + 1 == len(self.ui.paginated_question_list):
+                    print("that's all")
+                else:
+                    self.ui.page += 1
+                    is_answered = self.ui.paginated_question_list[self.ui.page][
+                        question_index
+                    ]["is_answered"]
+
+        self.ui.question.setText(
+            self.ui.paginated_question_list[self.ui.page][question_index]["question"]
+        )
+
+        question_id = self.ui.paginated_question_list[self.ui.page][question_index][
+            "id"
+        ]
+
+        self.current_answers = requests.request(
+            "GET",
+            url=f"{api_url}/api/v1/answerfilter/{question_id}/",
+            headers={"Authorization": self.token},
+        ).json()
+        random.shuffle(self.current_answers)
+
+        label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
+
+        for index in range(len(self.current_answers)):
+            label_tuple[index].setText(self.current_answers[index]["answer"])
+
+        self.ui.question_id.setText(f"Sorag №{question_index + 1}")
 
     def choose_challenge(self, challenge_name):
         del self.table_ui
@@ -758,7 +813,6 @@ def modal_info_window(message: str):
     vbox.addWidget(label)
     vbox.addWidget(ok_btn, 0, Qt.AlignHCenter | Qt.AlignVCenter)
     ok_btn.clicked.connect(lambda: modal_window.close())
-
     modal_window.show()
 
 
@@ -802,7 +856,6 @@ def timeout_window():
     vbox.addWidget(label)
     vbox.addWidget(ok_btn, 0, Qt.AlignHCenter | Qt.AlignVCenter)
     ok_btn.clicked.connect(lambda: app.quit())
-
     modal_window.show()
 
 
