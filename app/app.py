@@ -484,6 +484,35 @@ class MainWindow(QMainWindow):
             "is_answered"
         ] = True
 
+        selected_answer = ""
+        for check in (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d):
+            if check.isChecked():
+                selected_answer = check.text()
+
+        headers = {"Authorization": self.token}
+
+        user = requests.request(
+            "GET",
+            f"{api_url}/api/v1/auth/users/",
+            headers=headers,
+        ).json()
+
+        payload = {
+            "answer": selected_answer,
+            "question": self.ui.paginated_question_list[self.ui.page][question_index][
+                "question"
+            ],
+            "user": user[0]["id"],
+        }
+        print(payload)
+
+        requests.request(
+            "POST",
+            f"{api_url}/api/v1/useranswer_create/",
+            data=payload,
+            headers=headers,
+        )
+
         while is_answered:
             try:
                 question_index += 1
