@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import *
 from ui.custom_objects import AnimationShadowEffect
 from ui.login import Ui_LoginWindow
 from ui.quizz import Ui_MainWindow
+from ui.result import Ui_ResultWindow
 from ui.table import Ui_TableWindow
 
 file_path = str(Path(__file__).parent).replace("\\", "/") + "/"
@@ -47,8 +48,10 @@ class TimerThread(QThread):
             second_str = str(self.time[1]) if self.time[1] >= 10 else f"0{self.time[1]}"
             self.time_str = minute_str + ":" + second_str
             self.sleep(1)
-
-            window.ui.label.setText(self.time_str)
+            try:
+                window.ui.label.setText(self.time_str)
+            except:
+                pass
         window.ui.finish_thread_btn.click()
 
 
@@ -295,7 +298,6 @@ class MainWindow(QMainWindow):
         self.ui.toggle_btn.clicked.connect(self.toggle_menu)
 
         self.ui.page = 0
-        print(self.ui.page)
 
         self.ui.btns_list = (
             self.ui.btn1,
@@ -391,6 +393,10 @@ class MainWindow(QMainWindow):
             lambda: self.next_question(self.ui.question_id.text())
         )
 
+    def create_result_ui(self):
+        self.result_ui = Ui_ResultWindow()
+        self.result_ui.setupUi(self)
+
     def select_question(self, question: str):
         question_index = int(question.split()[1]) - 1
 
@@ -476,8 +482,6 @@ class MainWindow(QMainWindow):
 
     def next_question(self, question: str):
 
-        is_answered = True
-
         question_index = int(question.split("№")[1]) - 1
 
         self.ui.paginated_question_list[self.ui.page][question_index][
@@ -504,7 +508,6 @@ class MainWindow(QMainWindow):
             ],
             "user": user[0]["id"],
         }
-        print(payload)
 
         requests.request(
             "POST",
@@ -512,6 +515,9 @@ class MainWindow(QMainWindow):
             data=payload,
             headers=headers,
         )
+
+        is_answered = True
+        is_finish = False
 
         while is_answered:
             try:
@@ -522,34 +528,68 @@ class MainWindow(QMainWindow):
             except IndexError:
                 question_index = 0
                 if self.ui.page + 1 == len(self.ui.paginated_question_list):
-                    print("that's all")
+                    is_finish = True
+                    break
                 else:
                     self.ui.page += 1
                     is_answered = self.ui.paginated_question_list[self.ui.page][
                         question_index
                     ]["is_answered"]
 
-        self.ui.question.setText(
-            self.ui.paginated_question_list[self.ui.page][question_index]["question"]
-        )
+        is_destroyed = False
 
-        question_id = self.ui.paginated_question_list[self.ui.page][question_index][
-            "id"
-        ]
+        self.time
 
-        self.current_answers = requests.request(
-            "GET",
-            url=f"{api_url}/api/v1/answerfilter/{question_id}/",
-            headers={"Authorization": self.token},
-        ).json()
-        random.shuffle(self.current_answers)
+        if is_finish:
+            question_index = 0
+            is_answered = self.ui.paginated_question_list[self.ui.page][question_index][
+                "is_answered"
+            ]
+            while is_answered:
+                try:
+                    question_index += 1
+                    is_answered = self.ui.paginated_question_list[self.ui.page][
+                        question_index
+                    ]["is_answered"]
+                except IndexError:
+                    question_index = 0
+                    if self.ui.page + 1 == len(self.ui.paginated_question_list):
+                        self.timer_thread.quit()
+                        del self.timer_thread
+                        del self.ui
+                        self.create_result_ui()
+                        is_destroyed = True
+                        break
+                    else:
+                        self.ui.page += 1
+                        is_answered = self.ui.paginated_question_list[self.ui.page][
+                            question_index
+                        ]["is_answered"]
 
-        label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
+        if not is_destroyed:
+            self.ui.question.setText(
+                self.ui.paginated_question_list[self.ui.page][question_index][
+                    "question"
+                ]
+            )
 
-        for index in range(len(self.current_answers)):
-            label_tuple[index].setText(self.current_answers[index]["answer"])
+            question_id = self.ui.paginated_question_list[self.ui.page][question_index][
+                "id"
+            ]
 
-        self.ui.question_id.setText(f"Sorag №{question_index + 1}")
+            self.current_answers = requests.request(
+                "GET",
+                url=f"{api_url}/api/v1/answerfilter/{question_id}/",
+                headers={"Authorization": self.token},
+            ).json()
+            random.shuffle(self.current_answers)
+
+            label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
+
+            for index in range(len(self.current_answers)):
+                label_tuple[index].setText(self.current_answers[index]["answer"])
+
+            self.ui.question_id.setText(f"Sorag №{question_index + 1}")
 
     def choose_challenge(self, challenge_name):
         del self.table_ui

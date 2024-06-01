@@ -3,7 +3,9 @@ from django.db import models
 
 
 class Question(models.Model):
-    question = models.TextField()
+    question = models.TextField(null=True, blank=True)
+    is_image = models.BooleanField(default=False)
+    image = models.ImageField(upload_to="questions/", null=True, blank=True)
     challenge = models.ForeignKey("Challenge", on_delete=models.CASCADE)
     point = models.IntegerField()
 
@@ -16,6 +18,7 @@ class Challenge(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_start = models.DateTimeField()
     date_finish = models.DateTimeField()
+    time_for_event = models.IntegerField(default=30)
     is_public = models.BooleanField(default=False)
 
     # add time for challenge
@@ -24,8 +27,10 @@ class Challenge(models.Model):
 
 
 class Answer(models.Model):
-    answer = models.TextField()
+    answer = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to="answers/", blank=True, null=True)
     question = models.ForeignKey("Question", on_delete=models.CASCADE)
+    is_image = models.BooleanField(default=False)
     is_true = models.BooleanField(default=False)
 
     def __str__(self):
