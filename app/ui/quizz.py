@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from .custom_objects import PushButton
+from .custom_objects import ClickableLabel, PushButton
 
 
 class Ui_MainWindow(object):
@@ -300,15 +300,11 @@ class Ui_MainWindow(object):
         self.layout_a.setSpacing(0)
         self.layout_a.setObjectName("layout_a")
         self.layout_a.setContentsMargins(11, 0, 0, 0)
-        self.btn_a = QRadioButton(self.frame_a)
+        self.btn_a = ClickableLabel(self.frame_a)
         self.btn_a.setObjectName("btn_a")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.btn_a.sizePolicy().hasHeightForWidth())
-        self.btn_a.setSizePolicy(sizePolicy3)
-        self.btn_a.setFont(font1)
-        self.btn_a.setStyleSheet("")
+        font3 = QFont()
+        font3.setPointSize(11)
+        self.btn_a.setFont(font3)
 
         self.layout_a.addWidget(self.btn_a)
 
@@ -325,11 +321,9 @@ class Ui_MainWindow(object):
         self.frame_b_2.setSpacing(0)
         self.frame_b_2.setObjectName("frame_b_2")
         self.frame_b_2.setContentsMargins(11, 0, 0, 0)
-        self.btn_b = QRadioButton(self.frame_b)
+        self.btn_b = ClickableLabel(self.frame_b)
         self.btn_b.setObjectName("btn_b")
-        sizePolicy3.setHeightForWidth(self.btn_b.sizePolicy().hasHeightForWidth())
-        self.btn_b.setSizePolicy(sizePolicy3)
-        self.btn_b.setFont(font1)
+        self.btn_b.setFont(font3)
 
         self.frame_b_2.addWidget(self.btn_b)
 
@@ -346,11 +340,9 @@ class Ui_MainWindow(object):
         self.layout.setSpacing(0)
         self.layout.setObjectName("layout")
         self.layout.setContentsMargins(-1, 0, 0, 0)
-        self.btn_c = QRadioButton(self.frame_c)
+        self.btn_c = ClickableLabel(self.frame_c)
         self.btn_c.setObjectName("btn_c")
-        sizePolicy3.setHeightForWidth(self.btn_c.sizePolicy().hasHeightForWidth())
-        self.btn_c.setSizePolicy(sizePolicy3)
-        self.btn_c.setFont(font1)
+        self.btn_c.setFont(font3)
 
         self.layout.addWidget(self.btn_c)
 
@@ -367,11 +359,9 @@ class Ui_MainWindow(object):
         self.layout_d.setSpacing(0)
         self.layout_d.setObjectName("layout_d")
         self.layout_d.setContentsMargins(-1, 0, 0, 0)
-        self.btn_d = QRadioButton(self.frame_d)
+        self.btn_d = ClickableLabel(self.frame_d)
         self.btn_d.setObjectName("btn_d")
-        sizePolicy3.setHeightForWidth(self.btn_d.sizePolicy().hasHeightForWidth())
-        self.btn_d.setSizePolicy(sizePolicy3)
-        self.btn_d.setFont(font1)
+        self.btn_d.setFont(font3)
 
         self.layout_d.addWidget(self.btn_d)
 
@@ -433,17 +423,12 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "TextLabel", None)
         )
         self.btn_a.setText(QCoreApplication.translate("MainWindow", "a", None))
-        # if QT_CONFIG(shortcut)
-        self.btn_a.setShortcut(QCoreApplication.translate("MainWindow", "1", None))
-        # endif // QT_CONFIG(shortcut)
+        # if QT_CONFIG(shortcut)        # endif // QT_CONFIG(shortcut)
         self.btn_b.setText(QCoreApplication.translate("MainWindow", "b", None))
         self.btn_c.setText(QCoreApplication.translate("MainWindow", "c", None))
         self.btn_d.setText(QCoreApplication.translate("MainWindow", "d", None))
         self.next_question.setText("")
         # if QT_CONFIG(shortcut)
-        self.next_question.setShortcut(
-            QCoreApplication.translate("MainWindow", "Return", None)
-        )
 
 
 # endif // QT_CONFIG(shortcut)

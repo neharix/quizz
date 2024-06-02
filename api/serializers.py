@@ -24,7 +24,7 @@ class UserAnswerSerializer(serializers.Serializer):
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ("answer", "question")
+        fields = ("answer", "question", "is_image", "image")
 
 
 class AuthJournalSerializer(serializers.ModelSerializer):
@@ -36,7 +36,14 @@ class AuthJournalSerializer(serializers.ModelSerializer):
 class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
-        fields = ("id", "name", "is_public", "date_start", "date_finish")
+        fields = (
+            "id",
+            "name",
+            "is_public",
+            "date_start",
+            "date_finish",
+            "time_for_event",
+        )
 
 
 class QuestionSerializer(serializers.ModelSerializer):

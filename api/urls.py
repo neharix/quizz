@@ -7,6 +7,7 @@ urlpatterns = [
     path("", echo),
     path("answerlist/", AnswerListAPIView.as_view()),
     path("answerfilter/<int:pk>/", AnswerFilterAPIView.as_view()),
+    path("challenge/<int:pk>/", ChallengeAPIView.as_view()),
     path("challengelist/", ChallengeListAPIView.as_view()),
     path("questionlist/", QuestionListAPIView.as_view()),
     path("questionfilter/<int:pk>/", QuestionFilterAPIView.as_view()),

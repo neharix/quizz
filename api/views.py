@@ -66,6 +66,19 @@ class QuestionListAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
 
+class ChallengeAPIView(APIView):
+    def get(self, request, **kwargs):
+        key = kwargs["pk"]
+        queryset = Challenge.objects.filter(pk=key)
+        if len(queryset) == 0:
+            return Response({"detail": "Не найдено данных по заданному ключу"})
+        else:
+            serializer = ChallengeSerializer(queryset, many=True)
+            return Response(serializer.data)
+
+    permission_classes = (IsAuthenticated,)
+
+
 class QuestionFilterAPIView(APIView):
     def get(self, request, **kwargs):
         key = kwargs["pk"]

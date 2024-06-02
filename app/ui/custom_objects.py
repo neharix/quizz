@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, pyqtProperty, pyqtSignal
-from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QPushButton
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QLabel, QPushButton
 
 
 class AnimationShadowEffect(QGraphicsDropShadowEffect):
@@ -49,3 +49,11 @@ class PushButton(QPushButton):
 
     def leaveEvent(self, event):
         self.hover.emit("leaveEvent")
+
+
+class ClickableLabel(QLabel):
+    clicked = pyqtSignal()
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        self.clicked.emit()

@@ -11,6 +11,7 @@ class AnswerAdmin(admin.ModelAdmin):
 @admin.register(UserAnswer)
 class UserAnswerAdmin(admin.ModelAdmin):
     list_display = ["answer", "id", "is_true", "question", "user"]
+    readonly_fields = ("answered_at",)
 
 
 @admin.register(Challenge)

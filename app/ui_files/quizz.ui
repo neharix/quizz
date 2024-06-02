@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1153</width>
-    <height>648</height>
+    <width>1169</width>
+    <height>670</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -170,7 +170,7 @@ QPushButton{
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/list.svg</normaloff>:/icons/bootstrap-icons/list.svg</iconset>
                   </property>
                  </widget>
@@ -247,7 +247,7 @@ QPushButton{
                    <string>Sorag 1</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -258,7 +258,7 @@ QPushButton{
                    <string>Sorag 2</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -269,7 +269,7 @@ QPushButton{
                    <string>Sorag 3</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -280,7 +280,7 @@ QPushButton{
                    <string>Sorag 4</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -291,7 +291,7 @@ QPushButton{
                    <string>Sorag 5</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -302,7 +302,7 @@ QPushButton{
                    <string>Sorag 6</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -313,7 +313,7 @@ QPushButton{
                    <string>Sorag 7</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -324,7 +324,7 @@ QPushButton{
                    <string>Sorag 8</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -335,7 +335,7 @@ QPushButton{
                    <string>Sorag 9</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -346,7 +346,7 @@ QPushButton{
                    <string>Sorag 10</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/question-lg.svg</normaloff>:/icons/bootstrap-icons/question-lg.svg</iconset>
                   </property>
                  </widget>
@@ -369,7 +369,7 @@ QPushButton{
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/chevron-left.svg</normaloff>:/icons/bootstrap-icons/chevron-left.svg</iconset>
                   </property>
                  </widget>
@@ -380,7 +380,7 @@ QPushButton{
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="../icons.qrc">
                     <normaloff>:/icons/bootstrap-icons/chevron-right.svg</normaloff>:/icons/bootstrap-icons/chevron-right.svg</iconset>
                   </property>
                  </widget>
@@ -531,26 +531,14 @@ border: none;</string>
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QRadioButton" name="btn_a">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
+                    <widget class="QLabel" name="btn_a">
                      <property name="font">
                       <font>
-                       <pointsize>12</pointsize>
+                       <pointsize>11</pointsize>
                       </font>
                      </property>
-                     <property name="styleSheet">
-                      <string notr="true"/>
-                     </property>
                      <property name="text">
-                      <string>a</string>
-                     </property>
-                     <property name="shortcut">
-                      <string>1</string>
+                      <string>A</string>
                      </property>
                     </widget>
                    </item>
@@ -570,7 +558,7 @@ border: none;</string>
                   <property name="frameShadow">
                    <enum>QFrame::Raised</enum>
                   </property>
-                  <layout class="QVBoxLayout" name="frame_b_2">
+                  <layout class="QHBoxLayout" name="horizontalLayout">
                    <property name="spacing">
                     <number>0</number>
                    </property>
@@ -587,20 +575,14 @@ border: none;</string>
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QRadioButton" name="btn_b">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
+                    <widget class="QLabel" name="btn_b">
                      <property name="font">
                       <font>
-                       <pointsize>12</pointsize>
+                       <pointsize>11</pointsize>
                       </font>
                      </property>
                      <property name="text">
-                      <string>b</string>
+                      <string>B</string>
                      </property>
                     </widget>
                    </item>
@@ -634,20 +616,14 @@ border: none;</string>
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QRadioButton" name="btn_c">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
+                    <widget class="QLabel" name="btn_c">
                      <property name="font">
                       <font>
-                       <pointsize>12</pointsize>
+                       <pointsize>11</pointsize>
                       </font>
                      </property>
                      <property name="text">
-                      <string>c</string>
+                      <string>C</string>
                      </property>
                     </widget>
                    </item>
@@ -681,20 +657,14 @@ border: none;</string>
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="QRadioButton" name="btn_d">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
+                    <widget class="QLabel" name="btn_d">
                      <property name="font">
                       <font>
-                       <pointsize>12</pointsize>
+                       <pointsize>11</pointsize>
                       </font>
                      </property>
                      <property name="text">
-                      <string>d</string>
+                      <string>D</string>
                      </property>
                     </widget>
                    </item>
@@ -710,7 +680,7 @@ border: none;</string>
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="icons.qrc">
+                <iconset resource="../icons.qrc">
                  <normaloff>:/icons/bootstrap-icons/arrow-right.svg</normaloff>:/icons/bootstrap-icons/arrow-right.svg</iconset>
                </property>
                <property name="shortcut">
@@ -731,7 +701,7 @@ border: none;</string>
   </widget>
  </widget>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="../icons.qrc"/>
  </resources>
  <connections/>
 </ui>

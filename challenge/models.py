@@ -42,6 +42,7 @@ class UserAnswer(models.Model):
     answer = models.ForeignKey("Answer", on_delete=models.CASCADE)
     is_true = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    answered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.is_true)
