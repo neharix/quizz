@@ -2,6 +2,7 @@ import os
 import pathlib
 import random
 import shelve
+import shutil
 import sys
 from pathlib import Path
 
@@ -295,6 +296,8 @@ class MainWindow(QMainWindow):
         self.ui.side_menu.setHidden(True)
         self.menu_status = False
 
+        self.answers_type = [None, None, None, None]
+
         self.ui.toggle_btn.clicked.connect(self.toggle_menu)
 
         self.selected_answer = None
@@ -337,9 +340,25 @@ class MainWindow(QMainWindow):
             label = (self.ui.page * 10) + (i + 1)
             self.ui.btns_list[i].setText(f"Sorag {label}")
 
-        self.ui.question.setText(
-            self.ui.paginated_question_list[self.ui.page][0]["question"]
-        )
+        self.question_image_path = None
+
+        if self.ui.paginated_question_list[self.ui.page][0]["is_image"]:
+            response = requests.get(
+                f"{api_url}/{self.ui.paginated_question_list[self.ui.page][0]['image']}"
+            )
+            file_name = self.ui.paginated_question_list[self.ui.page][0]["image"].split(
+                "/"
+            )[3]
+            with open(file_path + f"src/{file_name}", "wb") as file:
+                file.write(response.content)
+            self.ui.question.setText(f"Suraty görmek üçin sag düwmä basyň")
+            self.question_image_path = self.ui.paginated_question_list[self.ui.page][0][
+                "image"
+            ]
+        else:
+            self.ui.question.setText(
+                self.ui.paginated_question_list[self.ui.page][0]["question"]
+            )
 
         question_id = self.ui.paginated_question_list[self.ui.page][0]["id"]
 
@@ -350,10 +369,23 @@ class MainWindow(QMainWindow):
         ).json()
         random.shuffle(self.current_answers)
 
-        label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
+        self.label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
 
         for index in range(len(self.current_answers)):
-            label_tuple[index].setText(self.current_answers[index]["answer"])
+            if self.current_answers[index]["is_image"]:
+                response = requests.get(
+                    f"{api_url}/{self.current_answers[index]['image']}"
+                )
+                file_name = self.current_answers[index]["image"].split("/")[3]
+                with open(file_path + f"src/{file_name}", "wb") as file:
+                    file.write(response.content)
+                self.answers_type[index] = "image"
+                self.label_tuple[index].setText(
+                    f"{index + 1}. Suraty görmek üçin sag düwmä basyň"
+                )
+            else:
+                self.answers_type[index] = "text"
+                self.label_tuple[index].setText(self.current_answers[index]["answer"])
 
         self.ui.question_id.setText("Sorag №1")
 
@@ -378,6 +410,13 @@ class MainWindow(QMainWindow):
         self.ui.btn_b.clicked.connect(self.select_b)
         self.ui.btn_c.clicked.connect(self.select_c)
         self.ui.btn_d.clicked.connect(self.select_d)
+
+        self.ui.question.redirect.connect(self.question_redirect)
+
+        self.ui.btn_a.redirect.connect(self.redirect_a)
+        self.ui.btn_b.redirect.connect(self.redirect_b)
+        self.ui.btn_c.redirect.connect(self.redirect_c)
+        self.ui.btn_d.redirect.connect(self.redirect_d)
 
         self.ui.btn1.clicked.connect(lambda: self.select_question(self.ui.btn1.text()))
         self.ui.btn2.clicked.connect(lambda: self.select_question(self.ui.btn2.text()))
@@ -407,21 +446,88 @@ class MainWindow(QMainWindow):
         border: none;
         """
 
+    def question_redirect(self):
+        if self.current_answers[0]["is_image"]:
+            file_name = self.question_image_path.split("/")[3]
+            image_window(file_path + f"src/{file_name}")
+
+    def redirect_a(self):
+        if self.current_answers[0]["is_image"]:
+            file_name = self.current_answers[0]["image"].split("/")[3]
+            image_window(file_path + f"src/{file_name}")
+        if self.answers_type[0] == "image":
+            self.selected_answer = self.current_answers[0]["id"]
+        elif self.answers_type[0] == "text":
+            self.selected_answer = self.ui.btn_a.text()
+        self.ui.frame_a.setStyleSheet(self.selected_stylesheet)
+        self.ui.frame_b.setStyleSheet(self.default_stylesheet)
+        self.ui.frame_c.setStyleSheet(self.default_stylesheet)
+        self.ui.frame_d.setStyleSheet(self.default_stylesheet)
+
+    def redirect_b(self):
+        if self.current_answers[1]["is_image"]:
+            file_name = self.current_answers[1]["image"].split("/")[3]
+            image_window(file_path + f"src/{file_name}")
+        if self.answers_type[1] == "image":
+            self.selected_answer = self.current_answers[1]["id"]
+        elif self.answers_type[1] == "text":
+            self.selected_answer = self.ui.btn_a.text()
+        self.ui.frame_b.setStyleSheet(self.selected_stylesheet)
+        self.ui.frame_a.setStyleSheet(self.default_stylesheet)
+        self.ui.frame_c.setStyleSheet(self.default_stylesheet)
+        self.ui.frame_d.setStyleSheet(self.default_stylesheet)
+
+    def redirect_c(self):
+        if self.current_answers[2]["is_image"]:
+            file_name = self.current_answers[2]["image"].split("/")[3]
+            image_window(file_path + f"src/{file_name}")
+        if self.answers_type[2] == "image":
+            self.selected_answer = self.current_answers[2]["id"]
+        elif self.answers_type[2] == "text":
+            self.selected_answer = self.ui.btn_a.text()
+        self.ui.frame_c.setStyleSheet(self.selected_stylesheet)
+        self.ui.frame_a.setStyleSheet(self.default_stylesheet)
+        self.ui.frame_b.setStyleSheet(self.default_stylesheet)
+        self.ui.frame_d.setStyleSheet(self.default_stylesheet)
+
+    def redirect_d(self):
+        if self.current_answers[3]["is_image"]:
+            file_name = self.current_answers[3]["image"].split("/")[3]
+            image_window(file_path + f"src/{file_name}")
+        if self.answers_type[3] == "image":
+            self.selected_answer = self.current_answers[3]["id"]
+        elif self.answers_type[3] == "text":
+            self.selected_answer = self.ui.btn_a.text()
+        self.ui.frame_d.setStyleSheet(self.selected_stylesheet)
+        self.ui.frame_a.setStyleSheet(self.default_stylesheet)
+        self.ui.frame_b.setStyleSheet(self.default_stylesheet)
+        self.ui.frame_c.setStyleSheet(self.default_stylesheet)
+
     def select_a(self):
-        self.selected_answer = self.ui.btn_a.text()
+        if self.answers_type[0] == "image":
+            self.selected_answer = self.current_answers[0]["id"]
+        elif self.answers_type[0] == "text":
+            self.selected_answer = self.ui.btn_a.text()
         self.ui.frame_a.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
         self.ui.frame_c.setStyleSheet(self.default_stylesheet)
         self.ui.frame_d.setStyleSheet(self.default_stylesheet)
 
     def select_b(self):
-        self.selected_answer = self.ui.btn_b.text()
+        if self.answers_type[1] == "image":
+            self.selected_answer = self.current_answers[1]["id"]
+        elif self.answers_type[1] == "text":
+            self.selected_answer = self.ui.btn_a.text()
         self.ui.frame_b.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_c.setStyleSheet(self.default_stylesheet)
         self.ui.frame_d.setStyleSheet(self.default_stylesheet)
 
     def select_c(self):
+        if self.answers_type[2] == "image":
+            self.selected_answer = self.current_answers[2]["id"]
+        elif self.answers_type[2] == "text":
+            self.selected_answer = self.ui.btn_a.text()
         self.selected_answer = self.ui.btn_c.text()
         self.ui.frame_c.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
@@ -429,6 +535,10 @@ class MainWindow(QMainWindow):
         self.ui.frame_d.setStyleSheet(self.default_stylesheet)
 
     def select_d(self):
+        if self.answers_type[3] == "image":
+            self.selected_answer = self.current_answers[3]["id"]
+        elif self.answers_type[3] == "text":
+            self.selected_answer = self.ui.btn_a.text()
         self.selected_answer = self.ui.btn_d.text()
         self.ui.frame_d.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
@@ -518,22 +628,38 @@ class MainWindow(QMainWindow):
                 headers=headers,
             ).json()
 
-            payload = {
-                "answer": self.selected_answer,
-                "question": self.ui.paginated_question_list[self.ui.page][
-                    question_index
-                ]["question"],
-                "user": user[0]["id"],
-            }
+            if type(self.selected_answer) == int:
+                payload = {
+                    "answer": self.selected_answer,
+                    "user": user[0]["id"],
+                }
 
-            requests.request(
-                "POST",
-                f"{api_url}/api/v1/useranswer_create/",
-                data=payload,
-                headers=headers,
-            )
+                requests.request(
+                    "POST",
+                    f"{api_url}/api/v1/useranswer_create_by_id/",
+                    data=payload,
+                    headers=headers,
+                )
+
+            elif type(self.selected_answer) == str:
+                payload = {
+                    "answer": self.selected_answer,
+                    "user": user[0]["id"],
+                }
+
+                requests.request(
+                    "POST",
+                    f"{api_url}/api/v1/useranswer_create/",
+                    data=payload,
+                    headers=headers,
+                )
 
             self.selected_answer = None
+
+            self.ui.frame_a.setStyleSheet(self.default_stylesheet)
+            self.ui.frame_b.setStyleSheet(self.default_stylesheet)
+            self.ui.frame_c.setStyleSheet(self.default_stylesheet)
+            self.ui.frame_d.setStyleSheet(self.default_stylesheet)
 
             is_answered = True
             is_finish = False
@@ -584,11 +710,30 @@ class MainWindow(QMainWindow):
                             ]["is_answered"]
 
             if not is_destroyed:
-                self.ui.question.setText(
-                    self.ui.paginated_question_list[self.ui.page][question_index][
-                        "question"
-                    ]
-                )
+
+                self.question_image_path = None
+
+                if self.ui.paginated_question_list[self.ui.page][question_index][
+                    "is_image"
+                ]:
+                    response = requests.get(
+                        f"{api_url}/{self.ui.paginated_question_list[self.ui.page][question_index]['image']}"
+                    )
+                    file_name = self.ui.paginated_question_list[self.ui.page][
+                        question_index
+                    ]["image"].split("/")[3]
+                    with open(file_path + f"src/{file_name}", "wb") as file:
+                        file.write(response.content)
+                    self.ui.question.setText(f"Suraty görmek üçin sag düwmä basyň")
+                    self.question_image_path = self.ui.paginated_question_list[
+                        self.ui.page
+                    ][question_index]["image"]
+                else:
+                    self.ui.question.setText(
+                        self.ui.paginated_question_list[self.ui.page][question_index][
+                            "question"
+                        ]
+                    )
 
                 question_id = self.ui.paginated_question_list[self.ui.page][
                     question_index
@@ -601,18 +746,15 @@ class MainWindow(QMainWindow):
                 ).json()
                 random.shuffle(self.current_answers)
 
-                label_tuple = (
-                    self.ui.btn_a,
-                    self.ui.btn_b,
-                    self.ui.btn_c,
-                    self.ui.btn_d,
-                )
-
                 for index in range(len(self.current_answers)):
                     if self.current_answers[index]["is_image"]:
-                        label_tuple[index].setPix
+                        self.answers_type[index] = "image"
+                        self.label_tuple[index].setText(
+                            f"{index + 1}. Suraty görmek üçin sag düwmä basyň"
+                        )
                     else:
-                        label_tuple[index].setText(
+                        self.answers_type[index] = "text"
+                        self.label_tuple[index].setText(
                             self.current_answers[index]["answer"]
                         )
 
@@ -962,9 +1104,48 @@ def timeout_window():
     modal_window.show()
 
 
+def image_window(pixmap_path: str):
+    global image_mod_window
+    image_mod_window = QWidget(window)
+    image_mod_window.resize(1000, 780)
+    image_mod_window.setWindowModality(Qt.WindowModality.WindowModal)
+    image_mod_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+    image_mod_window.move(
+        window.geometry().center() - image_mod_window.rect().center() - QPoint(75, 120)
+    )
+    vbox = QVBoxLayout(image_mod_window)
+    stylesheet = """
+        background-color: white;
+        border: 1px solid #7a7a7a;
+    """
+    btn_stylesheet = """
+        padding: 10px;
+        background-color: #ffffff;
+        border-radius: 15px;
+    """
+    font = QFont()
+    font.setPointSize(14)
+    image_mod_window.setLayout(vbox)
+    image_mod_window.setStyleSheet(stylesheet)
+    label = QLabel()
+    label.setPixmap(QPixmap(pixmap_path))
+    label.setScaledContents(True)
+    label.setFont(font)
+    label.setAlignment(Qt.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+    ok_btn = QPushButton("OK")
+    ok_btn.setStyleSheet(btn_stylesheet)
+    ok_btn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+    ok_btn.setFont(font)
+    vbox.addWidget(label)
+    vbox.addWidget(ok_btn, 0, Qt.AlignHCenter | Qt.AlignVCenter)
+    ok_btn.clicked.connect(lambda: image_mod_window.close())
+    image_mod_window.show()
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
     window.create_login_ui()
     window.show()
+
     sys.exit(app.exec_())

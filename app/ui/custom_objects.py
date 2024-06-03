@@ -1,4 +1,11 @@
-from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, pyqtProperty, pyqtSignal
+from PyQt5.QtCore import (
+    QEasingCurve,
+    QEvent,
+    QPropertyAnimation,
+    Qt,
+    pyqtProperty,
+    pyqtSignal,
+)
 from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QLabel, QPushButton
 
 
@@ -53,7 +60,11 @@ class PushButton(QPushButton):
 
 class ClickableLabel(QLabel):
     clicked = pyqtSignal()
+    redirect = pyqtSignal()
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
-        self.clicked.emit()
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit()
+        elif event.button() == Qt.MouseButton.RightButton:
+            self.redirect.emit()

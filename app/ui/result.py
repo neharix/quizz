@@ -18,7 +18,6 @@ class Ui_ResultWindow(object):
     def setupUi(self, ResultWindow):
         if not ResultWindow.objectName():
             ResultWindow.setObjectName("ResultWindow")
-        ResultWindow.resize(1159, 659)
         ResultWindow.setStyleSheet("background-color: #e1e1e1;")
         self.centralwidget = QWidget(ResultWindow)
         self.centralwidget.setObjectName("centralwidget")

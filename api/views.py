@@ -13,6 +13,7 @@ from .serializers import (
     AuthJournalSerializer,
     ChallengeSerializer,
     QuestionSerializer,
+    UserAnswerByIdSerializer,
     UserAnswerSerializer,
 )
 
@@ -95,6 +96,16 @@ class QuestionFilterAPIView(APIView):
 class UserAnswerAPIView(APIView):
     def post(self, request):
         serializer = UserAnswerSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"output": "Success!"})
+
+    permission_classes = (IsAuthenticated,)
+
+
+class UserAnswerByIdAPIView(APIView):
+    def post(self, request):
+        serializer = UserAnswerByIdSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"output": "Success!"})

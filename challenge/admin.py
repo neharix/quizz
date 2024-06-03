@@ -5,12 +5,12 @@ from .models import Answer, Challenge, Question, UserAnswer
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ["answer", "id", "is_true", "question", "image"]
+    list_display = ["id", "answer", "is_true", "question", "image", "is_image"]
 
 
 @admin.register(UserAnswer)
 class UserAnswerAdmin(admin.ModelAdmin):
-    list_display = ["answer", "id", "is_true", "question", "user"]
+    list_display = ["id", "answer", "is_true", "question", "user"]
     readonly_fields = ("answered_at",)
 
 
@@ -28,4 +28,4 @@ class ChallengeAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ["question", "id", "challenge", "point", "image"]
+    list_display = ["id", "question", "challenge", "point", "image", "is_image"]

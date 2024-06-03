@@ -12,6 +12,7 @@ urlpatterns = [
     path("questionlist/", QuestionListAPIView.as_view()),
     path("questionfilter/<int:pk>/", QuestionFilterAPIView.as_view()),
     path("useranswer_create/", UserAnswerAPIView.as_view()),
+    path("useranswer_create_by_id/", UserAnswerByIdAPIView.as_view()),
     path("auth-journal/create", AuthJournalAPIView.as_view()),
     path("auth-journal/<str:username>/", AuthJournalFilterAPIView.as_view()),
     path("session-auth/", include("rest_framework.urls")),

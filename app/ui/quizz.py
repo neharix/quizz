@@ -259,7 +259,7 @@ class Ui_MainWindow(object):
             self.question_id, 0, Qt.AlignHCenter | Qt.AlignTop
         )
 
-        self.question = QLabel(self.question_frame)
+        self.question = ClickableLabel(self.question_frame)
         self.question.setObjectName("question")
         font2 = QFont()
         font2.setPointSize(16)

@@ -12,8 +12,22 @@ class UserAnswerSerializer(serializers.Serializer):
     user = serializers.IntegerField()
 
     def create(self, validated_data):
-        question = Question.objects.get(question=validated_data["question"])
         answer = Answer.objects.get(answer=validated_data["answer"])
+        question = answer.question
+        user = User.objects.get(id=validated_data["user"])
+        is_true = True if answer.is_true else False
+        return UserAnswer.objects.create(
+            question=question, answer=answer, is_true=is_true, user=user
+        )
+
+
+class UserAnswerByIdSerializer(serializers.Serializer):
+    answer = serializers.IntegerField()
+    user = serializers.IntegerField()
+
+    def create(self, validated_data):
+        answer = Answer.objects.get(id=validated_data["answer"])
+        question = answer.question
         user = User.objects.get(id=validated_data["user"])
         is_true = True if answer.is_true else False
         return UserAnswer.objects.create(
@@ -24,7 +38,7 @@ class UserAnswerSerializer(serializers.Serializer):
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ("answer", "question", "is_image", "image")
+        fields = ("id", "answer", "question", "is_image", "image")
 
 
 class AuthJournalSerializer(serializers.ModelSerializer):
@@ -49,4 +63,4 @@ class ChallengeSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ("id", "question", "challenge", "point")
+        fields = ("id", "question", "challenge", "point", "is_image", "image")
