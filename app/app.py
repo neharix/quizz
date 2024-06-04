@@ -453,9 +453,14 @@ class MainWindow(QMainWindow):
 
         challenge_id = self.challenge_data[0]["id"]
 
+        headers = {"Authorization": self.token}
         url = f"{api_url}/api/v1/useranswers/{challenge_id}/"
+        challenge_url = f"{api_url}/api/v1/challenge/{challenge_id}/"
 
-        response = requests.request("GET", url).json()
+        response = requests.request("GET", url, headers=headers).json()
+        challenge_data = requests.request("GET", challenge_url, headers=headers).json()
+
+        self.result_ui.label.setText(challenge_data[0]["name"])
 
         true_answer = 0
         false_answer = 0
@@ -465,6 +470,10 @@ class MainWindow(QMainWindow):
                 true_answer += 1
             else:
                 false_answer += 1
+
+        self.result_ui.result_label1.setText(f"Dogry jogaplar: {true_answer}")
+        self.result_ui.result_label2.setText(f"Ýalňyş jogaplar: {false_answer}")
+        self.result_ui.result_label3.setText("")
 
         chartView = QChartView(self.createPieChart(true_answer, false_answer))
         self.result_ui.verticalLayout.addWidget(chartView)
@@ -670,7 +679,6 @@ class MainWindow(QMainWindow):
             ).json()
 
             if type(self.selected_answer) == int:
-                print("I'm working")
                 payload = {
                     "answer": self.selected_answer,
                     "user": user[0]["id"],
@@ -684,7 +692,6 @@ class MainWindow(QMainWindow):
                 )
 
             elif type(self.selected_answer) == str:
-                print("I'm str and I'm working")
                 payload = {
                     "answer": self.selected_answer,
                     "user": user[0]["id"],

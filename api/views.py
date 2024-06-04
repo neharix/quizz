@@ -8,14 +8,7 @@ from rest_framework.views import APIView
 from challenge.models import Answer, Challenge, Question, UserAnswer
 
 from .models import AuthJournal
-from .serializers import (
-    AnswerSerializer,
-    AuthJournalSerializer,
-    ChallengeSerializer,
-    QuestionSerializer,
-    UserAnswerByIdSerializer,
-    UserAnswerSerializer,
-)
+from .serializers import *
 
 
 def echo(request):
@@ -126,7 +119,7 @@ class GetChallengeResultAPIView(APIView):
                 answers.append(answer)
 
         queryset = answers
-        serializer = UserAnswerSerializer(queryset, many=True)
+        serializer = GetResultSerializer(queryset, many=True)
         return Response(serializer.data)
 
     permission_classes = (IsAuthenticated,)
