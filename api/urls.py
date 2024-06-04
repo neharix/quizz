@@ -15,6 +15,7 @@ urlpatterns = [
     path("useranswer_create_by_id/", UserAnswerByIdAPIView.as_view()),
     path("auth-journal/create", AuthJournalAPIView.as_view()),
     path("auth-journal/<str:username>/", AuthJournalFilterAPIView.as_view()),
+    path("useranswers/<int:id>/", GetChallengeResultAPIView.as_view()),
     path("session-auth/", include("rest_framework.urls")),
     path("auth/", include("djoser.urls")),
     re_path(r"^auth/", include("djoser.urls.authtoken")),

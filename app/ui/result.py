@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'resultSRAKbo.ui'
+## Form generated from reading UI file 'resulteopHzR.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -121,58 +121,55 @@ class Ui_ResultWindow(object):
         self.question_layout.setSpacing(0)
         self.question_layout.setObjectName("question_layout")
         self.question_layout.setContentsMargins(0, 0, 0, 0)
-        self.info_label = QLabel(self.label_frame)
-        self.info_label.setObjectName("info_label")
+        self.body_label = QLabel(self.label_frame)
+        self.body_label.setObjectName("body_label")
         font1 = QFont()
         font1.setPointSize(12)
-        self.info_label.setFont(font1)
-        self.info_label.setStyleSheet("margin: 15px;")
+        self.body_label.setFont(font1)
+        self.body_label.setStyleSheet("margin: 15px;")
 
         self.question_layout.addWidget(
-            self.info_label, 0, Qt.AlignHCenter | Qt.AlignTop
+            self.body_label, 0, Qt.AlignHCenter | Qt.AlignTop
         )
 
         self.body_layout.addWidget(self.label_frame)
 
-        self.answers_frame = QFrame(self.main_body)
-        self.answers_frame.setObjectName("answers_frame")
+        self.wrapper_frame = QFrame(self.main_body)
+        self.wrapper_frame.setObjectName("wrapper_frame")
         sizePolicy1.setHeightForWidth(
-            self.answers_frame.sizePolicy().hasHeightForWidth()
+            self.wrapper_frame.sizePolicy().hasHeightForWidth()
         )
-        self.answers_frame.setSizePolicy(sizePolicy1)
-        self.answers_frame.setStyleSheet(
+        self.wrapper_frame.setSizePolicy(sizePolicy1)
+        self.wrapper_frame.setStyleSheet(
             "padding: 0;\n"
             "background-color: #e1e1e1;\n"
             "border-radius: 20px;\n"
             "border: none;"
         )
-        self.answers_frame.setFrameShape(QFrame.StyledPanel)
-        self.answers_frame.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout = QHBoxLayout(self.answers_frame)
+        self.wrapper_frame.setFrameShape(QFrame.StyledPanel)
+        self.wrapper_frame.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout = QHBoxLayout(self.wrapper_frame)
         self.horizontalLayout.setSpacing(11)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, -1, 0, -1)
-        self.pixmap_frame = QFrame(self.answers_frame)
-        self.pixmap_frame.setObjectName("pixmap_frame")
-        self.pixmap_frame.setFrameShape(QFrame.StyledPanel)
-        self.pixmap_frame.setFrameShadow(QFrame.Raised)
-        self.verticalLayout = QVBoxLayout(self.pixmap_frame)
+        self.chart_frame = QFrame(self.wrapper_frame)
+        self.chart_frame.setObjectName("chart_frame")
+        self.chart_frame.setFrameShape(QFrame.StyledPanel)
+        self.chart_frame.setFrameShadow(QFrame.Raised)
+        self.verticalLayout = QVBoxLayout(self.chart_frame)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.pixmap = QLabel(self.pixmap_frame)
-        self.pixmap.setObjectName("pixmap")
 
-        self.verticalLayout.addWidget(self.pixmap)
+        self.horizontalLayout.addWidget(self.chart_frame)
 
-        self.horizontalLayout.addWidget(self.pixmap_frame)
-
-        self.frame = QFrame(self.answers_frame)
-        self.frame.setObjectName("frame")
-        self.frame.setStyleSheet("")
-        self.frame.setFrameShape(QFrame.StyledPanel)
-        self.frame.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_2 = QVBoxLayout(self.frame)
+        self.labels_frame = QFrame(self.wrapper_frame)
+        self.labels_frame.setObjectName("labels_frame")
+        self.labels_frame.setStyleSheet("")
+        self.labels_frame.setFrameShape(QFrame.StyledPanel)
+        self.labels_frame.setFrameShadow(QFrame.Raised)
+        self.labels_frame.setMinimumSize(QSize(521, 460))
+        self.verticalLayout_2 = QVBoxLayout(self.labels_frame)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.result_label1 = QLabel(self.frame)
+        self.result_label1 = QLabel(self.labels_frame)
         self.result_label1.setObjectName("result_label1")
         sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
@@ -185,7 +182,7 @@ class Ui_ResultWindow(object):
 
         self.verticalLayout_2.addWidget(self.result_label1)
 
-        self.result_label2 = QLabel(self.frame)
+        self.result_label2 = QLabel(self.labels_frame)
         self.result_label2.setObjectName("result_label2")
         sizePolicy2.setHeightForWidth(
             self.result_label2.sizePolicy().hasHeightForWidth()
@@ -195,7 +192,7 @@ class Ui_ResultWindow(object):
 
         self.verticalLayout_2.addWidget(self.result_label2)
 
-        self.result_label3 = QLabel(self.frame)
+        self.result_label3 = QLabel(self.labels_frame)
         self.result_label3.setObjectName("result_label3")
         sizePolicy2.setHeightForWidth(
             self.result_label3.sizePolicy().hasHeightForWidth()
@@ -205,9 +202,9 @@ class Ui_ResultWindow(object):
 
         self.verticalLayout_2.addWidget(self.result_label3)
 
-        self.horizontalLayout.addWidget(self.frame)
+        self.horizontalLayout.addWidget(self.labels_frame)
 
-        self.body_layout.addWidget(self.answers_frame)
+        self.body_layout.addWidget(self.wrapper_frame)
 
         self.container_layout.addWidget(self.main_body)
 
@@ -231,12 +228,11 @@ class Ui_ResultWindow(object):
         self.label.setText(
             QCoreApplication.translate("ResultWindow", "Challenge name", None)
         )
-        self.info_label.setText(
+        self.body_label.setText(
             QCoreApplication.translate(
                 "ResultWindow", "\u00ddary\u015f netijeleri", None
             )
         )
-        self.pixmap.setText("")
         self.result_label1.setText(
             QCoreApplication.translate("ResultWindow", "TextLabel", None)
         )

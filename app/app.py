@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 import requests
+from PyQt5.QtChart import QChart, QChartView, QPieSeries, QPieSlice
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtGui import QKeyEvent
@@ -446,6 +447,50 @@ class MainWindow(QMainWindow):
         border: none;
         """
 
+    def create_result_ui(self):
+        self.result_ui = Ui_ResultWindow()
+        self.result_ui.setupUi(self)
+
+        challenge_id = self.challenge_data[0]["id"]
+
+        url = f"{api_url}/api/v1/useranswers/{challenge_id}/"
+
+        response = requests.request("GET", url).json()
+
+        true_answer = 0
+        false_answer = 0
+
+        for obj in response:
+            if obj["is_true"]:
+                true_answer += 1
+            else:
+                false_answer += 1
+
+        chartView = QChartView(self.createPieChart(true_answer, false_answer))
+        self.result_ui.verticalLayout.addWidget(chartView)
+
+    def createPieChart(self, true_answers: int, false_answers: int):
+        chart = QChart()
+
+        total = true_answers + false_answers
+
+        true_percent = round((true_answers / total) * 100)
+        false_percent = round((false_answers / total) * 100)
+
+        series = QPieSeries()
+        serie1 = QPieSlice(
+            f"Dogry: {true_percent}%", true_percent, color=QColor("#63e870")
+        )
+        serie2 = QPieSlice(
+            f"Yalňyş: {false_percent}%", false_percent, color=QColor("#e86363")
+        )
+        series.append(serie1)
+        series.append(serie2)
+
+        chart.addSeries(series)
+
+        return chart
+
     def question_redirect(self):
         if self.current_answers[0]["is_image"]:
             file_name = self.question_image_path.split("/")[3]
@@ -545,10 +590,6 @@ class MainWindow(QMainWindow):
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
         self.ui.frame_c.setStyleSheet(self.default_stylesheet)
 
-    def create_result_ui(self):
-        self.result_ui = Ui_ResultWindow()
-        self.result_ui.setupUi(self)
-
     def select_question(self, question: str):
         question_index = int(question.split()[1]) - 1
 
@@ -629,6 +670,7 @@ class MainWindow(QMainWindow):
             ).json()
 
             if type(self.selected_answer) == int:
+                print("I'm working")
                 payload = {
                     "answer": self.selected_answer,
                     "user": user[0]["id"],
@@ -642,6 +684,7 @@ class MainWindow(QMainWindow):
                 )
 
             elif type(self.selected_answer) == str:
+                print("I'm str and I'm working")
                 payload = {
                     "answer": self.selected_answer,
                     "user": user[0]["id"],

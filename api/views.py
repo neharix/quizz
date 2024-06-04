@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from challenge.models import Answer, Challenge, Question
+from challenge.models import Answer, Challenge, Question, UserAnswer
 
 from .models import AuthJournal
 from .serializers import (
@@ -109,5 +109,24 @@ class UserAnswerByIdAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"output": "Success!"})
+
+    permission_classes = (IsAuthenticated,)
+
+
+class GetChallengeResultAPIView(APIView):
+    def get(self, request, **kwargs):
+        user = request.user
+        key = kwargs["id"]
+        challenge = Challenge.objects.get(id=key)
+        questions = Question.objects.filter(challenge=challenge)
+        user_answers = UserAnswer.objects.filter(user=user)
+        answers = []
+        for answer in user_answers:
+            if answer.question in questions:
+                answers.append(answer)
+
+        queryset = answers
+        serializer = UserAnswerSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     permission_classes = (IsAuthenticated,)

@@ -7,14 +7,13 @@ from .models import AuthJournal
 
 
 class UserAnswerSerializer(serializers.Serializer):
-    question = serializers.CharField(max_length=1000)
     answer = serializers.CharField(max_length=1000)
     user = serializers.IntegerField()
 
     def create(self, validated_data):
         answer = Answer.objects.get(answer=validated_data["answer"])
-        question = answer.question
-        user = User.objects.get(id=validated_data["user"])
+        question = Question.objects.get(pk=answer.question.pk)
+        user = User.objects.get(id=int(validated_data["user"]))
         is_true = True if answer.is_true else False
         return UserAnswer.objects.create(
             question=question, answer=answer, is_true=is_true, user=user
@@ -27,8 +26,8 @@ class UserAnswerByIdSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         answer = Answer.objects.get(id=validated_data["answer"])
-        question = answer.question
-        user = User.objects.get(id=validated_data["user"])
+        question = Question.objects.get(pk=answer.question.pk)
+        user = User.objects.get(id=int(validated_data["user"]))
         is_true = True if answer.is_true else False
         return UserAnswer.objects.create(
             question=question, answer=answer, is_true=is_true, user=user
