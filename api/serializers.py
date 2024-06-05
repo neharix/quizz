@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from challenge.models import Answer, Challenge, Question, UserAnswer
+from challenge.models import Answer, Challenge, Question, TestSession, UserAnswer
 
 from .models import AuthJournal
 
@@ -69,3 +69,13 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ("id", "question", "challenge", "point", "is_image", "image")
+
+
+class TestSessionSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    challenge = serializers.IntegerField()
+
+    def create(self, validated_data):
+        challenge = Challenge.objects.get(pk=validated_data["challenge"])
+        user = User.objects.get(pk=validated_data["user"])
+        return TestSession.objects.create(challenge=challenge, user=user)

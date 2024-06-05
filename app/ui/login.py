@@ -155,7 +155,7 @@ class Ui_LoginWindow(object):
 
     def retranslateUi(self, LoginWindow):
         LoginWindow.setWindowTitle(
-            QCoreApplication.translate("LoginWindow", "MainWindow", None)
+            QCoreApplication.translate("LoginWindow", "IT meýdança Quizz", None)
         )
         LoginWindow.setWindowFilePath("")
         self.name_label.setText(QCoreApplication.translate("LoginWindow", "Ady:", None))

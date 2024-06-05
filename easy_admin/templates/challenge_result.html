@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}
+    Dolandyryjy gurallary
+{% endblock title %}
+{% block head %}
+{% endblock head %}
+{% block body %}
+    <div class="container my-2">
+        <table class="table border-1">
+            <thead>
+                <tr class="border-bottom-line bg-light">
+                    <th scope="col">№</th>
+                    <th scope="col">Ady we Familiýasy</th>
+                    <th scope="col">Gatnaşan senesi</th>
+                    <th scope="col">Dogry jogaplar</th>
+                    <th scope="col">Ýalňyş jogaplar</th>
+                    <th scope="col">Netije</th>
+                    <th scope="col">Umumy DOCX</th>
+                    <th scope="col">Hususy DOCX</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in users %}
+                    <tr class="border-y-line">
+                        <th scope="row">{{ row.id }}</th>
+                        <td>{{ row.last_name }} {{ row.first_name }}</td>
+                        <td>{{ row.answered_at }}</td>
+                        <td>{{ row.true_answer }}</td>
+                        <td>{{ row.false_answer }}</td>
+                        <td>{{ row.percent }}</td>
+                        <td>
+                            <a href="#" class="btn btn-primary"><i class="bi bi-filetype-docx"></i></a>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-primary"><i class="bi bi-filetype-docx"></i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock body %}
+{% block scripts %}
+{% endblock scripts %}

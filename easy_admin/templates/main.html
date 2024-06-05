@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block title %}
+    Dolandyryjy gurallary
+{% endblock title %}
+{% block head %}
+{% endblock head %}
+{% block body %}
+    <div class="container my-2">
+        <table class="table border-1">
+            <thead>
+                <tr class="border-bottom-line bg-light">
+                    <th scope="col">№</th>
+                    <th scope="col">Ady we Familiýasy</th>
+                    <th scope="col">Gatnaşan senesi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in users %}
+                    <tr class="border-y-line">
+                        <th scope="row">{{ row.pk }}</th>
+                        <td>{{ row.username }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock body %}
+{% block scripts %}
+{% endblock scripts %}

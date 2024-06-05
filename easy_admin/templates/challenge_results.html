@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block title %}
+    Dolandyryjy gurallary
+{% endblock title %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/challenge_results.css' %}">
+{% endblock head %}
+{% block body %}
+    <div class="container my-2">
+        <table class="table border-1">
+            <thead>
+                <tr class="border-bottom-line bg-light">
+                    <th scope="col">№</th>
+                    <th scope="col">Testiň ady</th>
+                    <th scope="col">Dowamlylygy</th>
+                    <th scope="col">Başlamaly wagty</th>
+                    <th scope="col">Soňlanmaly wagty</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in challenges %}
+                    <tr class="table-p-75 border-y-line">
+                        <th scope="row">{{ row.id }}</th>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.time_for_event }}</td>
+                        <td>{{ row.start }}</td>
+                        <td>{{ row.end }}</td>
+                        <td>
+                            <a href="{{ row.pk }}/" class="btn btn-primary"><i class="bi bi-eye"></i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock body %}
+{% block scripts %}
+{% endblock scripts %}

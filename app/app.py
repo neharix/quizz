@@ -23,6 +23,11 @@ file_path = str(Path(__file__).parent).replace("\\", "/") + "/"
 with shelve.open(file_path + "data") as file:
     api_url = file["api_url"]
 
+try:
+    os.mkdir(file_path + "src/")
+except:
+    pass
+
 
 class TimerThread(QThread):
     def __init__(self, minutes: int, parent=None):
@@ -210,6 +215,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self)
         self.finish = pyqtSignal(str)
+        self.setWindowIcon(QIcon("icon.png"))
 
     def create_login_ui(self):
         self.login_ui = Ui_LoginWindow()
@@ -559,7 +565,7 @@ class MainWindow(QMainWindow):
 
     def select_a(self):
         if self.answers_type[0] == "image":
-            self.selected_answer = self.current_answers[0]["id"]
+            self.selected_answer = int(self.current_answers[0]["id"])
         elif self.answers_type[0] == "text":
             self.selected_answer = self.ui.btn_a.text()
         self.ui.frame_a.setStyleSheet(self.selected_stylesheet)
@@ -569,7 +575,7 @@ class MainWindow(QMainWindow):
 
     def select_b(self):
         if self.answers_type[1] == "image":
-            self.selected_answer = self.current_answers[1]["id"]
+            self.selected_answer = int(self.current_answers[1]["id"])
         elif self.answers_type[1] == "text":
             self.selected_answer = self.ui.btn_a.text()
         self.ui.frame_b.setStyleSheet(self.selected_stylesheet)
@@ -579,10 +585,9 @@ class MainWindow(QMainWindow):
 
     def select_c(self):
         if self.answers_type[2] == "image":
-            self.selected_answer = self.current_answers[2]["id"]
+            self.selected_answer = int(self.current_answers[2]["id"])
         elif self.answers_type[2] == "text":
             self.selected_answer = self.ui.btn_a.text()
-        self.selected_answer = self.ui.btn_c.text()
         self.ui.frame_c.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
@@ -590,10 +595,10 @@ class MainWindow(QMainWindow):
 
     def select_d(self):
         if self.answers_type[3] == "image":
-            self.selected_answer = self.current_answers[3]["id"]
+            self.selected_answer = int(self.current_answers[3]["id"])
         elif self.answers_type[3] == "text":
             self.selected_answer = self.ui.btn_a.text()
-        self.selected_answer = self.ui.btn_d.text()
+
         self.ui.frame_d.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
@@ -798,6 +803,12 @@ class MainWindow(QMainWindow):
 
                 for index in range(len(self.current_answers)):
                     if self.current_answers[index]["is_image"]:
+                        response = requests.get(
+                            f"{api_url}/{self.current_answers[index]['image']}"
+                        )
+                        file_name = self.current_answers[index]["image"].split("/")[3]
+                        with open(file_path + f"src/{file_name}", "wb") as file:
+                            file.write(response.content)
                         self.answers_type[index] = "image"
                         self.label_tuple[index].setText(
                             f"{index + 1}. Suraty görmek üçin sag düwmä basyň"

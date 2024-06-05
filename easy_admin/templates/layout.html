@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
     <head>
@@ -7,12 +8,29 @@
             {% block title %}
             {% endblock title %}
         - IT meýdança Quizz</title>
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+        <link rel="stylesheet"
+              href="{% static 'bootstrap-icons/font/bootstrap-icons.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/layout.css' %}">
         {% block head %}
         {% endblock head %}
     </head>
-    <body>
+    <body class="bg-smoke">
+        <header class="p-4 bg-light border-bottom-line">
+            <div>IT meýdança quizz</div>
+        </header>
         {% block body %}
         {% endblock body %}
+        <footer class="d-flex p-4 bg-light border-top-line fixed-bottom">
+            <div>
+                <b>Copyright 2024.</b> Ähli hukuklar goralan
+            </div>
+            <div class="ml-auto">
+                <i>Developed by neharix</i>
+            </div>
+        </footer>
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
         {% block scripts %}
         {% endblock scripts %}
     </body>

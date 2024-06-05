@@ -397,7 +397,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(
-            QCoreApplication.translate("MainWindow", "MainWindow", None)
+            QCoreApplication.translate("MainWindow", "IT meýdança Quizz", None)
         )
         MainWindow.setWindowFilePath("")
         self.toggle_btn.setText("")

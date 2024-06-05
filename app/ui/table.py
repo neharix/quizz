@@ -192,7 +192,7 @@ class Ui_TableWindow(object):
 
     def retranslateUi(self, TableWindow):
         TableWindow.setWindowTitle(
-            QCoreApplication.translate("TableWindow", "MainWindow", None)
+            QCoreApplication.translate("TableWindow", "IT meýdança Quizz", None)
         )
         TableWindow.setWindowFilePath("")
         self.challenge_label.setText(

@@ -222,7 +222,7 @@ class Ui_ResultWindow(object):
 
     def retranslateUi(self, ResultWindow):
         ResultWindow.setWindowTitle(
-            QCoreApplication.translate("ResultWindow", "MainWindow", None)
+            QCoreApplication.translate("ResultWindow", "IT meýdança Quizz", None)
         )
         ResultWindow.setWindowFilePath("")
         self.label.setText(

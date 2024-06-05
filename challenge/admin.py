@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Answer, Challenge, Question, UserAnswer
+from .models import Answer, Challenge, Question, TestSession, UserAnswer
 
 
 @admin.register(Answer)
@@ -29,3 +29,8 @@ class ChallengeAdmin(admin.ModelAdmin):
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ["id", "question", "challenge", "point", "image", "is_image"]
+
+
+@admin.register(TestSession)
+class TestSessionAdmin(admin.ModelAdmin):
+    list_display = ["id", "start", "end", "user", "challenge"]

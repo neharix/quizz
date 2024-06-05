@@ -46,3 +46,13 @@ class UserAnswer(models.Model):
 
     def __str__(self):
         return str(self.is_true)
+
+
+class TestSession(models.Model):
+    start = models.DateTimeField(auto_now_add=True)
+    end = models.DateTimeField(blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username} {self.challenge.name}"
