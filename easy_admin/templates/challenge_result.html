@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
+{% load static %}
 {% block title %}
     Dolandyryjy gurallary
 {% endblock title %}
 {% block head %}
+    <link rel="stylesheet" href="{% static 'css/challenge_result.css' %}">
 {% endblock head %}
 {% block body %}
     <div class="container my-2">
@@ -10,13 +12,15 @@
             <thead>
                 <tr class="border-bottom-line bg-light">
                     <th scope="col">№</th>
-                    <th scope="col">Ady we Familiýasy</th>
-                    <th scope="col">Gatnaşan senesi</th>
+                    <th scope="col">Familiýasy we Ady</th>
+                    <th scope="col">Başlan wagty</th>
+                    <th scope="col">Tamamlan wagty</th>
                     <th scope="col">Dogry jogaplar</th>
                     <th scope="col">Ýalňyş jogaplar</th>
                     <th scope="col">Netije</th>
-                    <th scope="col">Umumy DOCX</th>
+                    <th scope="col">Statusy</th>
                     <th scope="col">Hususy DOCX</th>
+                    <th scope="col">Umumy DOCX</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,12 +28,23 @@
                     <tr class="border-y-line">
                         <th scope="row">{{ row.id }}</th>
                         <td>{{ row.last_name }} {{ row.first_name }}</td>
-                        <td>{{ row.answered_at }}</td>
+                        <td>{{ row.start }}</td>
+                        <td>{{ row.end }}</td>
                         <td>{{ row.true_answer }}</td>
                         <td>{{ row.false_answer }}</td>
-                        <td>{{ row.percent }}</td>
+                        <td>{{ row.percent }}%</td>
+                        {% if row.is_finished %}
+                            <td class="true">
+                                <b>Tamamlady</b>
+                            </td>
+                        {% else %}
+                            <td class="false">
+                                <b>Dowam edýär</b>
+                            </td>
+                        {% endif %}
                         <td>
-                            <a href="#" class="btn btn-primary"><i class="bi bi-filetype-docx"></i></a>
+                            <a href="/admin/get_private/{{ row.challenge_id }}/{{ row.user_id }}/"
+                               class="btn btn-primary"><i class="bi bi-filetype-docx"></i></a>
                         </td>
                         <td>
                             <a href="#" class="btn btn-primary"><i class="bi bi-filetype-docx"></i></a>

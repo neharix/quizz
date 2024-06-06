@@ -34,3 +34,4 @@ class QuestionAdmin(admin.ModelAdmin):
 @admin.register(TestSession)
 class TestSessionAdmin(admin.ModelAdmin):
     list_display = ["id", "start", "end", "user", "challenge"]
+    readonly_fields = ("start",)

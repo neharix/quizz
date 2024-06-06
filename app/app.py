@@ -1,3 +1,4 @@
+import datetime
 import os
 import pathlib
 import random
@@ -50,7 +51,11 @@ class TimerThread(QThread):
                     stylesheet = "color: red;"
                 else:
                     stylesheet = "color: black;"
-                window.ui.label.setStyleSheet(stylesheet)
+                try:
+                    window.ui.label.setStyleSheet(stylesheet)
+                except:
+                    pass
+
             minute_str = str(self.time[0]) if self.time[0] >= 10 else f"0{self.time[0]}"
             second_str = str(self.time[1]) if self.time[1] >= 10 else f"0{self.time[1]}"
             self.time_str = minute_str + ":" + second_str
@@ -489,8 +494,15 @@ class MainWindow(QMainWindow):
 
         total = true_answers + false_answers
 
-        true_percent = round((true_answers / total) * 100)
-        false_percent = round((false_answers / total) * 100)
+        try:
+            true_percent = round((true_answers / total) * 100)
+        except ZeroDivisionError:
+            true_percent = 0
+
+        try:
+            false_percent = round((false_answers / total) * 100)
+        except:
+            false_percent = 0
 
         series = QPieSeries()
         serie1 = QPieSlice(
@@ -755,6 +767,27 @@ class MainWindow(QMainWindow):
                             self.timer_thread.quit()
                             del self.timer_thread
                             del self.ui
+
+                            end = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            headers = {"Authorization": self.token}
+
+                            user = requests.request(
+                                "GET",
+                                f"{api_url}/api/v1/auth/users/",
+                                headers=headers,
+                            ).json()
+
+                            test_session_url = f"{api_url}/api/v1/test-session-update/"
+                            requests.request(
+                                "POST",
+                                url=test_session_url,
+                                headers=headers,
+                                data={
+                                    "challenge": int(self.challenge_data[0]["id"]),
+                                    "user": int(user[0]["id"]),
+                                    "date": end,
+                                },
+                            ).json()
                             self.create_result_ui()
                             is_destroyed = True
                             break
@@ -830,8 +863,22 @@ class MainWindow(QMainWindow):
             if challenge["name"] == challenge_name:
                 selected_challenge_id = challenge["id"]
 
-        url = f"{api_url}/api/v1/questionfilter/{selected_challenge_id}/"
         headers = {"Authorization": self.token}
+        test_session_url = f"{api_url}/api/v1/test-session-create/"
+        url = f"{api_url}/api/v1/questionfilter/{selected_challenge_id}/"
+
+        user = requests.request(
+            "GET",
+            f"{api_url}/api/v1/auth/users/",
+            headers=headers,
+        ).json()
+
+        self.session = requests.request(
+            "POST",
+            url=test_session_url,
+            headers=headers,
+            data={"challenge": int(selected_challenge_id), "user": int(user[0]["id"])},
+        ).json()
 
         self.selected_challenge = requests.request(
             "GET", url=url, headers=headers
@@ -894,6 +941,12 @@ class MainWindow(QMainWindow):
 
     def finish_thread(self):
         timeout_window()
+
+    def run_timeout(self):
+        self.timer_thread.quit()
+        del self.timer_thread
+        del self.ui
+        self.create_result_ui()
 
     def accept(self):
         name = self.login_ui.name_input.text()
@@ -1155,13 +1208,13 @@ def timeout_window():
     label.setStyleSheet(label_stylesheet)
     label.setFont(font)
     label.setAlignment(Qt.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
-    ok_btn = QPushButton("Çykyş")
+    ok_btn = QPushButton("OK")
     ok_btn.setStyleSheet(btn_stylesheet)
     ok_btn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
     ok_btn.setFont(font)
     vbox.addWidget(label)
     vbox.addWidget(ok_btn, 0, Qt.AlignHCenter | Qt.AlignVCenter)
-    ok_btn.clicked.connect(lambda: app.quit())
+    ok_btn.clicked.connect(window.run_timeout)
     modal_window.show()
 
 

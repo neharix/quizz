@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from challenge.models import Challenge
+from challenge.models import Challenge, TestSession
 
 
 class ChallengeResult:
@@ -17,12 +17,24 @@ class ChallengeResult:
 
 
 class UserResult:
-    def __init__(self, number: int, user: User, user_answers: list) -> None:
+    def __init__(
+        self,
+        number: int,
+        challenge_id: int,
+        user: User,
+        user_answers: list,
+        session: TestSession,
+        is_finished: bool,
+    ) -> None:
         self.id = number
+        self.user_id = user.pk
+        self.challenge_id = challenge_id
         self.first_name = user.first_name
         self.last_name = user.last_name
+        self.start = session.start
+        self.end = session.end
+        self.is_finished = is_finished
         if len(user_answers) != 0:
-            self.answered_at = user_answers[len(user_answers) - 1].answered_at
             self.true_answer = sum(
                 [1 if answer.is_true else 0 for answer in user_answers]
             )
@@ -33,7 +45,6 @@ class UserResult:
                 (self.true_answer / (self.true_answer + self.false_answer)) * 100
             )
         else:
-            self.answered_at = None
             self.true_answer = 0
             self.false_answer = 0
             self.percent = 0

@@ -1,3 +1,5 @@
+import datetime
+
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from rest_framework import generics
@@ -126,11 +128,11 @@ class GetChallengeResultAPIView(APIView):
 
 
 class TestSessionAPIView(APIView):
-    def post(self, request):
+    def post(self, request: HttpRequest):
         serializer = TestSessionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"output": "Success!"})
+        return Response(serializer.data)
 
     permission_classes = (IsAuthenticated,)
 
@@ -140,7 +142,10 @@ class TestSessionUpdateAPIView(APIView):
         challenge = Challenge.objects.get(pk=request.data["challenge"])
         user = User.objects.get(pk=request.data["user"])
         test_session = TestSession.objects.get(challenge=challenge, user=user)
-        test_session.end = request.data["date"]
+        test_session.end = datetime.datetime.strptime(
+            request.data["date"], "%Y-%m-%d %H:%M:%S"
+        )
+        test_session.save()
         return Response({"output": "Success!"})
 
     permission_classes = (IsAuthenticated,)

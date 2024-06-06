@@ -8,5 +8,5 @@ urlpatterns = [
     path("challenge_results/", challenge_results, name="challenge_results"),
     path("challenge_results/<int:challenge_id>/", challenge_result),
     path("side/", side),
-    path("get_docx/", export_data_to_docx),
+    path("get_private/<int:challenge_id>/<int:user_id>/", export_user_result_short),
 ]

@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -74,8 +76,23 @@ class QuestionSerializer(serializers.ModelSerializer):
 class TestSessionSerializer(serializers.Serializer):
     user = serializers.IntegerField()
     challenge = serializers.IntegerField()
+    start = serializers.CharField(max_length=100, required=False)
+    end = serializers.CharField(max_length=100, required=False)
 
     def create(self, validated_data):
         challenge = Challenge.objects.get(pk=validated_data["challenge"])
-        user = User.objects.get(pk=validated_data["user"])
-        return TestSession.objects.create(challenge=challenge, user=user)
+        user = User.objects.get(id=validated_data["user"])
+        test_session = TestSession.objects.create(
+            challenge=challenge,
+            user=user,
+            end=datetime.datetime.now()
+            + datetime.timedelta(minutes=challenge.time_for_event),
+        )
+        start = test_session.start.strftime("%Y-%m-%d %H:%M:%S")
+        end = test_session.end.strftime("%Y-%m-%d %H:%M:%S")
+        return {
+            "challenge": challenge.pk,
+            "user": user.pk,
+            "start": start,
+            "end": end,
+        }
