@@ -1,13 +1,17 @@
 {% extends "layout.html" %}
 {% load static %}
 {% block title %}
-    Dolandyryjy gurallary
+    Testleri üýtgetmek
 {% endblock title %}
 {% block head %}
-    <link rel="stylesheet" href="{% static 'css/challenge_results.css' %}">
 {% endblock head %}
 {% block body %}
     <div class="container my-2">
+        <div class="my-2 d-flex">
+            <a class="btn btn-success ml-auto" href="add/">
+                <i class="bi bi-plus"></i> Test goşmak
+            </a>
+        </div>
         <table class="table border-1">
             <thead>
                 <tr class="border-bottom-line bg-light">
@@ -24,11 +28,11 @@
                     <tr class="table-p-75 border-y-line">
                         <th scope="row">{{ row.id }}</th>
                         <td>{{ row.name }}</td>
-                        <td>{{ row.time_for_event }}</td>
+                        <td>{{ row.time_for_event }} minut</td>
                         <td>{{ row.start }}</td>
                         <td>{{ row.end }}</td>
                         <td>
-                            <a href="{{ row.pk }}/" class="btn btn-primary"><i class="bi bi-eye"></i></a>
+                            <a href="edit/{{ row.pk }}/" class="btn btn-primary"><i class="bi bi-gear"></i></a> <a href="delete/{{ row.pk }}/" class="btn btn-danger"><i class="bi bi-trash3"></i></a>
                         </td>
                     </tr>
                 {% endfor %}

@@ -7,11 +7,26 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from docx import Document
-from docx.shared import RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Inches, Pt, RGBColor
 
 from challenge.models import *
 
 from .response_fields import ChallengeResult, UserResult
+
+
+def get_available_dates(challenge: Challenge):
+    sessions = TestSession.objects.filter(challenge=challenge)
+    dates = []
+    for session in sessions:
+        dates.append(session.start)
+
+    dates_str = []
+    for date in dates:
+        if date.strftime("%d.%m.%Y") not in dates_str:
+            dates_str.append(date.strftime("%d.%m.%Y"))
+
+    return dates_str
 
 
 def logout_view(request: HttpRequest):
@@ -40,18 +55,26 @@ def main(request: HttpRequest):
     return redirect("home")
 
 
-def challenge_results(request: HttpRequest):
+def challenges(request: HttpRequest):
     challenges = Challenge.objects.all()
     challenge_results = []
     for index in range(len(challenges)):
         challenge_results.append(ChallengeResult(index + 1, challenges[index]))
 
-    return render(request, "challenge_results.html", {"challenges": challenge_results})
+    return render(request, "challenges.html", {"challenges": challenge_results})
 
 
-def challenge_result(request: HttpRequest, challenge_id: int):
+def challenge_result(
+    request: HttpRequest, challenge_id: int, year=None, month=None, day=None
+):
     challenge = Challenge.objects.get(pk=challenge_id)
-    users = User.objects.filter(is_superuser=False, is_staff=False)
+    if year and month and day:
+        sessions = TestSession.objects.filter(
+            challenge=challenge, start__year=year, start__month=month, start__day=day
+        )
+    else:
+        sessions = TestSession.objects.filter(challenge=challenge)
+    users = [session.user for session in sessions]
     questions = Question.objects.filter(challenge=challenge)
 
     user_results = []
@@ -78,20 +101,47 @@ def challenge_result(request: HttpRequest, challenge_id: int):
         user_results.append(
             UserResult(pk, challenge.pk, user, user_answers, session, is_finished)
         )
-    return render(request, "challenge_result.html", {"users": user_results})
+    dates = get_available_dates(challenge)
+
+    return render(
+        request,
+        "challenge_result.html",
+        {
+            "users": user_results,
+            "challenge": challenge,
+            "dates": dates,
+            "day": day,
+            "month": month,
+            "year": year,
+        },
+    )
 
 
 def side(request: HttpRequest):
     return render(request, "side.html")
 
 
-def export_user_result_short(request: HttpRequest, challenge_id: int, user_id: int):
+def export_user_result_short(
+    request: HttpRequest,
+    challenge_id: int,
+    user_id: int,
+    year=None,
+    month=None,
+    day=None,
+):
 
     challenge = Challenge.objects.get(pk=challenge_id)
     user = User.objects.get(pk=user_id)
-    session = TestSession.objects.get(challenge=challenge, user=user)
-
-    document = Document()
+    if year and month and day:
+        session = TestSession.objects.get(
+            challenge=challenge,
+            user=user,
+            start__year=year,
+            start__month=month,
+            start__day=day,
+        )
+    else:
+        session = TestSession.objects.get(challenge=challenge, user=user)
 
     questions = Question.objects.filter(challenge=challenge)
 
@@ -114,7 +164,20 @@ def export_user_result_short(request: HttpRequest, challenge_id: int, user_id: i
     start = session.start.strftime("%Y-%m-%d %H:%M:%S")
     end = session.end.strftime("%Y-%m-%d %H:%M:%S")
 
-    document.add_heading(f'"{challenge.name}" testiň netijeleri', level=0)
+    document = Document()
+
+    style = document.styles["Normal"]
+    style.font.name = "Times New Roman"
+    style.font.size = Pt(14)
+
+    head = document.add_heading(level=0)
+
+    head.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    run = head.add_run(f'"{challenge.name}" testiň netijeleri')
+
+    run.font.name = "Times New Roman"
+    run.font.bold = True
     document.add_paragraph(f"Ady: {user.first_name}")
     document.add_paragraph(f"Familiýasy: {user.last_name}")
     document.add_paragraph(f"Başlan wagty: {start}")
@@ -127,26 +190,49 @@ def export_user_result_short(request: HttpRequest, challenge_id: int, user_id: i
     document.add_paragraph("")
     document.add_paragraph("")
 
-    document.add_paragraph("Goly:_________________".rjust(120))
+    sign = document.add_paragraph(
+        f"Goly:_________________ {user.last_name.capitalize()} {user.first_name.capitalize()}"
+    )
+
+    sign.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     buffer = BytesIO()
     document.save(buffer)
     buffer.seek(0)
 
-    return HttpResponse(
+    response = HttpResponse(
         buffer.getvalue(),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
 
+    response["Content-Disposition"] = (
+        f'attachment; filename="{user.last_name.capitalize()} {user.first_name.capitalize()}.docx"'
+    )
 
-def export_user_result(request: HttpRequest, challenge_id: int, user_id: int):
+    return response
+
+
+def export_user_result(
+    request: HttpRequest,
+    challenge_id: int,
+    user_id: int,
+    year=None,
+    month=None,
+    day=None,
+):
 
     challenge = Challenge.objects.get(pk=challenge_id)
     user = User.objects.get(pk=user_id)
-    session = TestSession.objects.get(challenge=challenge, user=user)
-
-    document = Document()
-
+    if year and month and day:
+        session = TestSession.objects.get(
+            challenge=challenge,
+            user=user,
+            start__year=year,
+            start__month=month,
+            start__day=day,
+        )
+    else:
+        session = TestSession.objects.get(challenge=challenge, user=user)
     questions = Question.objects.filter(challenge=challenge)
 
     user_answers = []
@@ -168,7 +254,19 @@ def export_user_result(request: HttpRequest, challenge_id: int, user_id: int):
     start = session.start.strftime("%Y-%m-%d %H:%M:%S")
     end = session.end.strftime("%Y-%m-%d %H:%M:%S")
 
-    document.add_heading(f'"{challenge.name}" testiň netijeleri', level=0)
+    document = Document()
+    style = document.styles["Normal"]
+    style.font.name = "Times New Roman"
+    style.font.size = Pt(14)
+
+    head = document.add_heading(level=0)
+
+    head.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    run = head.add_run(f'"{challenge.name}" testiň netijeleri')
+    run.font.name = "Times New Roman"
+    run.font.bold = True
+
     document.add_paragraph(f"Ady: {user.first_name}")
     document.add_paragraph(f"Familiýasy: {user.last_name}")
     document.add_paragraph(f"Başlan wagty: {start}")
@@ -181,7 +279,12 @@ def export_user_result(request: HttpRequest, challenge_id: int, user_id: int):
 
     pk = 0
 
-    document.add_heading(f"Jogaplar", level=0)
+    answer_head = document.add_heading(level=0)
+    answer_head.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    answer_run = answer_head.add_run("Jogaplar")
+    answer_run.font.name = "Times New Roman"
+    answer_run.font.bold = True
+
     document.add_paragraph(f"")
 
     for user_answer in user_answers:
@@ -214,13 +317,158 @@ def export_user_result(request: HttpRequest, challenge_id: int, user_id: int):
         document.add_paragraph("")
         document.add_paragraph("")
 
-    document.add_paragraph("Goly:_________________".rjust(120))
+    sign = document.add_paragraph(
+        f"Goly:_________________ {user.last_name.capitalize()} {user.first_name.capitalize()}"
+    )
+
+    sign.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     buffer = BytesIO()
     document.save(buffer)
     buffer.seek(0)
 
-    return HttpResponse(
+    response = HttpResponse(
         buffer.getvalue(),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
+
+    response["Content-Disposition"] = (
+        f'attachment; filename="{user.last_name.capitalize()} {user.first_name.capitalize()} umumy.docx"'
+    )
+
+    return response
+
+
+def export_all_results(
+    request: HttpRequest, challenge_id: int, year=None, month=None, day=None
+):
+    challenge = Challenge.objects.get(pk=challenge_id)
+    if year and month and day:
+        sessions = TestSession.objects.filter(
+            challenge=challenge, start__year=year, start__month=month, start__day=day
+        )
+    else:
+        sessions = TestSession.objects.filter(challenge=challenge)
+    users = [session.user for session in sessions]
+    questions = Question.objects.filter(challenge=challenge)
+
+    user_results = []
+    pk = 0
+    for user in users:
+        session = TestSession.objects.get(challenge=challenge, user=user)
+        now = datetime.datetime.now(datetime.timezone.utc)
+
+        timezone = pytz.timezone("Asia/Ashgabat")
+        if session.end > now.astimezone(timezone):
+            is_finished = False
+        else:
+            is_finished = True
+
+        pk += 1
+        user_answers = []
+        for question in questions:
+            try:
+                user_answers.append(
+                    UserAnswer.objects.get(user=user, question=question)
+                )
+            except:
+                pass
+        user_results.append(
+            UserResult(pk, challenge.pk, user, user_answers, session, is_finished)
+        )
+
+    document = Document()
+    style = document.styles["Normal"]
+    style.font.name = "Times New Roman"
+
+    head = document.add_heading(level=0)
+
+    head.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    run = head.add_run(f'"{challenge.name}" testiň netijeleri')
+
+    run.font.name = "Times New Roman"
+    run.font.bold = True
+
+    table = document.add_table(rows=len(user_results) + 1, cols=7)
+    table.style = "Table Grid"
+
+    for index in range(8):
+        cell = table.cell(0, index)
+        paragraph = cell.paragraphs[0]
+        if index == 3:
+            cell.width = Inches(2)
+        if index == 0:
+            run = paragraph.add_run("№")
+        elif index == 1:
+            run = paragraph.add_run("Familiýasy we Ady")
+        elif index == 2:
+            run = paragraph.add_run("Başlan wagty")
+        elif index == 3:
+            run = paragraph.add_run("Tamamlan wagty")
+        elif index == 4:
+            run = paragraph.add_run("Dogry jogaplar")
+        elif index == 5:
+            run = paragraph.add_run("Ýalňyş jogaplar")
+        elif index == 6:
+            run = paragraph.add_run("Netije")
+
+        run.font.bold = True
+
+    row_id = 1
+
+    for user_result in user_results:
+        start = user_result.start.strftime("%Y-%m-%d %H:%M:%S")
+        end = user_result.end.strftime("%Y-%m-%d %H:%M:%S")
+
+        table.cell(row_id, 0).text = f"{user_result.id}"
+
+        table.cell(row_id, 1).text = f"{user_result.last_name} {user_result.first_name}"
+        start_cell = table.cell(row_id, 2)
+        start_cell.text = f"{start}"
+        start_cell.width = Inches(2)
+        table.cell(row_id, 3).text = f"{end}"
+        table.cell(row_id, 4).text = f"{user_result.true_answer}"
+        table.cell(row_id, 5).text = f"{user_result.false_answer}"
+        table.cell(row_id, 6).text = f"{user_result.percent}%"
+
+        row_id += 1
+
+    buffer = BytesIO()
+    document.save(buffer)
+    buffer.seek(0)
+
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
+
+    response["Content-Disposition"] = f'attachment; filename="{challenge.name}.docx"'
+
+    return response
+
+
+def editable_challenges(request: HttpRequest):
+    challenges = Challenge.objects.all()
+    challenge_results = []
+    for index in range(len(challenges)):
+        challenge_results.append(ChallengeResult(index + 1, challenges[index]))
+
+    return render(
+        request, "editable_challenges.html", {"challenges": challenge_results}
+    )
+
+
+def delete_challenge(request: HttpRequest, challenge_id: int):
+    challenge = Challenge.objects.get(pk=challenge_id)
+    challenge.delete()
+    return redirect(request.META["HTTP_REFERER"])
+
+
+def edit_challenge(request: HttpRequest, challenge_id: int):
+    challenge = Challenge.objects.get(pk=challenge_id)
+    return HttpResponse(status=200)
+
+
+def add_challenge(request: HttpRequest):
+    return HttpResponse(status=200)

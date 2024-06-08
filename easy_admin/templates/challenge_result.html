@@ -1,13 +1,23 @@
 {% extends "layout.html" %}
 {% load static %}
 {% block title %}
-    Dolandyryjy gurallary
+    "{{ challenge.name }}" netijeleri
 {% endblock title %}
 {% block head %}
     <link rel="stylesheet" href="{% static 'css/challenge_result.css' %}">
 {% endblock head %}
 {% block body %}
     <div class="container my-2">
+        <div class="dropdown">
+            <button class="btn btn-primary dropbtn">Wagt boýunça almak</button>
+            <div id="dr-content" class="dropdown-content">
+                <a href="/admin/challenges/{{ challenge_id }}/">Hemmesi</a>
+            </div>
+        </div>
+        <div class="my-2">
+            <a href="/admin/get_all/{{ challenge_id }}/{% if day and month and year %}by_date/{{ year }}/{{ month }}/{{ day }}/{% endif %}"
+               class="btn btn-primary">Ýükle <i class="bi bi-filetype-docx"></i></a>
+        </div>
         <table class="table border-1">
             <thead>
                 <tr class="border-bottom-line bg-light">
@@ -57,4 +67,19 @@
     </div>
 {% endblock body %}
 {% block scripts %}
+    {{ challenge.pk|json_script:"challenge-id" }}
+    {{ dates|json_script:"dates" }}
+    <script>
+        let dropdown = document.querySelector("#dr-content");
+        let dates = JSON.parse(document.getElementById('dates').textContent);
+        const challenge_id = JSON.parse(document.getElementById("challenge-id").textContent);
+
+        for (let i = 0; i < dates.length; i++) {
+            let dropdown_item = document.createElement("a");
+            dropdown_item.innerHTML = dates[i];
+            let date_params = dates[i].split(".");
+            dropdown_item.href = "/admin/challenges/" + challenge_id + "/by_date/" + date_params[2] + "/" + date_params[1] + "/" + date_params[0] + "/";
+            dropdown.appendChild(dropdown_item);
+        } 
+    </script>
 {% endblock scripts %}
