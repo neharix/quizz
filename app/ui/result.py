@@ -170,6 +170,7 @@ class Ui_ResultWindow(object):
         self.verticalLayout_2 = QVBoxLayout(self.labels_frame)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.result_label1 = QLabel(self.labels_frame)
+        self.result_label1.setFont(font)
         self.result_label1.setObjectName("result_label1")
         sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
@@ -183,6 +184,7 @@ class Ui_ResultWindow(object):
         self.verticalLayout_2.addWidget(self.result_label1)
 
         self.result_label2 = QLabel(self.labels_frame)
+        self.result_label2.setFont(font)
         self.result_label2.setObjectName("result_label2")
         sizePolicy2.setHeightForWidth(
             self.result_label2.sizePolicy().hasHeightForWidth()
@@ -212,6 +214,7 @@ class Ui_ResultWindow(object):
 
         self.central_layout.addWidget(self.body)
 
+        self.result_label3.setFont(font)
         ResultWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(ResultWindow)

@@ -59,6 +59,11 @@ class PushButton(QPushButton):
 
 
 class ClickableLabel(QLabel):
+
+    def __init__(self, parent=None):
+        super(ClickableLabel, self).__init__(parent)
+        self.setWordWrap(True)
+
     clicked = pyqtSignal()
     redirect = pyqtSignal()
 

@@ -157,7 +157,7 @@ class AuthorizationRequestThread(QThread):
             self.login_response = requests.request(
                 "POST", login_url, headers=headers, data=login_payload, files=files
             ).json()
-            MainWindow.token = "Token " + self.login_response["auth_token"]
+            window.token = "Token " + self.login_response["auth_token"]
             self.connection_exception = False
         except requests.exceptions.ConnectionError:
             self.connection_exception = True
@@ -176,7 +176,7 @@ class ChallengeListRequestThread(QThread):
         headers = {"Authorization": self.token}
 
         try:
-            QMainWindow.challenge_list = requests.request(
+            window.challenge_list = requests.request(
                 "GET", url, headers=headers, data=payload, files=files
             ).json()
             self.connection_exception = False
@@ -381,7 +381,23 @@ class MainWindow(QMainWindow):
         ).json()
         random.shuffle(self.current_answers)
 
-        self.label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
+        if len(self.current_answers) == 3:
+            self.label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c)
+            self.ui.btn_d.setEnabled(False)
+            self.ui.btn_d.setHidden(True)
+            self.ui.frame_d.setEnabled(False)
+            self.ui.frame_d.setHidden(True)
+        elif len(self.current_answers) == 4:
+            self.label_tuple = (
+                self.ui.btn_a,
+                self.ui.btn_b,
+                self.ui.btn_c,
+                self.ui.btn_d,
+            )
+            self.ui.btn_d.setEnabled(True)
+            self.ui.btn_d.setHidden(False)
+            self.ui.frame_d.setEnabled(True)
+            self.ui.frame_d.setHidden(False)
 
         for index in range(len(self.current_answers)):
             if self.current_answers[index]["is_image"]:
@@ -543,7 +559,7 @@ class MainWindow(QMainWindow):
         if self.answers_type[1] == "image":
             self.selected_answer = self.current_answers[1]["id"]
         elif self.answers_type[1] == "text":
-            self.selected_answer = self.ui.btn_a.text()
+            self.selected_answer = self.ui.btn_b.text()
         self.ui.frame_b.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_c.setStyleSheet(self.default_stylesheet)
@@ -556,7 +572,7 @@ class MainWindow(QMainWindow):
         if self.answers_type[2] == "image":
             self.selected_answer = self.current_answers[2]["id"]
         elif self.answers_type[2] == "text":
-            self.selected_answer = self.ui.btn_a.text()
+            self.selected_answer = self.ui.btn_c.text()
         self.ui.frame_c.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
@@ -569,7 +585,7 @@ class MainWindow(QMainWindow):
         if self.answers_type[3] == "image":
             self.selected_answer = self.current_answers[3]["id"]
         elif self.answers_type[3] == "text":
-            self.selected_answer = self.ui.btn_a.text()
+            self.selected_answer = self.ui.btn_d.text()
         self.ui.frame_d.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
@@ -580,6 +596,7 @@ class MainWindow(QMainWindow):
             self.selected_answer = int(self.current_answers[0]["id"])
         elif self.answers_type[0] == "text":
             self.selected_answer = self.ui.btn_a.text()
+            print(self.ui.btn_a.text())
         self.ui.frame_a.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
         self.ui.frame_c.setStyleSheet(self.default_stylesheet)
@@ -589,7 +606,7 @@ class MainWindow(QMainWindow):
         if self.answers_type[1] == "image":
             self.selected_answer = int(self.current_answers[1]["id"])
         elif self.answers_type[1] == "text":
-            self.selected_answer = self.ui.btn_a.text()
+            self.selected_answer = self.ui.btn_b.text()
         self.ui.frame_b.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_c.setStyleSheet(self.default_stylesheet)
@@ -599,7 +616,7 @@ class MainWindow(QMainWindow):
         if self.answers_type[2] == "image":
             self.selected_answer = int(self.current_answers[2]["id"])
         elif self.answers_type[2] == "text":
-            self.selected_answer = self.ui.btn_a.text()
+            self.selected_answer = self.ui.btn_c.text()
         self.ui.frame_c.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
@@ -609,7 +626,7 @@ class MainWindow(QMainWindow):
         if self.answers_type[3] == "image":
             self.selected_answer = int(self.current_answers[3]["id"])
         elif self.answers_type[3] == "text":
-            self.selected_answer = self.ui.btn_a.text()
+            self.selected_answer = self.ui.btn_d.text()
 
         self.ui.frame_d.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
@@ -833,6 +850,24 @@ class MainWindow(QMainWindow):
                     headers={"Authorization": self.token},
                 ).json()
                 random.shuffle(self.current_answers)
+
+                if len(self.current_answers) == 3:
+                    self.label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c)
+                    self.ui.btn_d.setEnabled(False)
+                    self.ui.btn_d.setHidden(True)
+                    self.ui.frame_d.setEnabled(False)
+                    self.ui.frame_d.setHidden(True)
+                elif len(self.current_answers) == 4:
+                    self.label_tuple = (
+                        self.ui.btn_a,
+                        self.ui.btn_b,
+                        self.ui.btn_c,
+                        self.ui.btn_d,
+                    )
+                    self.ui.btn_d.setEnabled(True)
+                    self.ui.btn_d.setHidden(False)
+                    self.ui.frame_d.setEnabled(True)
+                    self.ui.frame_d.setHidden(False)
 
                 for index in range(len(self.current_answers)):
                     if self.current_answers[index]["is_image"]:
