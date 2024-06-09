@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block title %}
+    Test döretmek
+{% endblock title %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/add_challenge.css' %}">
+{% endblock head %}
+{% block body %}
+    <div class="container my-3">
+        <div class="row bg-light rounded p-2">
+            <form method="post" id="challenge-form">
+                {% csrf_token %}
+                {{ form }}
+                <div class="d-flex">
+                    <button type="submit" class="btn btn-primary ml-auto">Tassyklamak</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock body %}
+{% block scripts %}
+    <script>
+    let date_start = document.querySelector("#id_date_start");
+    let date_finish = document.querySelector("#id_date_finish");
+
+    date_start.type = "datetime-local";
+    date_finish.type = "datetime-local";
+    </script>
+{% endblock scripts %}

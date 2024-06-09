@@ -1,0 +1,25 @@
+from django import forms
+
+from challenge.models import Challenge
+
+bootstrap_attr = {"class": "form-control my-2"}
+
+
+class ChallengeForm(forms.ModelForm):
+
+    name = forms.CharField(label="Ady", widget=forms.TextInput(attrs=bootstrap_attr))
+    date_start = forms.DateTimeField(
+        label="Başlamaly wagty",
+        widget=forms.DateTimeInput(attrs=bootstrap_attr, format="%d.%m.%Y %H:%M"),
+    )
+    date_finish = forms.DateTimeField(
+        label="Gutarmaly wagty",
+        widget=forms.DateTimeInput(attrs=bootstrap_attr, format="%d.%m.%Y %H:%M"),
+    )
+    time_for_event = forms.IntegerField(
+        label="Test üçin berlen wagt", widget=forms.NumberInput(attrs=bootstrap_attr)
+    )
+
+    class Meta:
+        model = Challenge
+        fields = ("name", "date_start", "date_finish", "time_for_event")

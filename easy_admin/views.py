@@ -6,12 +6,14 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
+from django.views import generic
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt, RGBColor
 
 from challenge.models import *
 
+from .forms import ChallengeForm
 from .response_fields import ChallengeResult, UserResult
 
 
@@ -467,8 +469,15 @@ def delete_challenge(request: HttpRequest, challenge_id: int):
 
 def edit_challenge(request: HttpRequest, challenge_id: int):
     challenge = Challenge.objects.get(pk=challenge_id)
+
     return HttpResponse(status=200)
 
 
 def add_challenge(request: HttpRequest):
-    return HttpResponse(status=200)
+    if request.method == "POST":
+        form = ChallengeForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+        return redirect("editable_challenges")
+    context = {"form": ChallengeForm()}
+    return render(request, "add_challenge.html", context)
