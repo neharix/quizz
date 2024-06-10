@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block title %}
+    "{{ challenge.name }}" üýtgetmek
+{% endblock title %}
+{% block head %}
+{% endblock head %}
+{% block body %}
+    <div class="container my-2">
+        {% if questions|length < 4 %}
+            <div class="my-2 d-flex">
+                <a class="btn btn-success ml-auto" href="add_question/">
+                    <i class="bi bi-plus-circle"></i> Sorag goşmak
+                </a>
+            </div>
+        {% else %}
+            <div class="my-2 d-flex">
+                <button class="btn btn-success disabled ml-auto" href="add_question/">
+                    <i class="bi bi-plus-circle"></i> Ýeterlikli sorag girizildi
+                </button>
+            </div>
+        {% endif %}
+        <div class="my-2">
+            <table class="table border-1 rounded">
+                <thead>
+                    <tr class="border-bottom-line bg-light">
+                        <th scope="col">№</th>
+                        <th scope="col">Sorag</th>
+                        <th scope="col">Suratmy?</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in questions %}
+                        <tr class="border-y-line">
+                            <th scope="row">{{ row.id }}</th>
+                            {% if row.is_image %}
+                                <td>
+                                    <a class="link link-dark" href="/media/{{ row.image }}/">Sorag ID: {{ row.pk }}</a>
+                                </td>
+                                <td>
+                                    <i class="bi bi-check-circle-fill"
+                                       style="color: rgb(0, 215, 0) !important"></i>
+                                </td>
+                            {% else %}
+                                <td>{{ row.question|truncatewords:16 }}</td>
+                                <td>
+                                    <i class="bi bi-x-circle-fill" style="color: red !important"></i>
+                                </td>
+                            {% endif %}
+                            <td>
+                                <a href="edit_question/{{ row.pk }}/" class="btn btn-primary"><i class="bi bi-gear"></i></a> <a href="delete_question/{{ row.pk }}/" class="btn btn-danger"><i class="bi bi-trash3"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock body %}
+{% block scripts %}
+{% endblock scripts %}

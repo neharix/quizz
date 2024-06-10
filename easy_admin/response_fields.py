@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from challenge.models import Challenge, TestSession
+from challenge.models import Challenge, Question, TestSession
 
 
 class ChallengeResult:
@@ -11,6 +11,18 @@ class ChallengeResult:
         self.end = challenge.date_finish
         self.time_for_event = challenge.time_for_event
         self.pk = challenge.pk
+
+    def __str__(self):
+        return self.name
+
+
+class FQuestion:
+    def __init__(self, number: int, question: Question):
+        self.id = number
+        self.question = question.question
+        self.is_image = question.is_image
+        self.image = question.image
+        self.pk = question.pk
 
     def __str__(self):
         return self.name

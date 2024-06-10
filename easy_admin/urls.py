@@ -10,6 +10,18 @@ urlpatterns = [
     path("editable_challenges/add/", add_challenge),
     path("editable_challenges/delete/<int:challenge_id>/", delete_challenge),
     path("editable_challenges/edit/<int:challenge_id>/", edit_challenge),
+    path(
+        "editable_challenges/edit/<int:challenge_id>/edit_question/<int:question_id>/",
+        edit_question,
+    ),
+    path(
+        "editable_challenges/edit/<int:challenge_id>/delete_question/<int:question_id>/",
+        delete_question,
+    ),
+    path(
+        "editable_challenges/edit/<int:challenge_id>/add_question/",
+        add_question,
+    ),
     path("challenges/<int:challenge_id>/", challenge_result),
     path(
         "challenges/<int:challenge_id>/by_date/<int:year>/<int:month>/<int:day>/",

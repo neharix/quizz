@@ -1,8 +1,9 @@
 from django import forms
 
-from challenge.models import Challenge
+from challenge.models import Challenge, Question
 
 bootstrap_attr = {"class": "form-control my-2"}
+bootstrap_for_textarea = {"class": "form-control my-2", "rows": "2"}
 
 
 class ChallengeForm(forms.ModelForm):
@@ -23,3 +24,20 @@ class ChallengeForm(forms.ModelForm):
     class Meta:
         model = Challenge
         fields = ("name", "date_start", "date_finish", "time_for_event")
+
+
+class QuestionForm(forms.ModelForm):
+
+    question = forms.CharField(
+        label="Ady", widget=forms.Textarea(attrs=bootstrap_for_textarea), required=False
+    )
+    image = forms.ImageField(
+        label="Surat", widget=forms.FileInput(attrs=bootstrap_attr), required=False
+    )
+    point = forms.IntegerField(
+        label="Utuk sany", widget=forms.NumberInput(attrs=bootstrap_attr)
+    )
+
+    class Meta:
+        model = Question
+        fields = ("question", "image", "point", "challenge")

@@ -13,8 +13,8 @@ from docx.shared import Inches, Pt, RGBColor
 
 from challenge.models import *
 
-from .forms import ChallengeForm
-from .response_fields import ChallengeResult, UserResult
+from .forms import ChallengeForm, QuestionForm
+from .response_fields import ChallengeResult, FQuestion, UserResult
 
 
 def get_available_dates(challenge: Challenge):
@@ -469,8 +469,14 @@ def delete_challenge(request: HttpRequest, challenge_id: int):
 
 def edit_challenge(request: HttpRequest, challenge_id: int):
     challenge = Challenge.objects.get(pk=challenge_id)
-
-    return HttpResponse(status=200)
+    questions = Question.objects.filter(challenge=challenge)
+    formatted_questions = []
+    pk = 1
+    for question in questions:
+        formatted_questions.append(FQuestion(pk, question))
+        pk += 1
+    context = {"challenge": challenge, "questions": formatted_questions}
+    return render(request, "edit_challenge.html", context)
 
 
 def add_challenge(request: HttpRequest):
@@ -481,3 +487,48 @@ def add_challenge(request: HttpRequest):
         return redirect("editable_challenges")
     context = {"form": ChallengeForm()}
     return render(request, "add_challenge.html", context)
+
+
+def add_question(request: HttpRequest, challenge_id: int):
+    challenge = Challenge.objects.get(pk=challenge_id)
+
+    url_path = request.get_full_path()
+    url_list = url_path.split("/")
+    url_list.remove("add_question")
+    url = "/".join(url_list)
+    protocol_meta = request.META.get("SERVER_PROTOCOL").split("/")
+    
+    questions_count = len(Question.objects.filter(challenge=challenge))
+    if questions_count >= 4:
+        return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
+
+    if request.method == "POST":
+        form = QuestionForm(request.POST, request.FILES)
+        if form.is_valid():
+            image = form.cleaned_data.get("image")
+            print(image)
+            data = form.save()
+            question = Question.objects.get(pk=data.pk)
+            if image is None:
+                question.is_image = False
+            else:
+                question.is_image = True
+            question.save()
+
+        return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
+
+    context = {"challenge": challenge, "form": QuestionForm()}
+    return render(request, "add_question.html", context)
+
+
+def edit_question(request: HttpRequest, challenge_id: int, question_id: int):
+    challenge = Challenge.objects.get(pk=challenge_id)
+    question = Question.objects.get(pk=question_id)
+    context = {"challenge": challenge, "question": question}
+    return render(request, "edit_question.html", context)
+
+
+def delete_question(request: HttpRequest, challenge_id: int, question_id: int):
+    question = Question.objects.get(pk=question_id)
+    question.delete()
+    return redirect(request.META["HTTP_REFERER"])
