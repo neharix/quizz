@@ -1,6 +1,6 @@
 from django import forms
 
-from challenge.models import Challenge, Question
+from challenge.models import Challenge, Complexity, Question
 
 bootstrap_attr = {"class": "form-control my-2"}
 bootstrap_for_textarea = {"class": "form-control my-2", "rows": "1"}
@@ -27,7 +27,6 @@ class ChallengeForm(forms.ModelForm):
 
 
 class QuestionForm(forms.ModelForm):
-
     question = forms.CharField(
         label="Ady", widget=forms.Textarea(attrs=bootstrap_for_textarea), required=False
     )
@@ -40,4 +39,4 @@ class QuestionForm(forms.ModelForm):
 
     class Meta:
         model = Question
-        fields = ("question", "image", "point", "challenge")
+        fields = ("question", "image", "point", "challenge", "complexity")

@@ -22,6 +22,7 @@ class FQuestion:
         self.question = question.question
         self.is_image = question.is_image
         self.image = question.image
+        self.complexity = question.complexity
         self.pk = question.pk
 
     def __str__(self):
