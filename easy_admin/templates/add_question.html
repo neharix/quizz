@@ -4,10 +4,22 @@
     "{{ challenge.name }}" testine sorag goşmak
 {% endblock title %}
 {% block head %}
+    <link rel="stylesheet" href="{% static 'css/toggle.css' %}">
 {% endblock head %}
 {% block body %}
     <div class="container my-4">
         <div class="row bg-light rounded p-2">
+            <div class="d-flex justify-content-center">
+                <div class="toggle">
+                    <input type="radio" id="choice1" name="choice">
+                    <label for="choice1">Surat</label>
+                    <input type="radio" id="choice2" name="choice">
+                    <label style="padding-left: 60px;" for="choice2">Tekst</label>
+                    <div id="flap">
+                        <span class="content">productive</span>
+                    </div>
+                </div>
+            </div>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %} {{ form }}
                 <div class="d-flex">
@@ -19,6 +31,7 @@
 {% endblock body %}
 {% block scripts %}
     {{ challenge.pk|json_script:"challenge-id" }}
+    <script src="{% static 'js/toggle.js' %}"></script>
     <script>
     let challenge = JSON.parse(document.getElementById('challenge-id').textContent);
     let select = document.querySelector("#id_challenge");

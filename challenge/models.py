@@ -8,6 +8,7 @@ class Question(models.Model):
     image = models.ImageField(upload_to="questions/", null=True, blank=True)
     challenge = models.ForeignKey("Challenge", on_delete=models.CASCADE)
     point = models.IntegerField()
+    complexity = models.ForeignKey("Complexity", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.question
@@ -56,3 +57,10 @@ class TestSession(models.Model):
 
     def __str__(self):
         return f"{self.user.username} {self.challenge.name}"
+
+
+class Complexity(models.Model):
+    level = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.level

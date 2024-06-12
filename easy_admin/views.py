@@ -497,7 +497,7 @@ def add_question(request: HttpRequest, challenge_id: int):
     url_list.remove("add_question")
     url = "/".join(url_list)
     protocol_meta = request.META.get("SERVER_PROTOCOL").split("/")
-    
+
     questions_count = len(Question.objects.filter(challenge=challenge))
     if questions_count >= 4:
         return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")

@@ -3,7 +3,7 @@ from django import forms
 from challenge.models import Challenge, Question
 
 bootstrap_attr = {"class": "form-control my-2"}
-bootstrap_for_textarea = {"class": "form-control my-2", "rows": "2"}
+bootstrap_for_textarea = {"class": "form-control my-2", "rows": "1"}
 
 
 class ChallengeForm(forms.ModelForm):

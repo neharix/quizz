@@ -1,11 +1,16 @@
 from django.contrib import admin
 
-from .models import Answer, Challenge, Question, TestSession, UserAnswer
+from .models import Answer, Challenge, Complexity, Question, TestSession, UserAnswer
 
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ["id", "answer", "is_true", "question", "image", "is_image"]
+
+
+@admin.register(Complexity)
+class ComplexityAdmin(admin.ModelAdmin):
+    list_display = ["id", "level"]
 
 
 @admin.register(UserAnswer)
@@ -28,7 +33,15 @@ class ChallengeAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ["id", "question", "challenge", "point", "image", "is_image"]
+    list_display = [
+        "id",
+        "question",
+        "challenge",
+        "point",
+        "image",
+        "is_image",
+        "complexity",
+    ]
 
 
 @admin.register(TestSession)
