@@ -15,6 +15,10 @@ urlpatterns = [
         edit_question,
     ),
     path(
+        "editable_challenges/edit/<int:challenge_id>/edit_question/<int:question_id>/add_answer/",
+        add_answer,
+    ),
+    path(
         "editable_challenges/edit/<int:challenge_id>/delete_question/<int:question_id>/",
         delete_question,
     ),

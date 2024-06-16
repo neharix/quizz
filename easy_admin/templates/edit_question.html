@@ -1,12 +1,122 @@
 {% extends "layout.html" %}
 {% load static %}
 {% block title %}
-    "{{ challenge.name }}" testiniň soragyny üýtgetmek
+    Soragy üýtgetmek
 {% endblock title %}
 {% block head %}
+    <link rel="stylesheet" href="{% static 'css/toggle.css' %}">
 {% endblock head %}
 {% block body %}
-    <div class="container my-2"></div>
+    <div class="container my-4">
+        <div class="row bg-light rounded p-2">
+            <div class="d-flex justify-content-center">
+                <div class="toggle">
+                    <input type="radio" id="choice1" name="choice">
+                    <label for="choice1">Surat</label>
+                    <input type="radio" id="choice2" name="choice">
+                    <label style="padding-left: 60px;" for="choice2">Tekst</label>
+                    <div id="flap">
+                        <span class="content">Surat</span>
+                    </div>
+                </div>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    <label for="id_question">Sorag:</label>
+                    <textarea name="question"
+                              cols="40"
+                              rows="1"
+                              required
+                              class="form-control my-2"
+                              id="id_question">{% if question.question is not None %}{{ question.question }}{% endif %}</textarea>
+                </div>
+                <div style="display: none;">
+                    <label for="id_image">Sorag:</label>
+                    <input type="file"
+                           name="image"
+                           class="form-control my-2"
+                           accept="image/*"
+                           id="id_image">
+                </div>
+                <div style="font-size: 0.8rem; cursor: default;">
+                    {% if question.is_image %}
+                        <div>
+                            <b>Görnüşi:</b> Surat
+                        </div>
+                        <div>
+                            <b>Salgy:</b> <a class="link link-primary" href="/media/{{ question.image }}">{{ question.image }}</a>
+                        </div>
+                    {% else %}
+                        <div>
+                            <b>Görnüşi:</b> Tekst
+                        </div>
+                        <div style="color: transparent;">Nothing</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="id_point">Utuk sany:</label>
+                    <input type="number"
+                           value="{{ question.point }}"
+                           name="point"
+                           class="form-control my-2"
+                           id="id_point">
+                </div>
+                <div>
+                    <label for="id_complexity">Derejesi:</label>
+                    <select name="complexity" id="id_complexity" class="form-control my-2">
+                        {% for complexity in complexities %}
+                            <option {% if complexity.pk == selected_complexity %}selected{% endif %}
+                                    value="{{ complexity.pk }}">{{ complexity.level }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="d-none">
+                    <input type="number" value="{{ question.pk }}">
+                </div>
+                <div class="d-flex">
+                    <button class="btn btn-secondary"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasRight"
+                            aria-controls="offcanvasRight">
+                        <i class="bi bi-clock-history"></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary ml-auto">Tassyklamak</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="offcanvas offcanvas-end"
+         tabindex="-1"
+         id="offcanvasRight"
+         aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasRightLabel">Soragyň jogaplary</h5>
+            <button type="button"
+                    class="btn-close text-reset"
+                    data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="d-flex ml-auto">
+                <a class="btn btn-success ml-auto" href="add_answer/">
+                    <i class="bi bi-plus-circle"></i> Jogap goşmak
+                </a>
+            </div>
+            {% for answer in answers %}
+                <div class="border mt-2 rounded-2 bg-white">
+                    <div class='h6 m-2 mb-3' style='color: gray;'>Jogap ID: {{ answer.pk }}</div>
+                    <div class="m-2 mb-2">
+                        <a href="edit_answer/{{ answer.pk }}/" class="btn btn-outline-secondary">Üýtgetmek</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock body %}
 {% block scripts %}
+    {{ question.pk|json_script:"question-id" }}
+    {{ question.question|json_script:"q-question" }}
+    <script src="{% static 'js/edit_question.js' %}"></script>
 {% endblock scripts %}

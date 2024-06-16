@@ -30,19 +30,16 @@
     </div>
 {% endblock body %}
 {% block scripts %}
-    {{ challenge.pk|json_script:"challenge-id" }}
-    <script src="{% static 'js/add_question.js' %}"></script>
+    {{ question.pk|json_script:"question-id" }}
+    <script src="{% static 'js/add_answer.js' %}"></script>
     <script>
-    let challenge = JSON.parse(document.getElementById('challenge-id').textContent);
-    let select = document.querySelector("#id_challenge");
+    let question = JSON.parse(document.getElementById('question-id').textContent);
+    let select = document.querySelector("#id_question");
     for (let i = 0; i < select.length; i++) {
-        if (Number(select.options[i].value) == challenge) {
+        if (Number(select.options[i].value) == question) {
             select.options[i].selected = true;
         }
     }
     select.parentElement.style = "display: none;"
-
-    let complexity_select = document.getElementById("id_complexity");
-    complexity_select.setAttribute("class", "form-control my-2");
     </script>
 {% endblock scripts %}

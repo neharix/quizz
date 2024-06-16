@@ -13,7 +13,7 @@ from docx.shared import Inches, Pt, RGBColor
 
 from challenge.models import *
 
-from .forms import ChallengeForm, QuestionForm
+from .forms import AnswerForm, ChallengeForm, QuestionForm
 from .response_fields import ChallengeResult, FQuestion, UserResult
 
 
@@ -522,9 +522,38 @@ def add_question(request: HttpRequest, challenge_id: int):
 
 
 def edit_question(request: HttpRequest, challenge_id: int, question_id: int):
-    challenge = Challenge.objects.get(pk=challenge_id)
     question = Question.objects.get(pk=question_id)
-    context = {"challenge": challenge, "question": question}
+    if request.method == "POST":
+        if request.POST.get("question") != "":
+            question.question = request.POST.get("question")
+            question.image = None
+            question.is_image = False
+
+        else:
+            question.image = request.FILES.get("image")
+            question.question = None
+            question.is_image = True
+
+        question.point = request.POST.get("point")
+        complexity = Complexity.objects.get(pk=request.POST.get("complexity"))
+        question.complexity = complexity
+        question.save()
+
+        url_path = request.get_full_path()
+        url_list = url_path.split("/")
+        url_list.remove(f"{question_id}")
+        url_list.remove(f"edit_question")
+        url = "/".join(url_list)
+        protocol_meta = request.META.get("SERVER_PROTOCOL").split("/")
+
+        return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
+
+    context = {
+        "question": question,
+        "answers": Answer.objects.filter(question=question),
+        "complexities": Complexity.objects.all(),
+        "selected_complexity": question.complexity.pk,
+    }
     return render(request, "edit_question.html", context)
 
 
@@ -532,3 +561,34 @@ def delete_question(request: HttpRequest, challenge_id: int, question_id: int):
     question = Question.objects.get(pk=question_id)
     question.delete()
     return redirect(request.META["HTTP_REFERER"])
+
+
+def add_answer(request: HttpRequest, challenge_id: int, question_id: int):
+    question = Question.objects.get(pk=question_id)
+
+    url_path = request.get_full_path()
+    url_list = url_path.split("/")
+    url_list.remove("add_answer")
+    url = "/".join(url_list)
+    protocol_meta = request.META.get("SERVER_PROTOCOL").split("/")
+
+    answers_count = len(Answer.objects.filter(question=question))
+    if answers_count >= 4:
+        return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
+
+    if request.method == "POST":
+        form = AnswerForm(request.POST, request.FILES)
+        if form.is_valid():
+            image = form.cleaned_data.get("image")
+            data = form.save()
+            answer = Answer.objects.get(pk=data.pk)
+            if image is None:
+                answer.is_image = False
+            else:
+                answer.is_image = True
+            answer.save()
+
+        return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
+
+    context = {"challenge": question, "form": AnswerForm()}
+    return render(request, "add_answer.html", context)

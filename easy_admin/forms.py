@@ -1,6 +1,6 @@
 from django import forms
 
-from challenge.models import Challenge, Complexity, Question
+from challenge.models import Answer, Challenge, Complexity, Question
 
 bootstrap_attr = {"class": "form-control my-2"}
 bootstrap_for_textarea = {"class": "form-control my-2", "rows": "1"}
@@ -28,10 +28,12 @@ class ChallengeForm(forms.ModelForm):
 
 class QuestionForm(forms.ModelForm):
     question = forms.CharField(
-        label="Ady", widget=forms.Textarea(attrs=bootstrap_for_textarea), required=False
+        label="Sorag",
+        widget=forms.Textarea(attrs=bootstrap_for_textarea),
+        required=False,
     )
     image = forms.ImageField(
-        label="Surat", widget=forms.FileInput(attrs=bootstrap_attr), required=False
+        label="Sorag", widget=forms.FileInput(attrs=bootstrap_attr), required=False
     )
     point = forms.IntegerField(
         label="Utuk sany", widget=forms.NumberInput(attrs=bootstrap_attr)
@@ -40,3 +42,23 @@ class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ("question", "image", "point", "challenge", "complexity")
+
+
+class AnswerForm(forms.ModelForm):
+    answer = forms.CharField(
+        label="Sorag",
+        widget=forms.Textarea(attrs=bootstrap_for_textarea),
+        required=False,
+    )
+    image = forms.ImageField(
+        label="Sorag", widget=forms.FileInput(attrs=bootstrap_attr), required=False
+    )
+    is_true = forms.BooleanField(
+        label="Dogry jogapmy?",
+        widget=forms.CheckboxInput(attrs={"class": "form-check"}),
+        required=False,
+    )
+
+    class Meta:
+        model = Answer
+        fields = ("answer", "image", "question", "is_true")

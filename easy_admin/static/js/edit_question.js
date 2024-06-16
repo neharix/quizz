@@ -3,6 +3,8 @@ let textarea_block = document.querySelector("#id_question").parentElement;
 let textarea = document.querySelector("#id_question");
 let image_block = document.querySelector("#id_image").parentElement;
 let image = document.querySelector("#id_image");
+let question_text = JSON.parse(document.getElementById('q-question').textContent);
+
 
 image_block.style = "display: none;";
 
@@ -16,16 +18,22 @@ st.flap.addEventListener('transitionend', () => {
 
     if (st.choice1.checked) {
         st.toggle.style.transform = 'rotateY(-15deg)';
+        textarea.innerHTML = "";
         textarea.value = "";
+        textarea.removeAttribute("required");
+        image.setAttribute("required", "");
         textarea_block.style = "display: none;";
         image_block.style = "display: block;";
         setTimeout(() => st.toggle.style.transform = '', 400);
-
     } else {
         st.toggle.style.transform = 'rotateY(15deg)';
         image.value = "";
         image_block.style = "display: none;";
+        image.removeAttribute("required");
+        textarea.setAttribute("required", "");
         textarea_block.style = "display: block;";
+        textarea.innerHTML = question_text;
+        textarea.value = question_text;
         setTimeout(() => st.toggle.style.transform = '', 400);
     }
 
