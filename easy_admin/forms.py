@@ -46,16 +46,16 @@ class QuestionForm(forms.ModelForm):
 
 class AnswerForm(forms.ModelForm):
     answer = forms.CharField(
-        label="Sorag",
+        label="Jogap",
         widget=forms.Textarea(attrs=bootstrap_for_textarea),
         required=False,
     )
     image = forms.ImageField(
-        label="Sorag", widget=forms.FileInput(attrs=bootstrap_attr), required=False
+        label="Jogap", widget=forms.FileInput(attrs=bootstrap_attr), required=False
     )
     is_true = forms.BooleanField(
-        label="Dogry jogapmy?",
-        widget=forms.CheckboxInput(attrs={"class": "form-check"}),
+        label="",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
         required=False,
     )
 

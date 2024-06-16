@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block title %}
+    Jogaby üýtgetmek
+{% endblock title %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/toggle.css' %}">
+{% endblock head %}
+{% block body %}
+    <div class="container my-4">
+        <div class="row bg-light rounded p-2">
+            <div class="d-flex justify-content-center">
+                <div class="toggle">
+                    <input type="radio" id="choice1" name="choice">
+                    <label for="choice1">Surat</label>
+                    <input type="radio" id="choice2" name="choice">
+                    <label style="padding-left: 60px;" for="choice2">Tekst</label>
+                    <div id="flap">
+                        <span class="content">Surat</span>
+                    </div>
+                </div>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    <label for="id_answer">Jogap:</label>
+                    <textarea name="answer"
+                              cols="40"
+                              rows="1"
+                              required
+                              class="form-control my-2"
+                              id="id_answer">{% if answer.answer is not None %}{{ answer.answer }}{% endif %}</textarea>
+                </div>
+                <div style="display: none;">
+                    <label for="id_image">Jogap:</label>
+                    <input type="file"
+                           name="image"
+                           class="form-control my-2"
+                           accept="image/*"
+                           id="id_image">
+                </div>
+                <div style="font-size: 0.8rem; cursor: default;">
+                    {% if answer.is_image %}
+                        <div>
+                            <b>Görnüşi:</b> Surat
+                        </div>
+                        <div>
+                            <b>Salgy:</b> <a class="link link-primary" href="/media/{{ answer.image }}">{{ answer.image }}</a>
+                        </div>
+                    {% else %}
+                        <div>
+                            <b>Görnüşi:</b> Tekst
+                        </div>
+                        <div style="color: transparent;">0</div>
+                    {% endif %}
+                </div>
+                <div class="form-check form-switch my-2">
+                    Dogry jogapmy?
+                    <input type="checkbox"
+                           class="form-check-input"
+                           id="id_is_true"
+                           {% if answer.is_true %}checked{% endif %}>
+                </div>
+                <div class="d-none">
+                    <input type="text"
+                           id="is_true"
+                           name="is_true"
+                           value="{% if answer.is_true %}true{% else %}false{% endif %}">
+                </div>
+                <div class="d-flex my-4">
+                    <button type="submit" class="btn btn-primary ml-auto">Tassyklamak</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock body %}
+{% block scripts %}
+    {{ answer.answer|json_script:"a-answer" }}
+    <script src="{% static 'js/edit_answer.js' %}"></script>
+{% endblock scripts %}

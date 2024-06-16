@@ -7,19 +7,57 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 {% endblock head %}
 {% block body %}
-    <div class="container my-2 d-flex justify-content-center">
-        <div class="card card-width">
-            <div class="card-body">
-                <h5 class="card-title">URL</h5>
-                <div>
-                    <a href="{% url 'challenges' %}">Challenge Results</a>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light" id="sidebar">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2">
+                    <p class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                        <span class="fs-5 d-none d-sm-inline">Gurallar</span>
+                    </p>
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+                        id="menu">
+                        <li class="nav-item">
+                            <a href="{% url 'challenges' %}" class="nav-link align-middle px-0">
+                                <i class="bi-list"></i> <span class="ms-1 d-none d-sm-inline">Ýaryşlaryň netijeleri</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'editable_challenges' %}"
+                               class="nav-link px-0 align-middle">
+                                <i class="bi-pen"></i> <span class="ms-1 d-none d-sm-inline">Ýaryşlary üýtgetmek</span> </a>
+                        </li>
+                    </ul>
                 </div>
-                <div>
-                    <a href="{% url 'editable_challenges' %}">Edit Challenges</a>
+            </div>
+            <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="m-0">api</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <a href="/superuser/api/authjournal/">Auth journals</a>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group float-right">
+                                            <a href="/superuser/api/authjournal/add/"
+                                               class="btn btn-xs btn-success addlink">Add</a>
+                                            <a href="/superuser/api/authjournal/"
+                                               class="btn btn-xs btn-info changelink">Change</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 {% endblock body %}
 {% block scripts %}
+    <script src="{% static 'js/window_size.js' %}"></script>
 {% endblock scripts %}

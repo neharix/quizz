@@ -498,10 +498,6 @@ def add_question(request: HttpRequest, challenge_id: int):
     url = "/".join(url_list)
     protocol_meta = request.META.get("SERVER_PROTOCOL").split("/")
 
-    questions_count = len(Question.objects.filter(challenge=challenge))
-    if questions_count >= 4:
-        return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
-
     if request.method == "POST":
         form = QuestionForm(request.POST, request.FILES)
         if form.is_valid():
@@ -577,6 +573,7 @@ def add_answer(request: HttpRequest, challenge_id: int, question_id: int):
         return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
 
     if request.method == "POST":
+        print(request.POST)
         form = AnswerForm(request.POST, request.FILES)
         if form.is_valid():
             image = form.cleaned_data.get("image")
@@ -590,5 +587,45 @@ def add_answer(request: HttpRequest, challenge_id: int, question_id: int):
 
         return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
 
-    context = {"challenge": question, "form": AnswerForm()}
+    context = {"question": question, "form": AnswerForm()}
     return render(request, "add_answer.html", context)
+
+
+def delete_answer(
+    request: HttpRequest, challenge_id: int, question_id: int, answer_id: int
+):
+    answer = Answer.objects.get(pk=answer_id)
+    answer.delete()
+    return redirect(request.META["HTTP_REFERER"])
+
+
+def edit_answer(
+    request: HttpRequest, challenge_id: int, question_id: int, answer_id: int
+):
+    answer = Answer.objects.get(pk=answer_id)
+    if request.method == "POST":
+        print(request.POST)
+        if request.POST.get("answer") != "":
+            answer.answer = request.POST.get("answer")
+            answer.image = None
+            answer.is_image = False
+        else:
+            answer.image = request.FILES.get("image")
+            answer.answer = None
+            answer.is_image = True
+        answer.is_true = (
+            True if request.POST.get("is_true").lower() == "true" else False
+        )
+        answer.save()
+
+        url_path = request.get_full_path()
+        url_list = url_path.split("/")
+        url_list.remove(f"{answer_id}")
+        url_list.remove(f"edit_answer")
+        url = "/".join(url_list)
+        protocol_meta = request.META.get("SERVER_PROTOCOL").split("/")
+
+        return redirect(f"{protocol_meta[0].lower()}://{request.get_host()}{url}")
+
+    context = {"answer": answer}
+    return render(request, "edit_answer.html", context)

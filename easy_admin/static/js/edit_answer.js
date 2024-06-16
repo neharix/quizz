@@ -4,13 +4,16 @@ let textarea = document.querySelector("#id_answer");
 let image_block = document.querySelector("#id_image").parentElement;
 let image = document.querySelector("#id_image");
 let is_true_checkbox = document.querySelector("#id_is_true");
+let answer_text = JSON.parse(document.querySelector("#a-answer").textContent);
+let is_true_field = document.querySelector("#is_true");
 
-
-
-is_true_checkbox.parentElement.setAttribute("class", "form-check form-switch");
-is_true_checkbox.parentElement.innerHTML = "Dogry jogapmy?" + is_true_checkbox.parentElement.innerHTML;
-
-
+is_true_checkbox.addEventListener("change", function() {
+    if (this.checked) {
+        is_true_field.value = "true";
+    } else {
+        is_true_field.value = ""
+    }
+})
 
 image_block.style = "display: none;";
 
@@ -38,8 +41,8 @@ st.flap.addEventListener('transitionend', () => {
         image.removeAttribute("required");
         textarea.setAttribute("required", "");
         textarea_block.style = "display: block;";
-        textarea.innerHTML = "";
-        textarea.value = "";
+        textarea.innerHTML = answer_text;
+        textarea.value = answer_text;
         setTimeout(() => st.toggle.style.transform = '', 400);
     }
 
