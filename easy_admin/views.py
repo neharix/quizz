@@ -1,6 +1,8 @@
 import datetime
 from io import BytesIO
 
+import numpy as np
+import pandas as pd
 import pytz
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
@@ -629,3 +631,40 @@ def edit_answer(
 
     context = {"answer": answer}
     return render(request, "edit_answer.html", context)
+
+
+def import_from_xlsx(request: HttpRequest):
+    if request.method == "POST":
+        dataframe = pd.read_excel(request.FILES.get("excel"))
+        challenge_name = dataframe["Ady"][0]
+        challenge_date_start = dataframe["Başlamaly wagty"][0]
+        challenge_date_finish = dataframe["Gutarmaly wagty"][0]
+        challenge_time = dataframe["Berlen wagt"][0]
+
+        if type(challenge_date_start) == pd._libs.tslibs.timestamps.Timestamp:
+            challenge_date_start = challenge_date_start.to_pydatetime()
+        elif type(challenge_date_start) == str:
+            challenge_date_start = datetime.datetime.strptime(
+                challenge_date_start, "%d.%m.%Y %H:%M:%S"
+            )
+
+        if type(challenge_date_finish) == pd._libs.tslibs.timestamps.Timestamp:
+            challenge_date_finish = challenge_date_finish.to_pydatetime()
+        elif type(challenge_date_finish) == str:
+            challenge_date_finish = datetime.datetime.strptime(
+                challenge_date_finish, "%d.%m.%Y %H:%M:%S"
+            )
+
+        if type(challenge_time) == np.int64:
+            challenge_time = challenge_time.astype(int)
+        elif type(challenge_time) == str:
+            challenge_time = int(challenge_time)
+
+        challenge = Challenge.objects.create(
+            name=challenge_name,
+            date_start=challenge_date_start,
+            date_finish=challenge_date_finish,
+            time_for_event=challenge_time,
+        )
+
+    return render(request, "import_from_xlsx.html")

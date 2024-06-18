@@ -369,14 +369,12 @@ class Ui_MainWindow(object):
 
         self.body_layout.addWidget(self.answers_frame)
 
+        font9 = QFont()
+        font9.setPointSize(14)
+
         self.next_question = PushButton(self.main_body)
         self.next_question.setObjectName("next_question")
-        icon4 = QIcon()
-        icon4.addFile(
-            ":/icons/bootstrap-icons/arrow-right.svg", QSize(), QIcon.Normal, QIcon.Off
-        )
-        self.next_question.setIcon(icon4)
-
+        self.next_question.setFont(font9)
         self.body_layout.addWidget(
             self.next_question, 0, Qt.AlignRight | Qt.AlignBottom
         )
@@ -427,7 +425,7 @@ class Ui_MainWindow(object):
         self.btn_b.setText(QCoreApplication.translate("MainWindow", "b", None))
         self.btn_c.setText(QCoreApplication.translate("MainWindow", "c", None))
         self.btn_d.setText(QCoreApplication.translate("MainWindow", "d", None))
-        self.next_question.setText("")
+        self.next_question.setText("Tassyklamak")
         # if QT_CONFIG(shortcut)
 
 

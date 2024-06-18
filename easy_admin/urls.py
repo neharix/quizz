@@ -5,6 +5,7 @@ from .views import *
 
 urlpatterns = [
     path("", main, name="easy_tools"),
+    path("challenges/import_from_xlsx/", import_from_xlsx, name="import_from_xlsx"),
     path("challenges/", challenges, name="challenges"),
     path("editable_challenges/", editable_challenges, name="editable_challenges"),
     path("editable_challenges/add/", add_challenge),

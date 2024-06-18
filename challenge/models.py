@@ -35,7 +35,7 @@ class Answer(models.Model):
     is_true = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.pk) + ". " + self.answer
+        return str(self.pk) + ". " + str(self.answer)
 
 
 class UserAnswer(models.Model):

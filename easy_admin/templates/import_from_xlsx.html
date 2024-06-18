@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block title %}
+    Testleriň netijeleri
+{% endblock title %}
+{% block head %}
+{% endblock head %}
+{% block body %}
+    <div class="container my-2">
+        <div class="row my-4 p-4 rounded bg-light">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" class="form-control" accept=".xlsx" name="excel">
+                <div class="d-flex">
+                    <button type="submit" class="btn btn-primary mt-4 ml-auto">Tassyklamak</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock body %}
+{% block scripts %}
+{% endblock scripts %}

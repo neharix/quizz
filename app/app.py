@@ -220,7 +220,6 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self)
         self.finish = pyqtSignal(str)
-        self.setWindowIcon(QIcon("icon.png"))
 
     def create_login_ui(self):
         self.login_ui = Ui_LoginWindow()
@@ -371,7 +370,7 @@ class MainWindow(QMainWindow):
             self.ui.question.setText(
                 self.ui.paginated_question_list[self.ui.page][0]["question"]
             )
-
+        self.question_index = 0
         question_id = self.ui.paginated_question_list[self.ui.page][0]["id"]
 
         self.current_answers = requests.request(
@@ -535,7 +534,9 @@ class MainWindow(QMainWindow):
         return chart
 
     def question_redirect(self):
-        if self.current_answers[0]["is_image"]:
+        if self.ui.paginated_question_list[self.ui.page][self.question_index][
+            "is_image"
+        ]:
             file_name = self.question_image_path.split("/")[3]
             image_window(file_path + f"src/{file_name}")
 
@@ -840,6 +841,7 @@ class MainWindow(QMainWindow):
                         ]
                     )
 
+                self.question_index = question_index
                 question_id = self.ui.paginated_question_list[self.ui.page][
                     question_index
                 ]["id"]
