@@ -7,11 +7,23 @@
 {% endblock head %}
 {% block body %}
     <div class="container my-2">
+        {% if message %}
+            <div class="alert alert-{% if type == 'success' %}success{% else %}danger{% endif %} fade show"
+                 role="alert">{{ message }}</div>
+        {% endif %}
         <div class="row my-4 p-4 rounded bg-light">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <input type="file" class="form-control" accept=".xlsx" name="excel">
+                <label for="file">Faýl:</label>
+                <input id="file"
+                       type="file"
+                       class="form-control my-2"
+                       accept=".xlsx"
+                       name="excel">
                 <div class="d-flex">
+                    <a href="{% static 'xlsx/nusga.xlsx' %}"
+                       download
+                       class="btn btn-outline-secondary mt-4">Nusga</a>
                     <button type="submit" class="btn btn-primary mt-4 ml-auto">Tassyklamak</button>
                 </div>
             </form>

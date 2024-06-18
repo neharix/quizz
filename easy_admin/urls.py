@@ -40,7 +40,6 @@ urlpatterns = [
         "challenges/<int:challenge_id>/by_date/<int:year>/<int:month>/<int:day>/",
         challenge_result,
     ),
-    path("side/", side),
     path("get_private/<int:challenge_id>/<int:user_id>/", export_user_result_short),
     path(
         "get_private/<int:challenge_id>/<int:user_id>/by_date/<int:year>/<int:month>/<int:day>/",

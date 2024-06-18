@@ -121,10 +121,6 @@ def challenge_result(
     )
 
 
-def side(request: HttpRequest):
-    return render(request, "side.html")
-
-
 def export_user_result_short(
     request: HttpRequest,
     challenge_id: int,
@@ -660,11 +656,57 @@ def import_from_xlsx(request: HttpRequest):
         elif type(challenge_time) == str:
             challenge_time = int(challenge_time)
 
-        challenge = Challenge.objects.create(
-            name=challenge_name,
-            date_start=challenge_date_start,
-            date_finish=challenge_date_finish,
-            time_for_event=challenge_time,
+        if Challenge.objects.filter(name=challenge_name).exists():
+            return render(
+                request,
+                "import_from_xlsx.html",
+                context={"message": "Eýýäm maglumat gorunda ýerleşdirilen!"},
+            )
+        else:
+            challenge = Challenge.objects.create(
+                name=challenge_name,
+                date_start=challenge_date_start,
+                date_finish=challenge_date_finish,
+                time_for_event=challenge_time,
+            )
+            for index in range(len(dataframe["Sorag"])):
+                try:
+                    question_text = dataframe["Sorag"][index]
+                    print(dataframe["Derejesi"][index])
+                    complexity = Complexity.objects.get(
+                        level=dataframe["Derejesi"][index]
+                    )
+                    question = Question.objects.create(
+                        question=question_text,
+                        challenge=challenge,
+                        point=1,
+                        complexity=complexity,
+                    )
+                    true_answer = (
+                        dataframe["Dogry jogap"][index]
+                        if type(dataframe["Dogry jogap"][index]) == int
+                        else int(dataframe["Dogry jogap"][index])
+                    )
+                    for i in range(1, 5):
+                        if type(dataframe[f"{i}-nji jogap"][index]) != float:
+                            answer_text = dataframe[f"{i}-nji jogap"][index]
+                            answer = (
+                                Answer.objects.create(
+                                    answer=answer_text, question=question, is_true=True
+                                )
+                                if true_answer == i
+                                else Answer.objects.create(
+                                    answer=answer_text, question=question
+                                )
+                            )
+                except:
+                    continue
+        return render(
+            request,
+            "import_from_xlsx.html",
+            context={
+                "message": "Maglumat gorunda ýatda saklanyldy!",
+                "type": "success",
+            },
         )
-
     return render(request, "import_from_xlsx.html")
