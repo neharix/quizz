@@ -1,9 +1,10 @@
 {% extends "layout.html" %}
 {% load static %}
 {% block title %}
-    Testleriň netijeleri
+    Excel arkaly import
 {% endblock title %}
 {% block head %}
+    <link rel="stylesheet" href="{% static 'css/toggle.css' %}">
 {% endblock head %}
 {% block body %}
     <div class="container my-2">
@@ -11,15 +12,37 @@
             <div class="alert alert-{% if type == 'success' %}success{% else %}danger{% endif %} fade show"
                  role="alert">{{ message }}</div>
         {% endif %}
-        <div class="row my-4 p-4 rounded bg-light">
+        <div class="row mt-4 p-4 rounded bg-light"
+             style="margin-bottom: 200px !important">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <label for="file">Faýl:</label>
+                <label for="file">Excel:</label>
                 <input id="file"
                        type="file"
                        class="form-control my-2"
                        accept=".xlsx"
                        name="excel">
+                <div class="form-check form-switch my-2">
+                    Surat galyby
+                    <input type="checkbox" class="form-check-input" id="image_checkbox">
+                </div>
+                <div class="justify-content-center"
+                     id="toggle-wrap"
+                     style="display: none !important">
+                    <div class="toggle">
+                        <input type="radio" id="choice1" name="choice">
+                        <label for="choice1">Surat</label>
+                        <input type="radio" id="choice2" name="choice">
+                        <label style="padding-left: 60px;" for="choice2">ZIP</label>
+                        <div id="flap">
+                            <span class="content">ZIP</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="filebox" class="my-2" style="display: none !important;">
+                    <label for="zipfile" class="my-2">ZIP faýl:</label>
+                    <input type="file" class="form-control my-2" id="zipfile">
+                </div>
                 <div class="d-flex">
                     <a href="{% static 'xlsx/nusga.xlsx' %}"
                        download
@@ -31,4 +54,5 @@
     </div>
 {% endblock body %}
 {% block scripts %}
+    <script src="{% static 'js/xlsx_import.js' %}"></script>
 {% endblock scripts %}

@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "api.apps.ApiConfig",
     "challenge.apps.ChallengeConfig",
     "easy_admin.apps.EasyAdminConfig",
-    "bootstrap_datepicker_plus",
     "rest_framework",
     "rest_framework.authtoken",
     "djoser",
