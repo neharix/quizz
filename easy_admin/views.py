@@ -1,4 +1,6 @@
 import datetime
+import os
+import zipfile
 from io import BytesIO
 
 import numpy as np
@@ -6,6 +8,7 @@ import pandas as pd
 import pytz
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.views import generic
@@ -632,27 +635,84 @@ def edit_answer(
 def import_from_xlsx(request: HttpRequest, challenge_id: int):
     if request.method == "POST":
         dataframe = pd.read_excel(request.FILES.get("excel"))
-        zip_file = request.FILES.get("zip", None)
+        zip_file_memory = request.FILES.get("zip", None)
+        if zip_file_memory is not None:
+            zip_file = BytesIO(zip_file_memory.read())
+            with zipfile.ZipFile(zip_file, "r") as file:
+                images = file.namelist()
         challenge = Challenge.objects.get(pk=challenge_id)
 
         for index in range(len(dataframe["Sorag"])):
-            try:
-                question_text = dataframe["Sorag"][index]
-                complexity = Complexity.objects.get(level=dataframe["Derejesi"][index])
-                question = Question.objects.create(
+            is_image = False
+            question_text = dataframe["Sorag"][index]
+            if (
+                question_text[0:2] == "{{"
+                and question_text[len(question_text) - 2 : len(question_text)] == "}}"
+            ):
+                filename = question_text.split('"')[1]
+                if filename in images:
+                    is_image = True
+                    with zipfile.ZipFile(zip_file, "r") as file:
+                        file.extract(filename, f"temp/{filename}")
+                    with open(f"temp/{filename}/{filename}", "rb") as file:
+                        image = file.read()
+                    os.remove(f"temp/{filename}/{filename}")
+                    os.rmdir(f"temp/{filename}")
+            complexity = Complexity.objects.get(level=dataframe["Derejesi"][index])
+            question = (
+                Question.objects.create(
                     question=question_text,
                     challenge=challenge,
                     point=1,
                     complexity=complexity,
                 )
-                true_answer = (
-                    dataframe["Dogry jogap"][index]
-                    if type(dataframe["Dogry jogap"][index]) == int
-                    else int(dataframe["Dogry jogap"][index])
+                if is_image == False
+                else Question.objects.create(
+                    challenge=challenge,
+                    point=1,
+                    complexity=complexity,
+                    is_image=is_image,
+                    image=ContentFile(image, filename),
                 )
-                for i in range(1, 5):
-                    if type(dataframe[f"{i}-nji jogap"][index]) != float:
-                        answer_text = dataframe[f"{i}-nji jogap"][index]
+            )
+            true_answer = (
+                dataframe["Dogry jogap"][index]
+                if type(dataframe["Dogry jogap"][index]) == int
+                else int(dataframe["Dogry jogap"][index])
+            )
+            for i in range(1, 5):
+                if type(dataframe[f"{i}-nji jogap"][index]) != float:
+                    is_image = False
+                    answer_text = dataframe[f"{i}-nji jogap"][index]
+                    if (
+                        answer_text[0:2] == "{{"
+                        and answer_text[len(answer_text) - 2 : len(answer_text)] == "}}"
+                    ):
+                        filename = answer_text.split('"')[1]
+                        if filename in images:
+                            is_image = True
+                            with zipfile.ZipFile(zip_file, "r") as file:
+                                file.extract(filename, f"temp/{filename}")
+                            with open(f"temp/{filename}/{filename}", "rb") as file:
+                                image = file.read()
+                            os.remove(f"temp/{filename}/{filename}")
+                            os.rmdir(f"temp/{filename}")
+                    if is_image:
+                        answer = (
+                            Answer.objects.create(
+                                image=ContentFile(image, filename),
+                                question=question,
+                                is_true=True,
+                                is_image=is_image,
+                            )
+                            if true_answer == i
+                            else Answer.objects.create(
+                                image=ContentFile(image, filename),
+                                question=question,
+                                is_image=is_image,
+                            )
+                        )
+                    else:
                         answer = (
                             Answer.objects.create(
                                 answer=answer_text, question=question, is_true=True
@@ -662,7 +722,10 @@ def import_from_xlsx(request: HttpRequest, challenge_id: int):
                                 answer=answer_text, question=question
                             )
                         )
-            except:
-                continue
 
+        return render(
+            request,
+            "import_from_xlsx.html",
+            {"type": "success", "message": "Maglumat gorunda üstünlikli girizildi!"},
+        )
     return render(request, "import_from_xlsx.html")
