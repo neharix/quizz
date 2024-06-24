@@ -629,84 +629,40 @@ def edit_answer(
     return render(request, "edit_answer.html", context)
 
 
-def import_from_xlsx(request: HttpRequest):
+def import_from_xlsx(request: HttpRequest, challenge_id: int):
     if request.method == "POST":
         dataframe = pd.read_excel(request.FILES.get("excel"))
-        challenge_name = dataframe["Ady"][0]
-        challenge_date_start = dataframe["Başlamaly wagty"][0]
-        challenge_date_finish = dataframe["Gutarmaly wagty"][0]
-        challenge_time = dataframe["Berlen wagt"][0]
+        zip_file = request.FILES.get("zip", None)
+        challenge = Challenge.objects.get(pk=challenge_id)
 
-        if type(challenge_date_start) == pd._libs.tslibs.timestamps.Timestamp:
-            challenge_date_start = challenge_date_start.to_pydatetime()
-        elif type(challenge_date_start) == str:
-            challenge_date_start = datetime.datetime.strptime(
-                challenge_date_start, "%d.%m.%Y %H:%M:%S"
-            )
-
-        if type(challenge_date_finish) == pd._libs.tslibs.timestamps.Timestamp:
-            challenge_date_finish = challenge_date_finish.to_pydatetime()
-        elif type(challenge_date_finish) == str:
-            challenge_date_finish = datetime.datetime.strptime(
-                challenge_date_finish, "%d.%m.%Y %H:%M:%S"
-            )
-
-        if type(challenge_time) == np.int64:
-            challenge_time = challenge_time.astype(int)
-        elif type(challenge_time) == str:
-            challenge_time = int(challenge_time)
-
-        if Challenge.objects.filter(name=challenge_name).exists():
-            return render(
-                request,
-                "import_from_xlsx.html",
-                context={"message": "Eýýäm maglumat gorunda ýerleşdirilen!"},
-            )
-        else:
-            challenge = Challenge.objects.create(
-                name=challenge_name,
-                date_start=challenge_date_start,
-                date_finish=challenge_date_finish,
-                time_for_event=challenge_time,
-            )
-            for index in range(len(dataframe["Sorag"])):
-                try:
-                    question_text = dataframe["Sorag"][index]
-                    print(dataframe["Derejesi"][index])
-                    complexity = Complexity.objects.get(
-                        level=dataframe["Derejesi"][index]
-                    )
-                    question = Question.objects.create(
-                        question=question_text,
-                        challenge=challenge,
-                        point=1,
-                        complexity=complexity,
-                    )
-                    true_answer = (
-                        dataframe["Dogry jogap"][index]
-                        if type(dataframe["Dogry jogap"][index]) == int
-                        else int(dataframe["Dogry jogap"][index])
-                    )
-                    for i in range(1, 5):
-                        if type(dataframe[f"{i}-nji jogap"][index]) != float:
-                            answer_text = dataframe[f"{i}-nji jogap"][index]
-                            answer = (
-                                Answer.objects.create(
-                                    answer=answer_text, question=question, is_true=True
-                                )
-                                if true_answer == i
-                                else Answer.objects.create(
-                                    answer=answer_text, question=question
-                                )
+        for index in range(len(dataframe["Sorag"])):
+            try:
+                question_text = dataframe["Sorag"][index]
+                complexity = Complexity.objects.get(level=dataframe["Derejesi"][index])
+                question = Question.objects.create(
+                    question=question_text,
+                    challenge=challenge,
+                    point=1,
+                    complexity=complexity,
+                )
+                true_answer = (
+                    dataframe["Dogry jogap"][index]
+                    if type(dataframe["Dogry jogap"][index]) == int
+                    else int(dataframe["Dogry jogap"][index])
+                )
+                for i in range(1, 5):
+                    if type(dataframe[f"{i}-nji jogap"][index]) != float:
+                        answer_text = dataframe[f"{i}-nji jogap"][index]
+                        answer = (
+                            Answer.objects.create(
+                                answer=answer_text, question=question, is_true=True
                             )
-                except:
-                    continue
-        return render(
-            request,
-            "import_from_xlsx.html",
-            context={
-                "message": "Maglumat gorunda ýatda saklanyldy!",
-                "type": "success",
-            },
-        )
+                            if true_answer == i
+                            else Answer.objects.create(
+                                answer=answer_text, question=question
+                            )
+                        )
+            except:
+                continue
+
     return render(request, "import_from_xlsx.html")
