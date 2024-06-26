@@ -35,13 +35,10 @@ class QuestionForm(forms.ModelForm):
     image = forms.ImageField(
         label="Sorag", widget=forms.FileInput(attrs=bootstrap_attr), required=False
     )
-    point = forms.IntegerField(
-        label="Utuk sany", widget=forms.NumberInput(attrs=bootstrap_attr)
-    )
 
     class Meta:
         model = Question
-        fields = ("question", "image", "point", "challenge", "complexity")
+        fields = ("question", "image", "challenge", "complexity")
 
 
 class AnswerForm(forms.ModelForm):

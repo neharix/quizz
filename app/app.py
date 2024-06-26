@@ -17,13 +17,11 @@ from ui.quizz import Ui_MainWindow
 from ui.result import Ui_ResultWindow
 from ui.table import Ui_TableWindow
 
-file_path = str(Path(__file__).parent).replace("\\", "/") + "/"
-
-with shelve.open(file_path + "data") as file:
+with shelve.open(str(Path(__file__).parent).replace("\\", "/") + "/data") as file:
     api_url = file["api_url"]
 
 try:
-    os.mkdir(file_path + "src/")
+    os.mkdir("C:/quizz_cache")
 except:
     pass
 
@@ -358,7 +356,7 @@ class MainWindow(QMainWindow):
             file_name = self.ui.paginated_question_list[self.ui.page][0]["image"].split(
                 "/"
             )[3]
-            with open(file_path + f"src/{file_name}", "wb") as file:
+            with open(f"C:/quizz_cache/{file_name}", "wb") as file:
                 file.write(response.content)
             self.ui.question.setText(f"Suraty görmek üçin sag düwmä basyň")
             self.question_image_path = self.ui.paginated_question_list[self.ui.page][0][
@@ -402,7 +400,7 @@ class MainWindow(QMainWindow):
                     f"{api_url}/{self.current_answers[index]['image']}"
                 )
                 file_name = self.current_answers[index]["image"].split("/")[3]
-                with open(file_path + f"src/{file_name}", "wb") as file:
+                with open(f"C:/quizz_cache/{file_name}", "wb") as file:
                     file.write(response.content)
                 self.answers_type[index] = "image"
                 self.label_tuple[index].setText(
@@ -504,6 +502,7 @@ class MainWindow(QMainWindow):
 
     def createPieChart(self, true_answers: int, false_answers: int):
         chart = QChart()
+        chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
 
         total = true_answers + false_answers
 
@@ -521,9 +520,15 @@ class MainWindow(QMainWindow):
         serie1 = QPieSlice(
             f"Dogry: {true_percent}%", true_percent, color=QColor("#63e870")
         )
+        serie1.setLabelVisible(True)
+        serie1.setPen(QPen(Qt.GlobalColor.gray))
+
         serie2 = QPieSlice(
             f"Yalňyş: {false_percent}%", false_percent, color=QColor("#e86363")
         )
+        serie2.setLabelVisible(True)
+        serie2.setPen(QPen(Qt.GlobalColor.gray))
+
         series.append(serie1)
         series.append(serie2)
 
@@ -536,12 +541,12 @@ class MainWindow(QMainWindow):
             "is_image"
         ]:
             file_name = self.question_image_path.split("/")[3]
-            image_window(file_path + f"src/{file_name}")
+            image_window(f"C:/quizz_cache/{file_name}")
 
     def redirect_a(self):
         if self.current_answers[0]["is_image"]:
             file_name = self.current_answers[0]["image"].split("/")[3]
-            image_window(file_path + f"src/{file_name}")
+            image_window(f"C:/quizz_cache/{file_name}")
         if self.answers_type[0] == "image":
             self.selected_answer = self.current_answers[0]["id"]
         elif self.answers_type[0] == "text":
@@ -554,7 +559,7 @@ class MainWindow(QMainWindow):
     def redirect_b(self):
         if self.current_answers[1]["is_image"]:
             file_name = self.current_answers[1]["image"].split("/")[3]
-            image_window(file_path + f"src/{file_name}")
+            image_window(f"C:/quizz_cache/{file_name}")
         if self.answers_type[1] == "image":
             self.selected_answer = self.current_answers[1]["id"]
         elif self.answers_type[1] == "text":
@@ -567,7 +572,7 @@ class MainWindow(QMainWindow):
     def redirect_c(self):
         if self.current_answers[2]["is_image"]:
             file_name = self.current_answers[2]["image"].split("/")[3]
-            image_window(file_path + f"src/{file_name}")
+            image_window(f"C:/quizz_cache/{file_name}")
         if self.answers_type[2] == "image":
             self.selected_answer = self.current_answers[2]["id"]
         elif self.answers_type[2] == "text":
@@ -580,7 +585,7 @@ class MainWindow(QMainWindow):
     def redirect_d(self):
         if self.current_answers[3]["is_image"]:
             file_name = self.current_answers[3]["image"].split("/")[3]
-            image_window(file_path + f"src/{file_name}")
+            image_window(f"C:/quizz_cache/{file_name}")
         if self.answers_type[3] == "image":
             self.selected_answer = self.current_answers[3]["id"]
         elif self.answers_type[3] == "text":
@@ -826,7 +831,7 @@ class MainWindow(QMainWindow):
                     file_name = self.ui.paginated_question_list[self.ui.page][
                         question_index
                     ]["image"].split("/")[3]
-                    with open(file_path + f"src/{file_name}", "wb") as file:
+                    with open(f"C:/quizz_cache/{file_name}", "wb") as file:
                         file.write(response.content)
                     self.ui.question.setText(f"Suraty görmek üçin sag düwmä basyň")
                     self.question_image_path = self.ui.paginated_question_list[
@@ -875,7 +880,7 @@ class MainWindow(QMainWindow):
                             f"{api_url}/{self.current_answers[index]['image']}"
                         )
                         file_name = self.current_answers[index]["image"].split("/")[3]
-                        with open(file_path + f"src/{file_name}", "wb") as file:
+                        with open(f"C:/quizz_cache/{file_name}", "wb") as file:
                             file.write(response.content)
                         self.answers_type[index] = "image"
                         self.label_tuple[index].setText(

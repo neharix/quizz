@@ -4,6 +4,9 @@ let textarea = document.querySelector("#id_question");
 let image_block = document.querySelector("#id_image").parentElement;
 let image = document.querySelector("#id_image");
 
+let complexity = document.querySelector("#id_complexity");
+complexity.previousElementSibling.innerHTML = "Derejesi:";
+
 image_block.style = "display: none;";
 
 st.flap = document.querySelector('#flap');

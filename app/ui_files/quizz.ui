@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1169</width>
-    <height>670</height>
+    <width>1124</width>
+    <height>723</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -692,6 +692,46 @@ border: none;</string>
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="status_bar">
+      <property name="styleSheet">
+       <string notr="true">background-color: #b3cdcd;
+border-radius: 20px;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="answered">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Jogap berilen:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="unanswered">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Jogap berilmedik:</string>
+         </property>
         </widget>
        </item>
       </layout>

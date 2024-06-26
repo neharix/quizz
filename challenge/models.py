@@ -7,11 +7,11 @@ class Question(models.Model):
     is_image = models.BooleanField(default=False)
     image = models.ImageField(upload_to="questions/", null=True, blank=True)
     challenge = models.ForeignKey("Challenge", on_delete=models.CASCADE)
-    point = models.IntegerField()
+    point = models.IntegerField(default=1)
     complexity = models.ForeignKey("Complexity", on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.question
+        return self.question if self.question is not None else str(self.image)
 
 
 class Challenge(models.Model):
