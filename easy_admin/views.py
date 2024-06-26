@@ -3,7 +3,6 @@ import os
 import zipfile
 from io import BytesIO
 
-import numpy as np
 import pandas as pd
 import pytz
 from django.contrib.auth import logout
@@ -11,7 +10,6 @@ from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.views import generic
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt, RGBColor

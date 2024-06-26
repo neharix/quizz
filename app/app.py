@@ -1,9 +1,7 @@
 import datetime
 import os
-import pathlib
 import random
 import shelve
-import shutil
 import sys
 from pathlib import Path
 
