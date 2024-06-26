@@ -1,3 +1,16 @@
+@font-face {
+    font-family: Overpass;
+    src: url(/static/fonts/Overpass/Overpass-Regular.ttf);
+}
+
+.overpass {
+    font-family: Overpass !important;
+}
+
+.def-cursor {
+    cursor: default !important;
+}
+
 .bg-smoke {
     background-color: #e3e3e3 !important;
 }

@@ -28,7 +28,11 @@
                 </div>
                 <div id="filebox" class="my-2" style="display: none !important;">
                     <label for="zipfile" class="my-2">ZIP faýl:</label>
-                    <input type="file" class="form-control my-2" id="zipfile" name="zip">
+                    <input type="file"
+                           class="form-control my-2"
+                           accept=".zip"
+                           id="zipfile"
+                           name="zip">
                 </div>
                 <div class="d-flex">
                     <a href="{% static 'xlsx/nusga.xlsx' %}"
