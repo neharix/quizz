@@ -333,7 +333,11 @@ class MainWindow(QMainWindow):
             self.ui.btn10,
         )
 
-        self.question_count = len(self.selected_challenge)
+        self.status_bar = {"answered": 0, "unanswered": len(self.selected_challenge)}
+        self.ui.unanswered.setText(
+            f"Jogap berilmedik: {self.status_bar.get('unanswered')}"
+        )
+        self.ui.answered.setText(f"Jogap berilen: 0")
 
         self.ui.paginated_question_list = [[]]
         random.shuffle(self.selected_challenge)
@@ -611,7 +615,6 @@ class MainWindow(QMainWindow):
             self.selected_answer = int(self.current_answers[0]["id"])
         elif self.answers_type[0] == "text":
             self.selected_answer = self.ui.btn_a.text()
-            print(self.ui.btn_a.text())
         self.ui.frame_a.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
         self.ui.frame_c.setStyleSheet(self.default_stylesheet)
@@ -642,7 +645,6 @@ class MainWindow(QMainWindow):
             self.selected_answer = int(self.current_answers[3]["id"])
         elif self.answers_type[3] == "text":
             self.selected_answer = self.ui.btn_d.text()
-
         self.ui.frame_d.setStyleSheet(self.selected_stylesheet)
         self.ui.frame_a.setStyleSheet(self.default_stylesheet)
         self.ui.frame_b.setStyleSheet(self.default_stylesheet)
@@ -650,6 +652,7 @@ class MainWindow(QMainWindow):
 
     def select_question(self, question: str):
         question_index = int(question.split()[1]) - 1
+
 
         self.ui.question_id.setText(f"Sorag №{question_index + 1}")
 
@@ -712,8 +715,12 @@ class MainWindow(QMainWindow):
         self.ui.label.setText(text)
 
     def next_question(self, question: str):
+        question_index = int(question.split("№")[1]) - 1
+        question_id = self.ui.paginated_question_list[self.ui.page][question_index][
+            "id"
+        ]
+
         if not self.selected_answer is None:
-            question_index = int(question.split("№")[1]) - 1
 
             self.ui.paginated_question_list[self.ui.page][question_index][
                 "is_answered"
@@ -744,6 +751,7 @@ class MainWindow(QMainWindow):
                 payload = {
                     "answer": self.selected_answer,
                     "user": user[0]["id"],
+                    "question": question_id,
                 }
 
                 requests.request(
@@ -832,6 +840,16 @@ class MainWindow(QMainWindow):
             if not is_destroyed:
 
                 self.question_image_path = None
+
+                self.status_bar["answered"] += 1
+                self.status_bar["unanswered"] -= 1
+
+                self.ui.answered.setText(
+                    f"Jogap berilen: {self.status_bar.get('answered')}"
+                )
+                self.ui.unanswered.setText(
+                    f"Jogap berilmedik: {self.status_bar.get('unanswered')}"
+                )
 
                 if self.ui.paginated_question_list[self.ui.page][question_index][
                     "is_image"
@@ -1279,7 +1297,6 @@ def timeout_window():
 def image_window(pixmap_path: str):
     global image_mod_window
     image_mod_window = QWidget(window)
-    image_mod_window.resize(1000, 780)
     image_mod_window.setWindowModality(Qt.WindowModality.WindowModal)
     image_mod_window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
     image_mod_window.move(
@@ -1289,6 +1306,7 @@ def image_window(pixmap_path: str):
     stylesheet = """
         background-color: white;
         border: 1px solid #7a7a7a;
+        border-radius: 20px;
     """
     btn_stylesheet = """
         padding: 10px;
@@ -1300,16 +1318,20 @@ def image_window(pixmap_path: str):
     image_mod_window.setLayout(vbox)
     image_mod_window.setStyleSheet(stylesheet)
     label = QLabel()
-    label.setPixmap(QPixmap(pixmap_path))
+    pixmap = QPixmap(pixmap_path)
+    image_mod_window.resize(pixmap.width(), pixmap.height() + 100)
+    label.setPixmap(pixmap)
+    label.setStyleSheet("border-radius: 0;")
     label.setScaledContents(True)
     label.setFont(font)
-    label.setAlignment(Qt.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+    label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+    label.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
     ok_btn = QPushButton("OK")
     ok_btn.setStyleSheet(btn_stylesheet)
     ok_btn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
     ok_btn.setFont(font)
     vbox.addWidget(label)
-    vbox.addWidget(ok_btn, 0, Qt.AlignHCenter | Qt.AlignVCenter)
+    vbox.addWidget(ok_btn, 0, Qt.AlignHCenter | Qt.AlignBottom)
     ok_btn.clicked.connect(lambda: image_mod_window.close())
     image_mod_window.show()
 

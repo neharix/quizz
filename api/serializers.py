@@ -31,9 +31,13 @@ class UserProfileSerializer(serializers.Serializer):
 class UserAnswerSerializer(serializers.Serializer):
     answer = serializers.CharField(max_length=1000)
     user = serializers.IntegerField()
+    question = serializers.IntegerField()
 
     def create(self, validated_data):
-        answer = Answer.objects.get(answer=validated_data["answer"])
+        answer = Answer.objects.get(
+            answer=validated_data["answer"],
+            question=Question.objects.get(pk=validated_data["question"]),
+        )
         question = Question.objects.get(pk=answer.question.pk)
         user = User.objects.get(id=int(validated_data["user"]))
         is_true = True if answer.is_true else False

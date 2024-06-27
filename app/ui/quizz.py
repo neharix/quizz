@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+## Form generated from reading UI file 'quizzMoaUhs.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
+
 import icons_rc
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -317,15 +327,15 @@ class Ui_MainWindow(object):
         )
         self.frame_b.setFrameShape(QFrame.StyledPanel)
         self.frame_b.setFrameShadow(QFrame.Raised)
-        self.frame_b_2 = QVBoxLayout(self.frame_b)
-        self.frame_b_2.setSpacing(0)
-        self.frame_b_2.setObjectName("frame_b_2")
-        self.frame_b_2.setContentsMargins(11, 0, 0, 0)
+        self.horizontalLayout = QHBoxLayout(self.frame_b)
+        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.horizontalLayout.setContentsMargins(11, 0, 0, 0)
         self.btn_b = ClickableLabel(self.frame_b)
         self.btn_b.setObjectName("btn_b")
         self.btn_b.setFont(font3)
 
-        self.frame_b_2.addWidget(self.btn_b)
+        self.horizontalLayout.addWidget(self.btn_b)
 
         self.answers_layout.addWidget(self.frame_b)
 
@@ -369,12 +379,12 @@ class Ui_MainWindow(object):
 
         self.body_layout.addWidget(self.answers_frame)
 
-        font9 = QFont()
-        font9.setPointSize(14)
-
         self.next_question = PushButton(self.main_body)
         self.next_question.setObjectName("next_question")
-        self.next_question.setFont(font9)
+        font4 = QFont()
+        font4.setPointSize(14)
+        self.next_question.setFont(font4)
+
         self.body_layout.addWidget(
             self.next_question, 0, Qt.AlignRight | Qt.AlignBottom
         )
@@ -384,6 +394,29 @@ class Ui_MainWindow(object):
         self.contain_body_layout.addWidget(self.container)
 
         self.central_layout.addWidget(self.body)
+
+        self.status_bar = QFrame(self.centralwidget)
+        self.status_bar.setObjectName("status_bar")
+        self.status_bar.setStyleSheet(
+            "background-color: #b3cdcd;\n" "border-radius: 20px;"
+        )
+        self.status_bar.setFrameShape(QFrame.StyledPanel)
+        self.status_bar.setFrameShadow(QFrame.Raised)
+        self.statusbar_layout = QHBoxLayout(self.status_bar)
+        self.statusbar_layout.setObjectName("statusbar_layout")
+        self.answered = QLabel(self.status_bar)
+        self.answered.setObjectName("answered")
+        self.answered.setFont(font3)
+
+        self.statusbar_layout.addWidget(self.answered)
+
+        self.unanswered = QLabel(self.status_bar)
+        self.unanswered.setObjectName("unanswered")
+        self.unanswered.setFont(font3)
+
+        self.statusbar_layout.addWidget(self.unanswered)
+
+        self.central_layout.addWidget(self.status_bar)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -395,7 +428,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(
-            QCoreApplication.translate("MainWindow", "IT meýdança Quizz", None)
+            QCoreApplication.translate("MainWindow", "MainWindow", None)
         )
         MainWindow.setWindowFilePath("")
         self.toggle_btn.setText("")
@@ -420,14 +453,21 @@ class Ui_MainWindow(object):
         self.question.setText(
             QCoreApplication.translate("MainWindow", "TextLabel", None)
         )
-        self.btn_a.setText(QCoreApplication.translate("MainWindow", "a", None))
-        # if QT_CONFIG(shortcut)        # endif // QT_CONFIG(shortcut)
-        self.btn_b.setText(QCoreApplication.translate("MainWindow", "b", None))
-        self.btn_c.setText(QCoreApplication.translate("MainWindow", "c", None))
-        self.btn_d.setText(QCoreApplication.translate("MainWindow", "d", None))
+        self.btn_a.setText(QCoreApplication.translate("MainWindow", "A", None))
+        self.btn_b.setText(QCoreApplication.translate("MainWindow", "B", None))
+        self.btn_c.setText(QCoreApplication.translate("MainWindow", "C", None))
+        self.btn_d.setText(QCoreApplication.translate("MainWindow", "D", None))
         self.next_question.setText("Tassyklamak")
         # if QT_CONFIG(shortcut)
+        self.next_question.setShortcut(
+            QCoreApplication.translate("MainWindow", "Return", None)
+        )
+        # endif // QT_CONFIG(shortcut)
+        self.answered.setText(
+            QCoreApplication.translate("MainWindow", "Jogap berilen:", None)
+        )
+        self.unanswered.setText(
+            QCoreApplication.translate("MainWindow", "Jogap berilmedik:", None)
+        )
 
-
-# endif // QT_CONFIG(shortcut)
-# retranslateUi
+    # retranslateUi

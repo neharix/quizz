@@ -709,7 +709,7 @@ border-radius: 20px;</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QHBoxLayout" name="statusbar_layout">
        <item>
         <widget class="QLabel" name="answered">
          <property name="font">
