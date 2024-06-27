@@ -3,9 +3,29 @@ import datetime
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from challenge.models import Answer, Challenge, Question, TestSession, UserAnswer
+from challenge.models import (
+    Answer,
+    Challenge,
+    Profile,
+    Question,
+    TestSession,
+    UserAnswer,
+)
 
 from .models import AuthJournal
+
+
+class UserProfileSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    about = serializers.CharField(max_length=250)
+
+    def create(self, validated_data):
+        try:
+            user = User.objects.get(id=validated_data["user"])
+        except:
+            return {"detail": "Ulanyjy tapylmady"}
+        profile = Profile.objects.create(user=user, about=validated_data["about"])
+        return profile
 
 
 class UserAnswerSerializer(serializers.Serializer):

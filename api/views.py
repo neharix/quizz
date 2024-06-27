@@ -17,6 +17,14 @@ def echo(request):
     return HttpResponse(status=200)
 
 
+class UserProfileAPIView(APIView):
+    def post(self, request):
+        serializer = UserProfileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"output": "Success!"})
+
+
 class AnswerListAPIView(generics.ListAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer

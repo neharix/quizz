@@ -64,15 +64,11 @@ class TimerThread(QThread):
 
 
 class AuthorizationRequestThread(QThread):
-    def __init__(
-        self,
-        name,
-        surname,
-        parent=None,
-    ):
+    def __init__(self, name, surname, parent=None, about=None):
         QThread.__init__(self, parent)
         self.name = name
         self.surname = surname
+        self.about = about
 
     def run(self):
         enable_chars = ("qwertyuiopasdfghjklzxcvbnm", "1234567890")
@@ -142,6 +138,19 @@ class AuthorizationRequestThread(QThread):
                     "password": response[0]["password"],
                 }
             else:
+
+                profile_payload = {
+                    "about": self.about if self.about != "" else "Default",
+                    "user": self.user_response["id"],
+                }
+
+                profile_response = requests.request(
+                    "POST",
+                    f"{api_url}/api/v1/create_profile/",
+                    headers={},
+                    data=profile_payload,
+                ).json()
+
                 response = requests.request(
                     "POST", journal_url, headers=headers, data=payload_dub, files=files
                 ).json()
@@ -323,6 +332,8 @@ class MainWindow(QMainWindow):
             self.ui.btn9,
             self.ui.btn10,
         )
+
+        self.question_count = len(self.selected_challenge)
 
         self.ui.paginated_question_list = [[]]
         random.shuffle(self.selected_challenge)
@@ -991,10 +1002,12 @@ class MainWindow(QMainWindow):
     def accept(self):
         name = self.login_ui.name_input.text()
         surname = self.login_ui.surname_input.text()
+        about = self.login_ui.about_input.text()
+
         cyrillic = "ёйцукенгшщзхъфывапролджэячсмитьбю"
         symbols = ".,/\\`'[]()!@#$%^&*№:;{}<>?+=-_" + '"'
         filling_error = False
-        for char in name.lower() + surname.lower():
+        for char in name.lower() + surname.lower() + about.lower():
             if char in symbols or char in cyrillic:
                 filling_error = True
                 break
@@ -1002,6 +1015,7 @@ class MainWindow(QMainWindow):
             message = "Girizen maglumatlaryňyzda kabul\nedilmeýän simwollar ulanylypdyr!\nTäzeden synanyşmagyňyzy haýyş\nedýäris!"
             self.login_ui.name_input.setText("")
             self.login_ui.surname_input.setText("")
+            self.login_ui.about_input.setText("")
             modal_info_window(message)
         elif name == "" or surname == "":
             if name == "" and surname == "":
@@ -1012,7 +1026,9 @@ class MainWindow(QMainWindow):
                 message = "Familiýaňyzy girizmegiňizi\nhaýyş edýäris!"
             modal_info_window(message)
         else:
-            self.auth_request_thread = AuthorizationRequestThread(name, surname)
+            self.auth_request_thread = AuthorizationRequestThread(
+                name, surname, about=about
+            )
             self.auth_request_thread.start(QThread.Priority.InheritPriority)
             while self.auth_request_thread.isFinished() == False:
                 pass
@@ -1039,6 +1055,8 @@ class MainWindow(QMainWindow):
         if e.key() == 16777220 and self.login_ui.name_input.hasFocus():
             self.login_ui.surname_input.setFocus(Qt.FocusReason.ShortcutFocusReason)
         elif e.key() == 16777220 and self.login_ui.surname_input.hasFocus():
+            self.login_ui.about_input.setFocus(Qt.FocusReason.ShortcutFocusReason)
+        elif e.key() == 16777220 and self.login_ui.about_input.hasFocus():
             self.login_ui.accept_btn.click()
         QMainWindow.keyPressEvent(self, e)
 

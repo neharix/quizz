@@ -1,6 +1,20 @@
 from django.contrib import admin
 
-from .models import Answer, Challenge, Complexity, Question, TestSession, UserAnswer
+from .models import (
+    Answer,
+    Challenge,
+    Complexity,
+    Profile,
+    Question,
+    TestSession,
+    UserAnswer,
+)
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ["id", "about", "user"]
+    readonly_fields = ("id",)
 
 
 @admin.register(Answer)

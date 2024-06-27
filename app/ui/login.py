@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+## Form generated from reading UI file 'logintMZlAb.ui'
+##
+## Created by: Qt User Interface Compiler version 5.15.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
+
 import icons_rc
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -7,12 +17,12 @@ from .custom_objects import PushButton
 
 
 class Ui_LoginWindow(object):
-    def setupUi(self, LoginWindow):
-        if not LoginWindow.objectName():
-            LoginWindow.setObjectName("LoginWindow")
-        LoginWindow.resize(1153, 648)
-        LoginWindow.setStyleSheet("background-color: #e1e1e1;")
-        self.centralwidget = QWidget(LoginWindow)
+    def setupUi(self, MainWindow):
+        if not MainWindow.objectName():
+            MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(1126, 623)
+        MainWindow.setStyleSheet("background-color: #e1e1e1;")
+        self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet(
             "*{\n"
@@ -37,16 +47,16 @@ class Ui_LoginWindow(object):
             "	border-radius: 20px;\n"
             "}"
         )
-        self.l_central_layout = QVBoxLayout(self.centralwidget)
-        self.l_central_layout.setSpacing(7)
-        self.l_central_layout.setObjectName("l_central_layout")
-        self.l_central_layout.setContentsMargins(11, 11, 11, 11)
+        self.central_layout = QVBoxLayout(self.centralwidget)
+        self.central_layout.setSpacing(7)
+        self.central_layout.setObjectName("central_layout")
+        self.central_layout.setContentsMargins(11, 11, 11, 11)
         self.l_main_body = QFrame(self.centralwidget)
         self.l_main_body.setObjectName("l_main_body")
         self.l_main_body.setFrameShape(QFrame.StyledPanel)
         self.l_main_body.setFrameShadow(QFrame.Raised)
-        self.l_main_layout = QVBoxLayout(self.l_main_body)
-        self.l_main_layout.setObjectName("l_main_layout")
+        self.verticalLayout = QVBoxLayout(self.l_main_body)
+        self.verticalLayout.setObjectName("verticalLayout")
         self.box = QFrame(self.l_main_body)
         self.box.setObjectName("box")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -57,22 +67,24 @@ class Ui_LoginWindow(object):
         self.box.setMinimumSize(QSize(400, 450))
         self.box.setFrameShape(QFrame.StyledPanel)
         self.box.setFrameShadow(QFrame.Raised)
-        self.box_layout = QVBoxLayout(self.box)
-        self.box_layout.setObjectName("box_layout")
+        self.verticalLayout_2 = QVBoxLayout(self.box)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.name_frame = QFrame(self.box)
         self.name_frame.setObjectName("name_frame")
         self.name_frame.setMinimumSize(QSize(250, 0))
         self.name_frame.setFrameShape(QFrame.StyledPanel)
         self.name_frame.setFrameShadow(QFrame.Raised)
-        self.name_layout = QVBoxLayout(self.name_frame)
-        self.name_layout.setObjectName("name_layout")
+        self.verticalLayout_3 = QVBoxLayout(self.name_frame)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.name_label = QLabel(self.name_frame)
         self.name_label.setObjectName("name_label")
         font = QFont()
         font.setPointSize(14)
         self.name_label.setFont(font)
 
-        self.name_layout.addWidget(self.name_label, 0, Qt.AlignHCenter | Qt.AlignBottom)
+        self.verticalLayout_3.addWidget(
+            self.name_label, 0, Qt.AlignHCenter | Qt.AlignBottom
+        )
 
         self.name_input = QLineEdit(self.name_frame)
         self.name_input.setObjectName("name_input")
@@ -85,17 +97,19 @@ class Ui_LoginWindow(object):
             "border: 1px solid #e1e1e1;"
         )
 
-        self.name_layout.addWidget(self.name_input)
+        self.verticalLayout_3.addWidget(self.name_input)
 
-        self.box_layout.addWidget(self.name_frame, 0, Qt.AlignHCenter | Qt.AlignBottom)
+        self.verticalLayout_2.addWidget(
+            self.name_frame, 0, Qt.AlignHCenter | Qt.AlignBottom
+        )
 
         self.surname_frame = QFrame(self.box)
         self.surname_frame.setObjectName("surname_frame")
         self.surname_frame.setMinimumSize(QSize(250, 0))
         self.surname_frame.setFrameShape(QFrame.StyledPanel)
         self.surname_frame.setFrameShadow(QFrame.Raised)
-        self.surname_layout = QVBoxLayout(self.surname_frame)
-        self.surname_layout.setObjectName("surname_layout")
+        self.verticalLayout_4 = QVBoxLayout(self.surname_frame)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.surname_label = QLabel(self.surname_frame)
         self.surname_label.setObjectName("surname_label")
         sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
@@ -107,7 +121,7 @@ class Ui_LoginWindow(object):
         self.surname_label.setSizePolicy(sizePolicy1)
         self.surname_label.setFont(font)
 
-        self.surname_layout.addWidget(self.surname_label, 0, Qt.AlignHCenter)
+        self.verticalLayout_4.addWidget(self.surname_label, 0, Qt.AlignHCenter)
 
         self.surname_input = QLineEdit(self.surname_frame)
         self.surname_input.setObjectName("surname_input")
@@ -119,51 +133,93 @@ class Ui_LoginWindow(object):
             "border: 1px solid #e1e1e1;"
         )
 
-        self.surname_layout.addWidget(self.surname_input)
+        self.verticalLayout_4.addWidget(self.surname_input)
 
-        self.box_layout.addWidget(
+        self.verticalLayout_2.addWidget(
             self.surname_frame, 0, Qt.AlignHCenter | Qt.AlignVCenter
         )
+
+        self.frame = QFrame(self.box)
+        self.frame.setObjectName("frame")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_6 = QVBoxLayout(self.frame)
+        self.verticalLayout_6.setObjectName("verticalLayout_6")
+        self.about_label = QLabel(self.frame)
+        self.about_label.setObjectName("about_label")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.about_label.sizePolicy().hasHeightForWidth())
+        self.about_label.setSizePolicy(sizePolicy2)
+        self.about_label.setFont(font)
+
+        self.verticalLayout_6.addWidget(self.about_label, 0, Qt.AlignHCenter)
+
+        self.about_input = QLineEdit(self.frame)
+        self.about_input.setObjectName("about")
+        self.about_input.setFont(font)
+        self.about_input.setStyleSheet(
+            "background-color: white;\n"
+            "padding: 10px;\n"
+            "border-radius: 25px;\n"
+            "border: 1px solid #e1e1e1;"
+        )
+
+        self.verticalLayout_6.addWidget(self.about_input)
+
+        self.verticalLayout_2.addWidget(self.frame, 0, Qt.AlignHCenter)
 
         self.accept_frame = QFrame(self.box)
         self.accept_frame.setObjectName("accept_frame")
         self.accept_frame.setFrameShape(QFrame.StyledPanel)
         self.accept_frame.setFrameShadow(QFrame.Raised)
-        self.accept_layout = QVBoxLayout(self.accept_frame)
-        self.accept_layout.setObjectName("accept_layout")
+        self.verticalLayout_5 = QVBoxLayout(self.accept_frame)
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.accept_btn = PushButton(self.accept_frame)
         self.accept_btn.setObjectName("accept_btn")
         font1 = QFont()
         font1.setPointSize(12)
         self.accept_btn.setFont(font1)
+        self.accept_btn.setStyleSheet(
+            "padding: 16px;\n"
+            "padding-left: 25px;\n"
+            "padding-right: 25px;\n"
+            "border-radius: 25px;"
+        )
 
-        self.accept_layout.addWidget(self.accept_btn)
+        self.verticalLayout_5.addWidget(self.accept_btn)
 
-        self.box_layout.addWidget(self.accept_frame, 0, Qt.AlignHCenter | Qt.AlignTop)
+        self.verticalLayout_2.addWidget(
+            self.accept_frame, 0, Qt.AlignHCenter | Qt.AlignTop
+        )
 
-        self.l_main_layout.addWidget(self.box, 0, Qt.AlignHCenter | Qt.AlignVCenter)
+        self.verticalLayout.addWidget(self.box, 0, Qt.AlignHCenter | Qt.AlignVCenter)
 
-        self.l_central_layout.addWidget(self.l_main_body)
+        self.central_layout.addWidget(self.l_main_body)
 
-        LoginWindow.setCentralWidget(self.centralwidget)
+        MainWindow.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(LoginWindow)
+        self.retranslateUi(MainWindow)
 
-        QMetaObject.connectSlotsByName(LoginWindow)
+        QMetaObject.connectSlotsByName(MainWindow)
 
     # setupUi
 
-    def retranslateUi(self, LoginWindow):
-        LoginWindow.setWindowTitle(
-            QCoreApplication.translate("LoginWindow", "IT meýdança Quizz", None)
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(
+            QCoreApplication.translate("MainWindow", "MainWindow", None)
         )
-        LoginWindow.setWindowFilePath("")
-        self.name_label.setText(QCoreApplication.translate("LoginWindow", "Ady:", None))
+        MainWindow.setWindowFilePath("")
+        self.name_label.setText(QCoreApplication.translate("MainWindow", "Ady:", None))
         self.surname_label.setText(
-            QCoreApplication.translate("LoginWindow", "Famili\u00fdasy:", None)
+            QCoreApplication.translate("MainWindow", "Famili\u00fdasy:", None)
+        )
+        self.about_label.setText(
+            QCoreApplication.translate("MainWindow", "Edara:", None)
         )
         self.accept_btn.setText(
-            QCoreApplication.translate("LoginWindow", "Tassyklamak", None)
+            QCoreApplication.translate("MainWindow", "Tassyklamak", None)
         )
 
     # retranslateUi

@@ -2,6 +2,14 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
+class Profile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    about = models.CharField(max_length=250, null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username + "'s profile"
+
+
 class Question(models.Model):
     question = models.TextField(null=True, blank=True)
     is_image = models.BooleanField(default=False)
