@@ -104,7 +104,15 @@ def challenge_result(
             except:
                 pass
         user_results.append(
-            UserResult(pk, challenge.pk, user, user_answers, session, is_finished)
+            UserResult(
+                pk,
+                challenge.pk,
+                user,
+                user_answers,
+                session,
+                is_finished,
+                len(questions),
+            )
         )
     dates = get_available_dates(challenge)
 
@@ -118,6 +126,7 @@ def challenge_result(
             "day": day,
             "month": month,
             "year": year,
+            "challenge_id": challenge_id,
         },
     )
 
@@ -162,8 +171,12 @@ def export_user_result_short(
         false_answer = 0
         percent = 0
 
-    start = session.start.strftime("%Y-%m-%d %H:%M:%S")
-    end = session.end.strftime("%Y-%m-%d %H:%M:%S")
+    start = session.start.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+    end = session.end.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 
     document = Document()
 
@@ -252,8 +265,12 @@ def export_user_result(
         false_answer = 0
         percent = 0
 
-    start = session.start.strftime("%Y-%m-%d %H:%M:%S")
-    end = session.end.strftime("%Y-%m-%d %H:%M:%S")
+    start = session.start.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+    end = session.end.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 
     document = Document()
     style = document.styles["Normal"]
@@ -312,7 +329,9 @@ def export_user_result(
 
         document.add_paragraph(f"Dogry jogap: {true_ans.answer}")
 
-        answered_at = user_answer.answered_at.strftime("%Y-%m-%d %H:%M:%S")
+        answered_at = user_answer.answered_at.astimezone(
+            pytz.timezone("Asia/Ashgabat")
+        ).strftime("%Y-%m-%d %H:%M:%S")
         document.add_paragraph(f"Jogap berlen wagt: {answered_at}")
 
         document.add_paragraph("")
@@ -375,7 +394,15 @@ def export_all_results(
             except:
                 pass
         user_results.append(
-            UserResult(pk, challenge.pk, user, user_answers, session, is_finished)
+            UserResult(
+                pk,
+                challenge.pk,
+                user,
+                user_answers,
+                session,
+                is_finished,
+                len(questions),
+            )
         )
 
     document = Document()
@@ -419,8 +446,12 @@ def export_all_results(
     row_id = 1
 
     for user_result in user_results:
-        start = user_result.start.strftime("%Y-%m-%d %H:%M:%S")
-        end = user_result.end.strftime("%Y-%m-%d %H:%M:%S")
+        start = user_result.start.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        end = user_result.end.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
 
         table.cell(row_id, 0).text = f"{user_result.id}"
 
@@ -669,7 +700,7 @@ def import_from_xlsx(request: HttpRequest, challenge_id: int):
 
         for index in range(len(dataframe["Sorag"])):
             is_image = False
-            question_text = dataframe["Sorag"][index]
+            question_text = str(dataframe["Sorag"][index])
             if (
                 question_text[0:2] == "{{"
                 and question_text[len(question_text) - 2 : len(question_text)] == "}}"
@@ -711,7 +742,7 @@ def import_from_xlsx(request: HttpRequest, challenge_id: int):
                 for i in range(1, 5):
                     if type(dataframe[f"{i}-nji jogap"][index]) != float:
                         is_image = False
-                        answer_text = dataframe[f"{i}-nji jogap"][index]
+                        answer_text = str(dataframe[f"{i}-nji jogap"][index])
                         if (
                             answer_text[0:2] == "{{"
                             and answer_text[len(answer_text) - 2 : len(answer_text)]

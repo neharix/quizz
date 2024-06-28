@@ -266,16 +266,24 @@ class MainWindow(QMainWindow):
         if self.table_ui.paginated_challenge_list[j] == []:
             self.table_ui.paginated_challenge_list.pop(j)
 
-        if len(self.table_ui.paginated_challenge_list[self.table_ui.page]) < 8:
-            for btn in self.table_ui.btns_list[
-                len(self.table_ui.paginated_challenge_list[self.table_ui.page]) : 8
-            ]:
-                btn.setHidden(True)
+        try:
+            if len(self.table_ui.paginated_challenge_list[self.table_ui.page]) < 8:
+                for btn in self.table_ui.btns_list[
+                    len(self.table_ui.paginated_challenge_list[self.table_ui.page]) : 8
+                ]:
+                    btn.setHidden(True)
 
-        for i in range(len(self.table_ui.paginated_challenge_list[self.table_ui.page])):
-            self.table_ui.btns_list[i].setText(
-                self.table_ui.paginated_challenge_list[self.table_ui.page][i]["name"]
-            )
+            for i in range(
+                len(self.table_ui.paginated_challenge_list[self.table_ui.page])
+            ):
+                self.table_ui.btns_list[i].setText(
+                    self.table_ui.paginated_challenge_list[self.table_ui.page][i][
+                        "name"
+                    ]
+                )
+        except IndexError:
+            for btn in self.table_ui.btns_list:
+                btn.setHidden(True)
 
         self.table_ui.t_prev_btn.clicked.connect(self.prev_table_page)
         self.table_ui.t_next_btn.clicked.connect(self.next_table_page)
@@ -651,32 +659,94 @@ class MainWindow(QMainWindow):
         self.ui.frame_c.setStyleSheet(self.default_stylesheet)
 
     def select_question(self, question: str):
-        question_index = int(question.split()[1]) - 1
+        question_index = (int(question.split()[1]) % 10) - 1
 
-
-        self.ui.question_id.setText(f"Sorag №{question_index + 1}")
-
-        self.ui.question.setText(
-            self.ui.paginated_question_list[self.ui.page][question_index]["question"]
-        )
-
-        question_id = self.ui.paginated_question_list[self.ui.page][question_index][
-            "id"
+        question_status = self.ui.paginated_question_list[self.ui.page][question_index][
+            "is_answered"
         ]
 
-        url = f"{api_url}/api/v1/answerfilter/{question_id}/"
-        headers = {"Authorization": self.token}
+        if question_status:
+            return 0
 
-        self.current_answers = requests.request("GET", url=url, headers=headers).json()
-        random.shuffle(self.current_answers)
+        else:
+            self.ui.question_id.setText(
+                f"Sorag №{(self.ui.page * 10) + question_index + 1}"
+            )
 
-        try:
-            label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c, self.ui.btn_d)
+            self.ui.question.setText(
+                self.ui.paginated_question_list[self.ui.page][question_index][
+                    "question"
+                ]
+            )
+
+            question_id = self.ui.paginated_question_list[self.ui.page][question_index][
+                "id"
+            ]
+
+            if self.ui.paginated_question_list[self.ui.page][question_index][
+                "is_image"
+            ]:
+                response = requests.get(
+                    f"{api_url}/{self.ui.paginated_question_list[self.ui.page][question_index]['image']}"
+                )
+                file_name = self.ui.paginated_question_list[self.ui.page][
+                    question_index
+                ]["image"].split("/")[3]
+                with open(f"C:/quizz_cache/{file_name}", "wb") as file:
+                    file.write(response.content)
+                self.ui.question.setText(f"Suraty görmek üçin sag düwmä basyň")
+                self.question_image_path = self.ui.paginated_question_list[
+                    self.ui.page
+                ][question_index]["image"]
+            else:
+                self.ui.question.setText(
+                    self.ui.paginated_question_list[self.ui.page][question_index][
+                        "question"
+                    ]
+                )
+
+            self.current_answers = requests.request(
+                "GET",
+                url=f"{api_url}/api/v1/answerfilter/{question_id}/",
+                headers={"Authorization": self.token},
+            ).json()
+            random.shuffle(self.current_answers)
+
+            if len(self.current_answers) == 3:
+                self.label_tuple = (self.ui.btn_a, self.ui.btn_b, self.ui.btn_c)
+                self.ui.btn_d.setEnabled(False)
+                self.ui.btn_d.setHidden(True)
+                self.ui.frame_d.setEnabled(False)
+                self.ui.frame_d.setHidden(True)
+            elif len(self.current_answers) == 4:
+                self.label_tuple = (
+                    self.ui.btn_a,
+                    self.ui.btn_b,
+                    self.ui.btn_c,
+                    self.ui.btn_d,
+                )
+                self.ui.btn_d.setEnabled(True)
+                self.ui.btn_d.setHidden(False)
+                self.ui.frame_d.setEnabled(True)
+                self.ui.frame_d.setHidden(False)
 
             for index in range(len(self.current_answers)):
-                label_tuple[index].setText(self.current_answers[index]["answer"])
-        except:
-            pass
+                if self.current_answers[index]["is_image"]:
+                    response = requests.get(
+                        f"{api_url}/{self.current_answers[index]['image']}"
+                    )
+                    file_name = self.current_answers[index]["image"].split("/")[3]
+                    with open(f"C:/quizz_cache/{file_name}", "wb") as file:
+                        file.write(response.content)
+                    self.answers_type[index] = "image"
+                    self.label_tuple[index].setText(
+                        f"{index + 1}. Suraty görmek üçin sag düwmä basyň"
+                    )
+                else:
+                    self.answers_type[index] = "text"
+                    self.label_tuple[index].setText(
+                        self.current_answers[index]["answer"]
+                    )
 
     def prev_question_page(self):
         self.ui.page -= 1 if self.ui.page > 0 else 0
@@ -691,6 +761,10 @@ class MainWindow(QMainWindow):
 
         for i in range(len(self.ui.paginated_question_list[self.ui.page])):
             label = (self.ui.page * 10) + (i + 1)
+            if self.ui.paginated_question_list[self.ui.page][i]["is_answered"]:
+                self.ui.btns_list[i].setStyleSheet("background-color: #f5f5f5;")
+            else:
+                self.ui.btns_list[i].setStyleSheet("background-color: #e1e1e1;")
             self.ui.btns_list[i].setText(f"Sorag {label}")
 
     def next_question_page(self):
@@ -709,13 +783,17 @@ class MainWindow(QMainWindow):
 
         for i in range(len(self.ui.paginated_question_list[self.ui.page])):
             label = (self.ui.page * 10) + (i + 1)
+            if self.ui.paginated_question_list[self.ui.page][i]["is_answered"]:
+                self.ui.btns_list[i].setStyleSheet("background-color: #f5f5f5;")
+            else:
+                self.ui.btns_list[i].setStyleSheet("background-color: #e1e1e1;")
             self.ui.btns_list[i].setText(f"Sorag {label}")
 
     def set_text(self, text):
         self.ui.label.setText(text)
 
     def next_question(self, question: str):
-        question_index = int(question.split("№")[1]) - 1
+        question_index = (int(question.split("№")[1]) % 10) - 1
         question_id = self.ui.paginated_question_list[self.ui.page][question_index][
             "id"
         ]
@@ -795,12 +873,25 @@ class MainWindow(QMainWindow):
                 is_answered = self.ui.paginated_question_list[self.ui.page][
                     question_index
                 ]["is_answered"]
+
+                req_try = 0
                 while is_answered:
+                    req_try += 1
                     try:
-                        question_index += 1
-                        is_answered = self.ui.paginated_question_list[self.ui.page][
-                            question_index
-                        ]["is_answered"]
+                        for i in range(len(self.ui.paginated_question_list)):
+                            for j in range(len(self.ui.paginated_question_list[i])):
+                                print("page:" + str(i))
+                                print("question:" + str(j))
+                                is_answered = self.ui.paginated_question_list[i][j][
+                                    "is_answered"
+                                ]
+                                if is_answered == False:
+                                    self.ui.page = i
+                                    question_index = j
+                                    break
+                            if is_answered == False:
+                                break
+
                     except IndexError:
                         question_index = 0
                         if self.ui.page + 1 == len(self.ui.paginated_question_list):
@@ -837,7 +928,60 @@ class MainWindow(QMainWindow):
                                 question_index
                             ]["is_answered"]
 
+                    if req_try == len(self.selected_challenge) + 1:
+                        question_index = 0
+                        if self.ui.page + 1 == len(self.ui.paginated_question_list):
+                            self.timer_thread.quit()
+                            del self.timer_thread
+                            del self.ui
+
+                            end = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            headers = {"Authorization": self.token}
+
+                            user = requests.request(
+                                "GET",
+                                f"{api_url}/api/v1/auth/users/",
+                                headers=headers,
+                            ).json()
+
+                            test_session_url = f"{api_url}/api/v1/test-session-update/"
+                            requests.request(
+                                "POST",
+                                url=test_session_url,
+                                headers=headers,
+                                data={
+                                    "challenge": int(self.challenge_data[0]["id"]),
+                                    "user": int(user[0]["id"]),
+                                    "date": end,
+                                },
+                            ).json()
+                            self.create_result_ui()
+                            is_destroyed = True
+                            break
+                        else:
+                            self.ui.page += 1
+                            is_answered = self.ui.paginated_question_list[self.ui.page][
+                                question_index
+                            ]["is_answered"]
+
             if not is_destroyed:
+
+                for btn in self.ui.btns_list:
+                    btn.setHidden(False)
+
+                if len(self.ui.paginated_question_list[self.ui.page]) < 10:
+                    for btn in self.ui.btns_list[
+                        len(self.ui.paginated_question_list[self.ui.page]) : 10
+                    ]:
+                        btn.setHidden(True)
+
+                for i in range(len(self.ui.paginated_question_list[self.ui.page])):
+                    label = (self.ui.page * 10) + (i + 1)
+                    if self.ui.paginated_question_list[self.ui.page][i]["is_answered"]:
+                        self.ui.btns_list[i].setStyleSheet("background-color: #f5f5f5;")
+                    else:
+                        self.ui.btns_list[i].setStyleSheet("background-color: #e1e1e1;")
+                    self.ui.btns_list[i].setText(f"Sorag {label}")
 
                 self.question_image_path = None
 
@@ -921,7 +1065,9 @@ class MainWindow(QMainWindow):
                             self.current_answers[index]["answer"]
                         )
 
-                self.ui.question_id.setText(f"Sorag №{question_index + 1}")
+                self.ui.question_id.setText(
+                    f"Sorag №{(self.ui.page * 10) + question_index + 1}"
+                )
         else:
             modal_info_window("Jogap saýlaň")
 
