@@ -6,5 +6,7 @@ pandas==2.1.2
 pytz==2023.3.post1
 python-docx==1.0.1
 requests==2.31.0
+flet==0.23.2
+
 PyQt5==5.15.10
 PyQtChart==5.15.6

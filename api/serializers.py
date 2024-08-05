@@ -1,16 +1,10 @@
 import datetime
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_framework import serializers
 
-from challenge.models import (
-    Answer,
-    Challenge,
-    Profile,
-    Question,
-    TestSession,
-    UserAnswer,
-)
+from challenge.models import *
 
 from .models import AuthJournal
 
@@ -78,17 +72,11 @@ class AuthJournalSerializer(serializers.ModelSerializer):
         fields = ("name", "surname", "username", "password")
 
 
-class ChallengeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Challenge
-        fields = (
-            "id",
-            "name",
-            "is_public",
-            "date_start",
-            "date_finish",
-            "time_for_event",
-        )
+class ChallengeSerializer(serializers.Serializer):
+    pk = serializers.IntegerField()
+    name = serializers.CharField()
+    time_for_event = serializers.IntegerField()
+    question_count = serializers.IntegerField()
 
 
 class QuestionSerializer(serializers.ModelSerializer):

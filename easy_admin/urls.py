@@ -58,4 +58,5 @@ urlpatterns = [
         "get_all/<int:challenge_id>/by_date/<int:year>/<int:month>/<int:day>/",
         export_all_results,
     ),
+    path("check_get/", check_get),
 ]

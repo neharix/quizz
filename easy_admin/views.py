@@ -8,7 +8,8 @@ import pytz
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.http import HttpRequest, HttpResponse
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -16,8 +17,8 @@ from docx.shared import Inches, Pt, RGBColor
 
 from challenge.models import *
 
+from .containers import ChallengeResult, FQuestion, UserResult
 from .forms import AnswerForm, ChallengeForm, QuestionForm
-from .response_fields import ChallengeResult, FQuestion, UserResult
 
 
 def get_available_dates(challenge: Challenge):
@@ -72,6 +73,8 @@ def challenges(request: HttpRequest):
 def challenge_result(
     request: HttpRequest, challenge_id: int, year=None, month=None, day=None
 ):
+    if request.method == "GET":
+        ordered_by = request.GET.get("order-by", "")
     challenge = Challenge.objects.get(pk=challenge_id)
     if year and month and day:
         sessions = TestSession.objects.filter(
@@ -116,10 +119,63 @@ def challenge_result(
         )
     dates = get_available_dates(challenge)
 
+    if ordered_by != "" and ordered_by in [
+        "index",
+        "-index",
+        "full_name",
+        "-full_name",
+        "start",
+        "-start",
+        "end",
+        "-end",
+        "true",
+        "-true",
+        "false",
+        "-false",
+        "result",
+        "-result",
+        "status",
+        "-status",
+    ]:
+        if "index" in ordered_by:
+            order_func = lambda e: e.id
+        elif "full_name" in ordered_by:
+            order_func = lambda e: f"{e.last_name} {e.first_name}"
+        elif "start" in ordered_by:
+            order_func = lambda e: e.start
+        elif "end" in ordered_by:
+            order_func = lambda e: e.end
+        elif "true" in ordered_by:
+            order_func = lambda e: e.true_answer
+        elif "false" in ordered_by:
+            order_func = lambda e: e.false_answer
+        elif "result" in ordered_by:
+            order_func = lambda e: e.percent
+        elif "status" in ordered_by:
+            order_func = lambda e: e.is_finished
+
+        user_results.sort(key=order_func)
+        user_results.reverse()
+
+        if ordered_by[0] == "-":
+            user_results.reverse()
+
+    paginator = Paginator(user_results, 10)
+    page_number = request.GET.get("page", 1)
+    try:
+        user_results = paginator.page(page_number)
+    except PageNotAnInteger:
+        user_results = paginator.page(1)
+    except EmptyPage:
+        user_results = paginator.page(paginator.num_pages)
+
+    paginator_range = [i for i in paginator.page_range]
+
     return render(
         request,
         "challenge_result.html",
         {
+            "paginator_range": paginator_range,
             "users": user_results,
             "challenge": challenge,
             "dates": dates,
@@ -127,6 +183,7 @@ def challenge_result(
             "month": month,
             "year": year,
             "challenge_id": challenge_id,
+            "ordered_by": ordered_by,
         },
     )
 
@@ -791,3 +848,12 @@ def import_from_xlsx(request: HttpRequest, challenge_id: int):
             {"type": "success", "message": "Maglumat gorunda üstünlikli girizildi!"},
         )
     return render(request, "import_from_xlsx.html")
+
+
+def check_get(request: HttpRequest):
+    if request.method == "GET":
+        print(request.GET)
+
+    testsession = TestSession.objects.get(pk=54)
+    print(testsession.__dict__)
+    return HttpResponse(status=200)

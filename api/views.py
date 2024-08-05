@@ -7,8 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from challenge.models import Answer, Challenge, Question, UserAnswer
+from challenge.models import Answer, Challenge, Question, TestSession, UserAnswer
 
+from .custom_containers import ChallengeContainer
 from .models import AuthJournal
 from .serializers import *
 
@@ -55,12 +56,25 @@ class AuthJournalFilterAPIView(APIView):
         return Response(serializer.data)
 
 
-class ChallengeListAPIView(generics.ListAPIView):
-    date = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
-    queryset = Challenge.objects.all().filter(
-        date_finish__gte=date, date_start__lte=date, is_public=True
-    )
-    serializer_class = ChallengeSerializer
+class ChallengeListAPIView(APIView):
+    def get(self, request):
+        date = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+        challenges_queryset = Challenge.objects.all().filter(
+            date_finish__gte=date, date_start__lte=date, is_public=True
+        )
+        challenges = [
+            ChallengeContainer(
+                challenge.pk,
+                challenge.name,
+                challenge.time_for_event,
+                len(Question.objects.filter(challenge=challenge.pk)),
+            )
+            for challenge in challenges_queryset
+        ]
+
+        serializer = ChallengeSerializer(challenges, many=True)
+        return Response(serializer.data)
+
     permission_classes = (IsAuthenticated,)
 
 
@@ -73,12 +87,20 @@ class QuestionListAPIView(generics.ListAPIView):
 class ChallengeAPIView(APIView):
     def get(self, request, **kwargs):
         key = kwargs["pk"]
-        queryset = Challenge.objects.filter(pk=key)
-        if len(queryset) == 0:
-            return Response({"detail": "Не найдено данных по заданному ключу"})
-        else:
-            serializer = ChallengeSerializer(queryset, many=True)
-            return Response(serializer.data)
+        try:
+            challenge = Challenge.objects.get(pk=key)
+            return Response(
+                {
+                    "pk": challenge.pk,
+                    "name": challenge.name,
+                    "time_for_event": challenge.time_for_event,
+                    "question_count": len(
+                        Question.objects.filter(challenge=challenge.pk)
+                    ),
+                }
+            )
+        except:
+            return Response({"detail": "Не найден объект с таким идентификатором"})
 
     permission_classes = (IsAuthenticated,)
 
