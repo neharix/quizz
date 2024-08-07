@@ -3,7 +3,9 @@ import datetime
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from rest_framework import generics
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import HttpRequest
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -179,3 +181,42 @@ class TestSessionUpdateAPIView(APIView):
         return Response({"output": "Success!"})
 
     permission_classes = (IsAuthenticated,)
+
+
+@api_view()
+def challenge_data_api_view(request: HttpRequest, challenge_pk):
+    challenge = Challenge.objects.get(pk=challenge_pk)
+    questions = Question.objects.filter(challenge=challenge)
+    questions_data = []
+    for question in questions:
+        try:
+            image_path = question.image.url
+        except:
+            image_path = ""
+        question_data = {
+            "pk": question.pk,
+            "question": question.question,
+            "is_image": question.is_image,
+            "image": image_path,
+        }
+        answers = Answer.objects.filter(question=question)
+        answers_data = []
+        for answer in answers:
+            try:
+                image_path = answer.image.url
+            except:
+                image_path = ""
+
+            answers_data.append(
+                {
+                    "pk": answer.pk,
+                    "answer": answer.answer,
+                    "question": answer.question.pk,
+                    "image": image_path,
+                    "is_image": answer.is_image,
+                    "is_true": answer.is_true,
+                }
+            )
+        question_data["answers"] = answers_data
+        questions_data.append(question_data)
+    return Response(questions_data)

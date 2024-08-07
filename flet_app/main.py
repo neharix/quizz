@@ -1,36 +1,14 @@
 import asyncio
 import random
-import threading
 import time
 
+import components
 import flet as ft
 import requests
 
 api_url = "http://127.0.0.1:8000"
 
 token = ""
-
-
-class CountDownText(ft.Text):
-    def __init__(self, minutes):
-        super().__init__()
-        self.seconds = minutes * 60
-
-    def did_mount(self):
-        self.running = True
-        self.page.run_task(self.update_timer)
-
-    def will_unmount(self):
-        self.running = False
-
-    async def update_timer(self):
-        while self.seconds and self.running:
-            mins, secs = divmod(self.seconds, 60)
-            self.value = "{:02d}:{:02d}".format(mins, secs)
-            self.update()
-            await asyncio.sleep(1)
-            self.seconds -= 1
-
 
 def main(page: ft.Page):
 
@@ -227,7 +205,7 @@ def main(page: ft.Page):
     )
     container = ft.Container(
         column,
-        bgcolor=ft.colors.BLUE_100,
+        bgcolor=ft.colors.INVERSE_PRIMARY,
         width=400,
         padding=ft.padding.all(40),
         border_radius=10,
@@ -240,20 +218,27 @@ def main(page: ft.Page):
     # функционал и компоненты страницы выбора теста
 
     def run_challenge(pk: int):
-        global challenge_data
+        global challenge_data, questions_data
 
         challenge_data = requests.request(
             "GET", f"{api_url}/api/v1/challenge/{pk}/", headers={"Authorization": token}
         ).json()
 
+        
+        questions = requests.request(
+            "GET", f"{api_url}/api/v1/challenge-data/{challenge_data['pk']}/", headers={"Authorization": token}
+        ).json()
+        questions_data = components.ChallengeData(questions)
+
+
         page.go("/challenge")
 
     def build_challenges_grid_view():
+        global questions_data
 
         challenges_list = requests.request(
             "GET", f"{api_url}/api/v1/challengelist/", headers={"Authorization": token}
         ).json()
-
         grid = ft.GridView(
             expand=1,
             runs_count=5,
@@ -300,9 +285,6 @@ def main(page: ft.Page):
     # Параметры страницы
 
     def route_change(e):
-        global timer_label
-        timer_label = ft.PopupMenuItem(text="Galan wagt:")
-
         page.views.clear()
         page.views.append(
             ft.View(
@@ -342,14 +324,24 @@ def main(page: ft.Page):
                             bgcolor=ft.colors.SURFACE_VARIANT,
                             center_title=True,
                             actions=[
-                                ft.Row(
-                                    controls=[
-                                        ft.Icon(ft.icons.TIMER_SHARP),
-                                        CountDownText(challenge_data["time_for_event"]),
+                                    ft.Row(
+                                        controls=[
+                                            ft.Icon(ft.icons.TIMER_SHARP),
+                                            components.CountDownText(challenge_data["time_for_event"]),
+                                        ],
+                                    ),
+                                    ft.Row(
+                                        controls=[
+                                            ft.ProgressRing(
+                                                value=1,
+                                            ),
+                                            ft.Text(f"0/{challenge_data["question_count"]}   ")
                                     ],
                                 )
                             ],
                         ),
+                        ft.Row(controls=[components.LeftNavigationMenu(questions_data), ft.VerticalDivider(width=1),])
+
                     ],
                 )
             )
