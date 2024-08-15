@@ -1,6 +1,4 @@
-import asyncio
 import random
-import time
 
 import components
 import flet as ft
@@ -10,7 +8,9 @@ api_url = "http://127.0.0.1:8000"
 
 token = ""
 
+
 def main(page: ft.Page):
+    global current_focus_position
 
     # Функционал и компоненты страницы входа
     def build_dialog(dialog_title, dialog_message):
@@ -30,7 +30,7 @@ def main(page: ft.Page):
 
         return dlg_modal
 
-    def submit(e):
+    def submit(e=None):
         global token
 
         name = name_field.value
@@ -193,6 +193,8 @@ def main(page: ft.Page):
         fill_color=ft.colors.WHITE24,
     )
     submit_btn = ft.ElevatedButton("Tassyklamak", on_click=submit)
+    focus_subsequence, current_focus_position = [
+        name_field, surname_field, about_field, "tap accept"], 0
 
     column = ft.Column(
         [
@@ -218,18 +220,18 @@ def main(page: ft.Page):
     # функционал и компоненты страницы выбора теста
 
     def run_challenge(pk: int):
-        global challenge_data, questions_data
+        global challenge_data, questions
 
         challenge_data = requests.request(
             "GET", f"{api_url}/api/v1/challenge/{pk}/", headers={"Authorization": token}
         ).json()
 
-        
-        questions = requests.request(
+        questions_data = requests.request(
             "GET", f"{api_url}/api/v1/challenge-data/{challenge_data['pk']}/", headers={"Authorization": token}
         ).json()
-        questions_data = components.ChallengeData(questions)
-
+        questions = []
+        for question in questions_data:
+            questions.append(components.Question(question))
 
         page.go("/challenge")
 
@@ -265,7 +267,8 @@ def main(page: ft.Page):
                                     weight=ft.FontWeight.W_500,
                                     size=20,
                                 ),
-                                ft.Text(f"Sorag sany: {challenge['question_count']}"),
+                                ft.Text(f"Sorag sany: {
+                                        challenge['question_count']}"),
                             ],
                             alignment=ft.MainAxisAlignment.CENTER,
                         ),
@@ -315,6 +318,7 @@ def main(page: ft.Page):
             )
 
         if page.route == "/challenge":
+            # TODO questions list
             page.views.append(
                 ft.View(
                     "/challenge",
@@ -324,45 +328,75 @@ def main(page: ft.Page):
                             bgcolor=ft.colors.SURFACE_VARIANT,
                             center_title=True,
                             actions=[
-                                    ft.Row(
-                                        controls=[
-                                            ft.Icon(ft.icons.TIMER_SHARP),
-                                            components.CountDownText(challenge_data["time_for_event"]),
-                                        ],
-                                    ),
-                                    ft.Row(
-                                        controls=[
-                                            ft.ProgressRing(
-                                                value=1,
-                                            ),
-                                            ft.Text(f"0/{challenge_data["question_count"]}   ")
+                                ft.Row(
+                                    controls=[
+                                        ft.Icon(ft.icons.TIMER_SHARP),
+                                        components.CountDownText(
+                                            challenge_data["time_for_event"]),
+                                    ],
+                                ),
+                                ft.Row(
+                                    controls=[
+                                        ft.ProgressRing(
+                                            value=1,
+                                        ),
+                                        ft.Text(
+                                            f"0/{challenge_data["question_count"]}   ")
                                     ],
                                 )
                             ],
                         ),
-                        ft.Row(controls=[components.LeftNavigationMenu(questions_data), ft.VerticalDivider(width=1),])
+                        ft.Row(controls=[
+                            ft.Container(content=components.QuestionsMenu(
+                                questions), alignment=ft.alignment.top_center),
+                            ft.VerticalDivider(),
+                            ft.Container(content=ft.Column(
+                                controls=[ft.Text("Atom")])),
+                        ],
+                            expand=True,
+                            spacing=0,
+                        )
 
                     ],
                 )
             )
+        if page.route == "/":
+            page.on_keyboard_event = focus
+        else:
+            page.on_keyboard_event = lambda e: None
 
+        page.update()
+
+    def focus(e: ft.KeyboardEvent):
+        global current_focus_position
+
+        if e.key == "Enter":
+            if name_field.value == "" and current_focus_position == 0:
+                name_field.focus()
+            else:
+                current_focus_position += 1
+                if type(focus_subsequence[current_focus_position]) is ft.TextField:
+                    focus_subsequence[current_focus_position].focus()
+                else:
+                    submit()
         page.update()
 
     def view_pop(e):
         page.views.pop()
         top_view = page.views[-1]
         page.go(top_view.route)
+        page.update()
 
     page.title = "IT Meydança Quiz"
     page.window.maximized = True
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
-    page.update()
     page.theme_mode = ft.ThemeMode.LIGHT
     page.on_route_change = route_change
     page.on_view_pop = view_pop
-
     page.go(page.route)
+
+    page.update()
 
 
 ft.app(target=main)

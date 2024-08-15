@@ -28,6 +28,39 @@ class Question:
         random.shuffle(self.answers)
 
 
+class NavigationItem(ft.Container):
+    def __init__(self, question: Question, index, on_click):
+        super().__init__()
+        self.question = question
+        self.ink = True
+        self.padding = ft.padding.only(left=5, top=5, bottom=5, right=15)
+        self.border_radius = 5
+        self.icon = ft.Icon(
+            name=ft.icons.QUESTION_MARK, color=ft.colors.PRIMARY, size=18
+        )
+        self.text = f"Sorag №{index}"
+        self.content = ft.Row(
+            controls=[
+                self.icon,
+                ft.Text(self.text),
+            ],
+            expand=True,
+        )
+        self.on_click = on_click
+
+
+# FIXME
+class QuestionsMenu(ft.Column):
+    def __init__(self, questions: list) -> None:
+        super().__init__()
+        for index in range(len(questions)):
+            self.controls.append(
+                NavigationItem(questions[index], index + 1,
+                               lambda e: print(f"Clicked"))
+            )
+        self.scroll = ft.ScrollMode.ALWAYS
+
+
 class CountDownText(ft.Text):
     def __init__(self, minutes):
         super().__init__()
