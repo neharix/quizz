@@ -1,0 +1,330 @@
+import random
+
+import components
+import flet as ft
+import requests
+import settings
+
+
+class LoginPage(ft.View):
+
+    def __init__(self):
+        super().__init__()
+        self.route = "/"
+
+        self.__name_field = ft.TextField(
+            label="Ady",
+            border_color=ft.colors.WHITE,
+            focused_color=ft.colors.BLACK87,
+            hover_color=ft.colors.WHITE24,
+            fill_color=ft.colors.WHITE24,
+        )
+        self.__surname_field = ft.TextField(
+            label="Familiýasy",
+            border_color=ft.colors.WHITE,
+            focused_color=ft.colors.BLACK87,
+            hover_color=ft.colors.WHITE24,
+            fill_color=ft.colors.WHITE24,
+        )
+        self.__about_field = ft.TextField(
+            label="Edarasy",
+            border_color=ft.colors.WHITE,
+            focused_color=ft.colors.BLACK87,
+            hover_color=ft.colors.WHITE24,
+            selection_color=ft.colors.WHITE12,
+            fill_color=ft.colors.WHITE24,
+        )
+        self.__submit_btn = ft.ElevatedButton(
+            "Tassyklamak", on_click=lambda e: self.__submit()
+        )
+        self.__focus_subsequence, self.__current_focus_position = [
+            self.__name_field,
+            self.__surname_field,
+            self.__about_field,
+            "tap accept",
+        ], 0
+
+        self.__column = ft.Column(
+            [
+                ft.Row([self.__name_field], alignment=ft.MainAxisAlignment.CENTER),
+                ft.Row([self.__surname_field], alignment=ft.MainAxisAlignment.CENTER),
+                ft.Row([self.__about_field], alignment=ft.MainAxisAlignment.CENTER),
+                ft.Row([self.__submit_btn], alignment=ft.MainAxisAlignment.END),
+            ],
+            spacing=20,
+        )
+        self.__appbar = ft.AppBar(
+            title=ft.Text("Giriş"),
+            center_title=True,
+            bgcolor=ft.colors.SURFACE_VARIANT,
+        )
+
+        self.__login_container = ft.Container(
+            ft.Container(
+                self.__column,
+                bgcolor=ft.colors.INVERSE_PRIMARY,
+                width=400,
+                padding=ft.padding.all(40),
+                border_radius=10,
+                margin=ft.margin.only(top=150, bottom=150),
+                shadow=ft.BoxShadow(1, 10, "#878787"),
+            ),
+            alignment=ft.alignment.center,
+        )
+        self.controls = [self.__appbar, self.__login_container]
+
+    def __build_dialog(self, dialog_title, dialog_message):
+        def close_dlg(e):
+            dlg_modal.open = False
+            self.page.update()
+
+        dlg_modal = ft.AlertDialog(
+            modal=True,
+            title=ft.Text(dialog_title),
+            content=ft.Text(dialog_message),
+            actions=[
+                ft.TextButton("OK", on_click=close_dlg),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+
+        return dlg_modal
+
+    def __submit(self):
+
+        name = self.__name_field.value
+        surname = self.__surname_field.value
+        about = self.__about_field.value
+
+        cyrillic = "ёйцукенгшщзхъфывапролджэячсмитьбю"
+        symbols = ".,/\\`'[]()!@#$%^&*№:;{}<>?+=-_" + '"'
+        filling_error = False
+        for char in name.lower() + surname.lower() + about.lower():
+            if char in symbols or char in cyrillic:
+                filling_error = True
+                break
+
+        if filling_error:
+            dialog_title = "Kabul edilmeýän simwollar"
+            dialog_message = "Girizen maglumatlaryňyzda kabul edilmeýän simwollar ulanylypdyr! Täzeden synanyşmagyňyzy haýyş edýäris!"
+            dlg_modal = self.__build_dialog(dialog_title, dialog_message)
+            self.page.overlay.append(dlg_modal)
+            dlg_modal.open = True
+            self.page.update()
+        elif name == "" or surname == "":
+            dialog_title = "Doly giriziň!"
+            if name == "" and surname == "":
+                dialog_message = "Adyňyzy we familiýaňyzy girizmegiňizi haýyş edýäris!"
+            elif name == "" and not surname == "":
+                dialog_message = "Adyňyzy girizmegiňizi haýyş edýäris!"
+            elif surname == "" and not name == "":
+                dialog_message = "Familiýaňyzy girizmegiňizi haýyş edýäris!"
+            dlg_modal = self.__build_dialog(dialog_title, dialog_message)
+            self.page.overlay.append(dlg_modal)
+            dlg_modal.open = True
+            self.page.update()
+        else:
+            enable_chars = ("qwertyuiopasdfghjklzxcvbnm", "1234567890")
+            password = ""
+            username = (
+                (name + surname)
+                .lower()
+                .replace("ý", "y")
+                .replace("ž", "zh")
+                .replace("ä", "a")
+                .replace("ç", "ch")
+                .replace("ş", "sh")
+                .replace("ň", "n")
+                .replace("ö", "o")
+                .replace("ü", "u")
+            )
+            for i in range(random.randint(8, 12)):
+                in_choice = random.randint(0, 1)
+                if in_choice == 0:
+                    letter_id = random.randint(0, 25)
+                    password += random.choice(
+                        (
+                            enable_chars[0][letter_id].upper(),
+                            enable_chars[0][letter_id].lower(),
+                        )
+                    )
+                else:
+                    password += enable_chars[1][random.randint(0, 9)]
+            try:
+                user_url = f"{settings.API_URL}/api/v1/auth/users/"
+                journal_url = f"{settings.API_URL}/api/v1/auth-journal/create"
+                login_url = f"{settings.API_URL}/api/v1/auth/token/login"
+
+                payload = {
+                    "first_name": name,
+                    "last_name": surname,
+                    "username": username,
+                    "password": password,
+                    "email": "stub@email.com",
+                }
+                payload_dub = {
+                    "name": name,
+                    "surname": surname,
+                    "username": username,
+                    "password": password,
+                }
+
+                files = []
+                headers = {}
+
+                user_response = requests.request(
+                    "POST", user_url, headers=headers, data=payload, files=files
+                ).json()
+
+                if (
+                    user_response["username"][0]
+                    == "A user with that username already exists."
+                    or user_response["username"][0]
+                    == "Пользователь с таким именем уже существует."
+                ):
+                    url = f"{settings.API_URL}/api/v1/auth-journal/" + username
+                    response = requests.request(
+                        "GET", url, headers=headers, files=files
+                    ).json()
+                    login_payload = {
+                        "username": response[0]["username"],
+                        "password": response[0]["password"],
+                    }
+                else:
+
+                    profile_payload = {
+                        "about": about if about != "" else "Default",
+                        "user": user_response["id"],
+                    }
+
+                    profile_response = requests.request(
+                        "POST",
+                        f"{settings.API_URL}/api/v1/create_profile/",
+                        headers={},
+                        data=profile_payload,
+                    ).json()
+
+                    response = requests.request(
+                        "POST",
+                        journal_url,
+                        headers=headers,
+                        data=payload_dub,
+                        files=files,
+                    ).json()
+                    login_payload = {
+                        "username": response["username"],
+                        "password": response["password"],
+                    }
+
+                login_response = requests.request(
+                    "POST", login_url, headers=headers, data=login_payload, files=files
+                ).json()
+                self.__token = "Token " + login_response["auth_token"]
+                self.page.go("/challenges")
+                print(self.__token)
+            except requests.exceptions.ConnectionError:
+                dialog_title = "Baglanyşyk näsazlygy"
+                dialog_message = "Serwer bilen baglanyşyk prosesinde näsazlyk döredi. Internet/Ethernet baglanyşygyňyzy barlaň!"
+                dlg_modal = self.__build_dialog(dialog_title, dialog_message)
+                self.page.overlay.append(dlg_modal)
+                dlg_modal.open = True
+                self.page.update()
+
+    def get_token(self):
+        return self.__token
+
+    def focus(self, e: ft.KeyboardEvent):
+
+        if e.key == "Enter":
+            if self.__name_field.value == "" and self.__current_focus_position == 0:
+                self.__name_field.focus()
+            else:
+                self.__current_focus_position += 1
+                if (
+                    type(self.__focus_subsequence[self.__current_focus_position])
+                    is ft.TextField
+                ):
+                    self.__focus_subsequence[self.__current_focus_position].focus()
+                else:
+                    self.__submit()
+        self.page.update()
+
+class ChallengesPage(ft.View):
+    def __init__(self, token: str):
+        super().__init__()
+        self.__token = token
+        self.__challenges_list = requests.request(
+            "GET", f"{settings.API_URL}/api/v1/challengelist/", headers={"Authorization": self.__token}
+        ).json()
+
+        self.__appbar = ft.AppBar(
+            title=ft.Text("Testler"),
+            bgcolor=ft.colors.SURFACE_VARIANT,
+            center_title=True,
+        )
+
+        self.__grid = ft.GridView(
+            expand=1,
+            runs_count=5,
+            max_extent=300,
+            child_aspect_ratio=3,
+            spacing=10,
+            run_spacing=10,
+        )
+
+        containers = [
+            ft.Container(
+                on_click=lambda e: self.__run_challenge(pk=e.control.data),
+                data=challenge["pk"],
+                bgcolor=ft.colors.SECONDARY_CONTAINER,
+                border_radius=5,
+                padding=15,
+                content=ft.Row(
+                    alignment=ft.MainAxisAlignment.START,
+                    controls=[
+                        ft.Icon(name=ft.icons.QUIZ_OUTLINED),
+                        ft.Column(
+                            controls=[
+                                ft.Text(
+                                    challenge["name"],
+                                    weight=ft.FontWeight.W_500,
+                                    size=20,
+                                ),
+                                ft.Text(f"Sorag sany: {
+                                        challenge['question_count']}"),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                        ),
+                    ],
+                ),
+            )
+            for challenge in self.__challenges_list
+        ]
+
+        for container in containers:
+            self.__grid.controls.append(container)
+
+        self.controls = [
+            self.__appbar,
+            self.__grid,
+        ]
+
+
+    # TODO Привязать к экземпляру данные челленджа
+    def __run_challenge(self, pk: int):
+
+
+        challenge_data = requests.request(
+            "GET", f"{settings.API_URL}/api/v1/challenge/{pk}/", headers={"Authorization": self.__token}
+        ).json()
+
+        questions_data = requests.request(
+            "GET", f"{settings.API_URL}/api/v1/challenge-data/{challenge_data['pk']}/", headers={"Authorization": self.__token}
+        ).json()
+        print(questions_data)
+        questions_menu = components.QuestionsMenu(
+            [components.Question(question) for question in questions_data]
+        )
+        print(questions_menu)
+
+        self.page.go("/challenge")

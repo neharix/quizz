@@ -1,5 +1,5 @@
 import flet as ft
-from flet import Container, KeyboardEvent, Page, Row, Text, border, colors
+from flet import Container, ControlEvent, KeyboardEvent, Page, Row, Text, border, colors
 
 
 class ButtonControl(Container):
@@ -21,6 +21,7 @@ def main(page: Page):
                 src="http://127.0.0.1:8000/media/answers/images_girl_2js7Yu5.jpg",
                 expand=True,
             ),
+            ft.ElevatedButton("Hello", on_click=lambda e: print(e.control.text)),
         ]
     )
 

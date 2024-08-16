@@ -3,383 +3,92 @@ import random
 import components
 import flet as ft
 import requests
+import views
 
-api_url = "http://127.0.0.1:8000"
-
+api_url = ""
 token = ""
 
 
 def main(page: ft.Page):
     global current_focus_position
 
-    # Функционал и компоненты страницы входа
-    def build_dialog(dialog_title, dialog_message):
-        def close_dlg(e):
-            dlg_modal.open = False
-            page.update()
-
-        dlg_modal = ft.AlertDialog(
-            modal=True,
-            title=ft.Text(dialog_title),
-            content=ft.Text(dialog_message),
-            actions=[
-                ft.TextButton("OK", on_click=close_dlg),
-            ],
-            actions_alignment=ft.MainAxisAlignment.END,
-        )
-
-        return dlg_modal
-
-    def submit(e=None):
-        global token
-
-        name = name_field.value
-        surname = surname_field.value
-        about = about_field.value
-
-        cyrillic = "ёйцукенгшщзхъфывапролджэячсмитьбю"
-        symbols = ".,/\\`'[]()!@#$%^&*№:;{}<>?+=-_" + '"'
-        filling_error = False
-        for char in name.lower() + surname.lower() + about.lower():
-            if char in symbols or char in cyrillic:
-                filling_error = True
-                break
-
-        if filling_error:
-            dialog_title = "Kabul edilmeýän simwollar"
-            dialog_message = "Girizen maglumatlaryňyzda kabul edilmeýän simwollar ulanylypdyr! Täzeden synanyşmagyňyzy haýyş edýäris!"
-            dlg_modal = build_dialog(dialog_title, dialog_message)
-            page.overlay.append(dlg_modal)
-            dlg_modal.open = True
-            page.update()
-        elif name == "" or surname == "":
-            dialog_title = "Doly giriziň!"
-            if name == "" and surname == "":
-                dialog_message = "Adyňyzy we familiýaňyzy girizmegiňizi haýyş edýäris!"
-            elif name == "" and not surname == "":
-                dialog_message = "Adyňyzy girizmegiňizi haýyş edýäris!"
-            elif surname == "" and not name == "":
-                dialog_message = "Familiýaňyzy girizmegiňizi haýyş edýäris!"
-            dlg_modal = build_dialog(dialog_title, dialog_message)
-            page.overlay.append(dlg_modal)
-            dlg_modal.open = True
-            page.update()
-        else:
-            enable_chars = ("qwertyuiopasdfghjklzxcvbnm", "1234567890")
-            password = ""
-            username = (
-                (name + surname)
-                .lower()
-                .replace("ý", "y")
-                .replace("ž", "zh")
-                .replace("ä", "a")
-                .replace("ç", "ch")
-                .replace("ş", "sh")
-                .replace("ň", "n")
-                .replace("ö", "o")
-                .replace("ü", "u")
-            )
-            for i in range(random.randint(8, 12)):
-                in_choice = random.randint(0, 1)
-                if in_choice == 0:
-                    letter_id = random.randint(0, 25)
-                    password += random.choice(
-                        (
-                            enable_chars[0][letter_id].upper(),
-                            enable_chars[0][letter_id].lower(),
-                        )
-                    )
-                else:
-                    password += enable_chars[1][random.randint(0, 9)]
-            try:
-                user_url = f"{api_url}/api/v1/auth/users/"
-                journal_url = f"{api_url}/api/v1/auth-journal/create"
-                login_url = f"{api_url}/api/v1/auth/token/login"
-
-                payload = {
-                    "first_name": name,
-                    "last_name": surname,
-                    "username": username,
-                    "password": password,
-                    "email": "stub@email.com",
-                }
-                payload_dub = {
-                    "name": name,
-                    "surname": surname,
-                    "username": username,
-                    "password": password,
-                }
-
-                files = []
-                headers = {}
-
-                user_response = requests.request(
-                    "POST", user_url, headers=headers, data=payload, files=files
-                ).json()
-
-                if (
-                    user_response["username"][0]
-                    == "A user with that username already exists."
-                    or user_response["username"][0]
-                    == "Пользователь с таким именем уже существует."
-                ):
-                    url = f"{api_url}/api/v1/auth-journal/" + username
-                    response = requests.request(
-                        "GET", url, headers=headers, files=files
-                    ).json()
-                    login_payload = {
-                        "username": response[0]["username"],
-                        "password": response[0]["password"],
-                    }
-                else:
-
-                    profile_payload = {
-                        "about": about if about != "" else "Default",
-                        "user": user_response["id"],
-                    }
-
-                    profile_response = requests.request(
-                        "POST",
-                        f"{api_url}/api/v1/create_profile/",
-                        headers={},
-                        data=profile_payload,
-                    ).json()
-
-                    response = requests.request(
-                        "POST",
-                        journal_url,
-                        headers=headers,
-                        data=payload_dub,
-                        files=files,
-                    ).json()
-                    login_payload = {
-                        "username": response["username"],
-                        "password": response["password"],
-                    }
-
-                login_response = requests.request(
-                    "POST", login_url, headers=headers, data=login_payload, files=files
-                ).json()
-                token = "Token " + login_response["auth_token"]
-                page.go("/challenges")
-            except requests.exceptions.ConnectionError:
-                dialog_title = "Baglanyşyk näsazlygy"
-                dialog_message = "Serwer bilen baglanyşyk prosesinde näsazlyk döredi. Internet/Ethernet baglanyşygyňyzy barlaň!"
-                dlg_modal = build_dialog(dialog_title, dialog_message)
-                page.overlay.append(dlg_modal)
-                dlg_modal.open = True
-                page.update()
-
-    name_field = ft.TextField(
-        label="Ady",
-        border_color=ft.colors.WHITE,
-        focused_color=ft.colors.BLACK87,
-        hover_color=ft.colors.WHITE24,
-        fill_color=ft.colors.WHITE24,
-    )
-    surname_field = ft.TextField(
-        label="Familiýasy",
-        border_color=ft.colors.WHITE,
-        focused_color=ft.colors.BLACK87,
-        hover_color=ft.colors.WHITE24,
-        fill_color=ft.colors.WHITE24,
-    )
-    about_field = ft.TextField(
-        label="Edarasy",
-        border_color=ft.colors.WHITE,
-        focused_color=ft.colors.BLACK87,
-        hover_color=ft.colors.WHITE24,
-        selection_color=ft.colors.WHITE12,
-        fill_color=ft.colors.WHITE24,
-    )
-    submit_btn = ft.ElevatedButton("Tassyklamak", on_click=submit)
-    focus_subsequence, current_focus_position = [
-        name_field, surname_field, about_field, "tap accept"], 0
-
-    column = ft.Column(
-        [
-            ft.Row([name_field], alignment=ft.MainAxisAlignment.CENTER),
-            ft.Row([surname_field], alignment=ft.MainAxisAlignment.CENTER),
-            ft.Row([about_field], alignment=ft.MainAxisAlignment.CENTER),
-            ft.Row([submit_btn], alignment=ft.MainAxisAlignment.END),
-        ],
-        spacing=20,
-    )
-    container = ft.Container(
-        column,
-        bgcolor=ft.colors.INVERSE_PRIMARY,
-        width=400,
-        padding=ft.padding.all(40),
-        border_radius=10,
-        margin=ft.margin.only(top=150, bottom=150),
-        shadow=ft.BoxShadow(1, 10, "#878787"),
-    )
-
-    login_container = ft.Container(container, alignment=ft.alignment.center)
-
-    # функционал и компоненты страницы выбора теста
-
-    def run_challenge(pk: int):
-        global challenge_data, questions
-
-        challenge_data = requests.request(
-            "GET", f"{api_url}/api/v1/challenge/{pk}/", headers={"Authorization": token}
-        ).json()
-
-        questions_data = requests.request(
-            "GET", f"{api_url}/api/v1/challenge-data/{challenge_data['pk']}/", headers={"Authorization": token}
-        ).json()
-        questions = []
-        for question in questions_data:
-            questions.append(components.Question(question))
-
-        page.go("/challenge")
-
-    def build_challenges_grid_view():
-        global questions_data
-
-        challenges_list = requests.request(
-            "GET", f"{api_url}/api/v1/challengelist/", headers={"Authorization": token}
-        ).json()
-        grid = ft.GridView(
-            expand=1,
-            runs_count=5,
-            max_extent=300,
-            child_aspect_ratio=3,
-            spacing=10,
-            run_spacing=10,
-        )
-
-        containers = [
-            ft.Container(
-                on_click=lambda e: run_challenge(challenge["pk"]),
-                bgcolor=ft.colors.SECONDARY_CONTAINER,
-                border_radius=5,
-                padding=15,
-                content=ft.Row(
-                    alignment=ft.MainAxisAlignment.START,
-                    controls=[
-                        ft.Icon(name=ft.icons.QUIZ_OUTLINED),
-                        ft.Column(
-                            controls=[
-                                ft.Text(
-                                    challenge["name"],
-                                    weight=ft.FontWeight.W_500,
-                                    size=20,
-                                ),
-                                ft.Text(f"Sorag sany: {
-                                        challenge['question_count']}"),
-                            ],
-                            alignment=ft.MainAxisAlignment.CENTER,
-                        ),
-                    ],
-                ),
-            )
-            for challenge in challenges_list
-        ]
-
-        for container in containers:
-            grid.controls.append(container)
-
-        return grid
-
-    # функционал и компоненты страницы викторины
-
     # Параметры страницы
+    login_page = views.LoginPage()
 
     def route_change(e):
+        global questions_menu, quizz_panel
+
         page.views.clear()
-        page.views.append(
-            ft.View(
-                "/",
-                [
-                    ft.AppBar(
-                        title=ft.Text("Giriş"),
-                        center_title=True,
-                        bgcolor=ft.colors.SURFACE_VARIANT,
-                    ),
-                    login_container,
-                ],
-            )
-        )
+        page.views.append(login_page)
         if page.route == "/challenges":
-            page.views.append(
-                ft.View(
-                    "/challenges",
-                    [
-                        ft.AppBar(
-                            title=ft.Text("Testler"),
-                            bgcolor=ft.colors.SURFACE_VARIANT,
-                            center_title=True,
-                        ),
-                        build_challenges_grid_view(),
-                    ],
-                )
-            )
+            challenges_page = views.ChallengesPage(login_page.get_token())
+            page.views.append(challenges_page)
 
-        if page.route == "/challenge":
-            # TODO questions list
-            page.views.append(
-                ft.View(
-                    "/challenge",
-                    [
-                        ft.AppBar(
-                            title=ft.Text(challenge_data["name"]),
-                            bgcolor=ft.colors.SURFACE_VARIANT,
-                            center_title=True,
-                            actions=[
-                                ft.Row(
-                                    controls=[
-                                        ft.Icon(ft.icons.TIMER_SHARP),
-                                        components.CountDownText(
-                                            challenge_data["time_for_event"]),
-                                    ],
-                                ),
-                                ft.Row(
-                                    controls=[
-                                        ft.ProgressRing(
-                                            value=1,
-                                        ),
-                                        ft.Text(
-                                            f"0/{challenge_data["question_count"]}   ")
-                                    ],
-                                )
-                            ],
-                        ),
-                        ft.Row(controls=[
-                            ft.Container(content=components.QuestionsMenu(
-                                questions), alignment=ft.alignment.top_center),
-                            ft.VerticalDivider(),
-                            ft.Container(content=ft.Column(
-                                controls=[ft.Text("Atom")])),
-                        ],
-                            expand=True,
-                            spacing=0,
-                        )
+        # if page.route == "/challenge":
+        #     quizz_panel = components.QuizzPanel()
+        #     page.views.append(
+        #         ft.View(
+        #             "/challenge",
+        #             [
+        #                 ft.AppBar(
+        #                     title=ft.Text(challenge_data["name"]),
+        #                     bgcolor=ft.colors.SURFACE_VARIANT,
+        #                     center_title=True,
+        #                     actions=[
+        #                         ft.Row(
+        #                             controls=[
+        #                                 ft.Icon(ft.icons.TIMER_SHARP),
+        #                                 components.CountDownText(
+        #                                     challenge_data["time_for_event"]),
+        #                             ],
+        #                         ),
+        #                         ft.Row(
+        #                             controls=[
+        #                                 ft.ProgressRing(
+        #                                     value=1,
+        #                                 ),
+        #                                 ft.Text(
+        #                                     f"0/{challenge_data["question_count"]}   ")
+        #                             ],
+        #                         )
+        #                     ],
+        #                 ),
+        #                 ft.Row(controls=[
+        #                     ft.Container(content=questions_menu,
+        #                                  alignment=ft.alignment.top_center),
+        #                     ft.VerticalDivider(),
+        #                     quizz_panel,
+        #                 ],
+        #                     expand=True,
+        #                     spacing=0,
+        #                 )
 
-                    ],
-                )
-            )
+        #             ],
+        #         )
+        #     )
+        #     quizz_panel.set_data(questions_menu.controls[0].question)
         if page.route == "/":
-            page.on_keyboard_event = focus
+            page.on_keyboard_event = login_page.focus
         else:
             page.on_keyboard_event = lambda e: None
-
         page.update()
 
-    def focus(e: ft.KeyboardEvent):
-        global current_focus_position
+        # if page.route == "/challenge":
+        #     quizz_panel.update()
 
-        if e.key == "Enter":
-            if name_field.value == "" and current_focus_position == 0:
-                name_field.focus()
-            else:
-                current_focus_position += 1
-                if type(focus_subsequence[current_focus_position]) is ft.TextField:
-                    focus_subsequence[current_focus_position].focus()
-                else:
-                    submit()
-        page.update()
+    # def focus(e: ft.KeyboardEvent):
+    #     global current_focus_position
+
+    #     if e.key == "Enter":
+    #         if name_field.value == "" and current_focus_position == 0:
+    #             name_field.focus()
+    #         else:
+    #             current_focus_position += 1
+    #             if type(focus_subsequence[current_focus_position]) is ft.TextField:
+    #                 focus_subsequence[current_focus_position].focus()
+    #             else:
+    #                 submit()
+    #     page.update()
 
     def view_pop(e):
         page.views.pop()

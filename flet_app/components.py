@@ -55,8 +55,7 @@ class QuestionsMenu(ft.Column):
         super().__init__()
         for index in range(len(questions)):
             self.controls.append(
-                NavigationItem(questions[index], index + 1,
-                               lambda e: print(f"Clicked"))
+                NavigationItem(questions[index], index + 1, lambda e: print(f"Clicked"))
             )
         self.scroll = ft.ScrollMode.ALWAYS
 
@@ -80,3 +79,32 @@ class CountDownText(ft.Text):
             self.update()
             await asyncio.sleep(1)
             self.seconds -= 1
+
+
+class QuizzPanel(ft.Container):
+    quizz_column = ft.Column()
+    question_container = ft.Container(bgcolor=ft.colors.PRIMARY_CONTAINER)
+    data = quizz_column
+
+    def __init__(self):
+        super().__init__()
+
+    def set_data(self, question: Question):
+        if question.is_image:
+            self.question_container.content = ft.Row(
+                controls=[
+                    ft.Text("Suraty görmek"),
+                    ft.Icon(name=ft.icons.CHEVRON_RIGHT),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                expand=True,
+            )
+        else:
+            self.question_container.content = ft.Text(question.question)
+
+        self.quizz_column.controls.append(self.question_container)
+
+    def update(self) -> None:
+        self.quizz_column.update()
+        self.question_container.update()
+        return super().update()
