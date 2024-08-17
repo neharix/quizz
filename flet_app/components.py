@@ -72,13 +72,44 @@ class CountDownText(ft.Text):
     def will_unmount(self):
         self.running = False
 
+    def __build_dialog(self, dialog_title, dialog_message):
+        def close_dlg(e):
+            dlg_modal.open = False
+            self.page.update()
+
+        dlg_modal = ft.AlertDialog(
+            modal=True,
+            title=ft.Text(dialog_title),
+            content=ft.Text(dialog_message),
+            actions=[
+                ft.TextButton("OK", on_click=close_dlg),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+
+        dlg_modal.on_dismiss = lambda e: self.page.window.close()
+
+        return dlg_modal
+
     async def update_timer(self):
         while self.seconds and self.running:
             mins, secs = divmod(self.seconds, 60)
-            self.value = "{:02d}:{:02d}     ".format(mins, secs)
+            hours, mins = divmod(mins, 60)
+            if hours > 0:
+                self.value = "{:02d}:{:02d}:{:02d}     ".format(hours, mins, secs)
+            else:
+                self.value = "{:02d}:{:02d}     ".format(mins, secs)
             self.update()
             await asyncio.sleep(1)
             self.seconds -= 1
+            if self.seconds == 0:
+                close_modal = self.__build_dialog(
+                    "Wagt doldy!",
+                    "Test üçin berlen wagtyňyz doldy! Çykyşyňyzy tassyklaň!",
+                )
+                close_modal.open = True
+                self.page.overlay.append(close_modal)
+                self.page.update()
 
 
 class QuizzPanel(ft.Container):

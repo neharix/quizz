@@ -37,13 +37,6 @@ class LoginPage(ft.View):
         self.__submit_btn = ft.ElevatedButton(
             "Tassyklamak", on_click=lambda e: self.__submit()
         )
-        self.__focus_subsequence, self.__current_focus_position = [
-            self.__name_field,
-            self.__surname_field,
-            self.__about_field,
-            "tap accept",
-        ], 0
-
         self.__column = ft.Column(
             [
                 ft.Row([self.__name_field], alignment=ft.MainAxisAlignment.CENTER),
@@ -72,6 +65,7 @@ class LoginPage(ft.View):
             alignment=ft.alignment.center,
         )
         self.controls = [self.__appbar, self.__login_container]
+        self.__about_field_focused = False
 
     def __build_dialog(self, dialog_title, dialog_message):
         def close_dlg(e):
@@ -236,17 +230,18 @@ class LoginPage(ft.View):
     def focus(self, e: ft.KeyboardEvent):
 
         if e.key == "Enter":
-            if self.__name_field.value == "" and self.__current_focus_position == 0:
-                self.__name_field.focus()
-            else:
-                self.__current_focus_position += 1
-                if (
-                    type(self.__focus_subsequence[self.__current_focus_position])
-                    is ft.TextField
-                ):
-                    self.__focus_subsequence[self.__current_focus_position].focus()
-                else:
-                    self.__submit()
+            fields = (self.__name_field, self.__surname_field) if self.__about_field_focused else (self.__name_field, self.__surname_field, self.__about_field)
+            blank_filled = True
+            for field in fields:
+                if field.value == "":
+                    self.__about_field_focused = True if fields.index(field) == 2 else False
+                    blank_filled = False
+                    field.focus()
+                    break
+            if blank_filled:
+                self.__submit()
+
+
         self.page.update()
 
 class ChallengesPage(ft.View):
@@ -313,18 +308,63 @@ class ChallengesPage(ft.View):
     # TODO Привязать к экземпляру данные челленджа
     def __run_challenge(self, pk: int):
 
+        self.__selected_challenge = pk
 
-        challenge_data = requests.request(
-            "GET", f"{settings.API_URL}/api/v1/challenge/{pk}/", headers={"Authorization": self.__token}
+        self.page.go("/challenge")
+
+    def get_selected_challenge(self):
+        return self.__selected_challenge
+
+class ChallengePage(ft.View):
+    def __init__(self, pk: int, token: str):
+        super().__init__()
+        self.__token = token
+        self.__challenge_pk = pk
+        self.__challenge_data = requests.request(
+            "GET", f"{settings.API_URL}/api/v1/challenge/{self.__challenge_pk}/", headers={"Authorization": self.__token}
         ).json()
 
         questions_data = requests.request(
-            "GET", f"{settings.API_URL}/api/v1/challenge-data/{challenge_data['pk']}/", headers={"Authorization": self.__token}
+            "GET", f"{settings.API_URL}/api/v1/challenge-data/{self.__challenge_pk}/", headers={"Authorization": self.__token}
         ).json()
-        print(questions_data)
-        questions_menu = components.QuestionsMenu(
+        self.__questions_menu = components.QuestionsMenu(
             [components.Question(question) for question in questions_data]
         )
-        print(questions_menu)
+        
 
-        self.page.go("/challenge")
+        self.route = "/challenge"
+        self.controls = [
+            ft.AppBar(
+                title=ft.Text(self.__challenge_data["name"]),
+                bgcolor=ft.colors.SURFACE_VARIANT,
+                center_title=True,
+                actions=[
+                    ft.Row(
+                        controls=[
+                            ft.Icon(ft.icons.TIMER_SHARP),
+                            components.CountDownText(
+                                self.__challenge_data["time_for_event"]),
+                        ],
+                    ),
+                    ft.Row(
+                        controls=[
+                            ft.ProgressRing(
+                                value=1,
+                            ),
+                            ft.Text(
+                                f"0/{self.__challenge_data["question_count"]}   ")
+                        ],
+                    )
+                ],
+            ),
+            ft.Row(controls=[
+                ft.Container(content=self.__questions_menu,
+                                alignment=ft.alignment.top_center),
+                ft.VerticalDivider(),
+                ft.Text("hello"),
+            ],
+                expand=True,
+                spacing=0,
+            )
+
+        ]
