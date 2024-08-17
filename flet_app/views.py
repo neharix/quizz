@@ -215,7 +215,6 @@ class LoginPage(ft.View):
                 ).json()
                 self.__token = "Token " + login_response["auth_token"]
                 self.page.go("/challenges")
-                print(self.__token)
             except requests.exceptions.ConnectionError:
                 dialog_title = "Baglanyşyk näsazlygy"
                 dialog_message = "Serwer bilen baglanyşyk prosesinde näsazlyk döredi. Internet/Ethernet baglanyşygyňyzy barlaň!"
@@ -330,9 +329,45 @@ class ChallengePage(ft.View):
         self.__questions_menu = components.QuestionsMenu(
             [components.Question(question) for question in questions_data]
         )
-        
 
         self.route = "/challenge"
+
+        self.__quizz_panel = ft.Column(scroll=ft.ScrollMode.AUTO)
+
+        self.__question_row = ft.Container(
+            bgcolor=ft.colors.SURFACE_VARIANT, 
+            content=ft.Row(
+                controls=[ft.Text("question")],
+                width=600,
+                height=200,
+                scroll=ft.ScrollMode.AUTO
+            ),
+            margin=ft.margin.only(bottom=70),
+            padding=ft.padding.only(20, 15, 20, 15),
+        )
+        
+        self.__answers_grid = ft.GridView(auto_scroll=True, runs_count=2, height=400, child_aspect_ratio=4)
+
+
+        answer_containers = [
+            ft.Container(
+                on_click=lambda e: None,
+                bgcolor=ft.colors.SECONDARY_CONTAINER,
+                border_radius=5,
+                padding=15,
+                content=ft.Row(
+                    alignment=ft.MainAxisAlignment.START,
+                    controls=[
+                        ft.Text("answer"),
+                    ],
+                ),
+            )
+            for i in range(4)
+        ]
+        for container in answer_containers:
+            self.__answers_grid.controls.append(container)
+        self.__quizz_panel.controls = [self.__question_row, self.__answers_grid]
+
         self.controls = [
             ft.AppBar(
                 title=ft.Text(self.__challenge_data["name"]),
@@ -361,10 +396,11 @@ class ChallengePage(ft.View):
                 ft.Container(content=self.__questions_menu,
                                 alignment=ft.alignment.top_center),
                 ft.VerticalDivider(),
-                ft.Text("hello"),
+                ft.Container(content=self.__quizz_panel, expand=True, alignment=ft.alignment.top_center),
             ],
                 expand=True,
                 spacing=0,
+                alignment=ft.alignment.top_center,
             )
 
         ]

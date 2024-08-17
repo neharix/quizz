@@ -42,12 +42,14 @@ def main(page: ft.Page):
         page.update()
 
     page.title = "IT Meydança Quizz"
+    page.scroll = ft.ScrollMode.AUTO
     page.window.maximized = True
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
     page.theme_mode = ft.ThemeMode.LIGHT
     page.on_route_change = route_change
     page.on_view_pop = view_pop
+    page.on_error = lambda e: print(e.data)
     page.go(page.route)
 
     page.update()
