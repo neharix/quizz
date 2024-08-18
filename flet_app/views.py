@@ -60,7 +60,7 @@ class LoginPage(ft.View):
                 padding=ft.padding.all(40),
                 border_radius=10,
                 margin=ft.margin.only(top=150, bottom=150),
-                shadow=ft.BoxShadow(1, 10, "#878787"),
+                shadow=ft.BoxShadow(1, 10, "#bdbdbd"),
             ),
             alignment=ft.alignment.center,
         )
@@ -304,7 +304,6 @@ class ChallengesPage(ft.View):
         ]
 
 
-    # TODO Привязать к экземпляру данные челленджа
     def __run_challenge(self, pk: int):
 
         self.__selected_challenge = pk
@@ -326,6 +325,7 @@ class ChallengePage(ft.View):
         questions_data = requests.request(
             "GET", f"{settings.API_URL}/api/v1/challenge-data/{self.__challenge_pk}/", headers={"Authorization": self.__token}
         ).json()
+        random.shuffle(questions_data)
         self.__questions_menu = components.QuestionsMenu(
             [components.Question(question) for question in questions_data]
         )
@@ -334,39 +334,58 @@ class ChallengePage(ft.View):
 
         self.__quizz_panel = ft.Column(scroll=ft.ScrollMode.AUTO)
 
-        self.__question_row = ft.Container(
-            bgcolor=ft.colors.SURFACE_VARIANT, 
-            content=ft.Row(
-                controls=[ft.Text("question")],
-                width=600,
-                height=200,
-                scroll=ft.ScrollMode.AUTO
-            ),
-            margin=ft.margin.only(bottom=70),
-            padding=ft.padding.only(20, 15, 20, 15),
+        self.__question_row = ft.Row(
+            controls=[
+                ft.Container(
+                    bgcolor=ft.colors.INVERSE_PRIMARY, 
+                    content=ft.Row(
+                        controls=[
+                            ft.Text
+                            (
+                                'Contrary to popular belief, Lorem Ipsum is not simply random text.', 
+                                expand=True,
+                                size=18,
+                            )
+                        ],
+                    ),
+                    expand=True,
+                    margin=ft.margin.only(10, 20, 10, 25),
+                    padding=ft.padding.only(20, 15, 20, 15),
+                    shadow=ft.BoxShadow(1, 10, "#bdbdbd"),
+                    border_radius=30,
+                ),
+            ],
         )
         
-        self.__answers_grid = ft.GridView(auto_scroll=True, runs_count=2, height=400, child_aspect_ratio=4)
-
+        self.__answers_grid = ft.GridView(auto_scroll=True, runs_count=2, padding=10, height=295, child_aspect_ratio=5)
 
         answer_containers = [
             ft.Container(
                 on_click=lambda e: None,
                 bgcolor=ft.colors.SECONDARY_CONTAINER,
-                border_radius=5,
+                border_radius=30,
                 padding=15,
                 content=ft.Row(
                     alignment=ft.MainAxisAlignment.START,
                     controls=[
                         ft.Text("answer"),
                     ],
+                    scroll=ft.ScrollMode.AUTO,
                 ),
+                shadow=ft.BoxShadow(1, 7.5, "#e2e2e2"),
             )
-            for i in range(4)
+            for i in range(3)
         ]
         for container in answer_containers:
             self.__answers_grid.controls.append(container)
-        self.__quizz_panel.controls = [self.__question_row, self.__answers_grid]
+        self.__quizz_panel.controls = [
+            self.__question_row, 
+            ft.Row(controls=[ft.Text("Jogaplar:")]),
+            ft.Container(
+                content=self.__answers_grid,
+                margin=ft.margin.only(top=25)
+            )
+        ]
 
         self.controls = [
             ft.AppBar(
@@ -392,15 +411,15 @@ class ChallengePage(ft.View):
                     )
                 ],
             ),
-            ft.Row(controls=[
-                ft.Container(content=self.__questions_menu,
-                                alignment=ft.alignment.top_center),
-                ft.VerticalDivider(),
-                ft.Container(content=self.__quizz_panel, expand=True, alignment=ft.alignment.top_center),
-            ],
+            ft.Row(
+                controls=[
+                    ft.Container(content=self.__questions_menu,
+                                    alignment=ft.alignment.top_center),
+                    ft.VerticalDivider(),
+                    ft.Container(content=self.__quizz_panel, expand=True, alignment=ft.alignment.top_center),
+                ],    
                 expand=True,
-                spacing=0,
+                spacing=10,
                 alignment=ft.alignment.top_center,
             )
-
         ]

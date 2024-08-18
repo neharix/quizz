@@ -103,6 +103,7 @@ class CountDownText(ft.Text):
             await asyncio.sleep(1)
             self.seconds -= 1
             if self.seconds == 0:
+                self.value = "00:00     "
                 close_modal = self.__build_dialog(
                     "Wagt doldy!",
                     "Test üçin berlen wagtyňyz doldy! Çykyşyňyzy tassyklaň!",
