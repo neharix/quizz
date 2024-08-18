@@ -1,4 +1,14 @@
-*.pyc
-*.png
-*.jpg
-*.jpeg
+# Images
+media/**/*.png
+media/**/*.jpg
+media/**/*.svg
+
+# SQL Database
+db.sqlite3
+
+# Python binaries
+**/__pycache__
+**/migrations/__pycache__
+
+# Virtual environment
+.venv
