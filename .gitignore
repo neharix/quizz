@@ -7,8 +7,7 @@ media/**/*.svg
 db.sqlite3
 
 # Python binaries
-**/__pycache__
-**/migrations/__pycache__
+__pycache__/
 
 # Virtual environment
 .venv
