@@ -334,6 +334,9 @@ class ChallengePage(ft.View):
 
         self.__quizz_panel = ft.Column(scroll=ft.ScrollMode.AUTO)
 
+        self.floating_action_button = ft.FloatingActionButton(icon=ft.icons.ARROW_RIGHT, on_click=lambda e: print("Hello"), bgcolor=ft.colors.PRIMARY, foreground_color=ft.colors.WHITE)
+
+
         self.__question_row = ft.Row(
             controls=[
                 ft.Container(
@@ -358,7 +361,7 @@ class ChallengePage(ft.View):
         )
         
         self.__answers_grid = ft.GridView(auto_scroll=True, runs_count=2, padding=10, height=295, child_aspect_ratio=5)
-
+        
         answer_containers = [
             ft.Container(
                 on_click=lambda e: None,
@@ -378,9 +381,10 @@ class ChallengePage(ft.View):
         ]
         for container in answer_containers:
             self.__answers_grid.controls.append(container)
+        
         self.__quizz_panel.controls = [
             self.__question_row, 
-            ft.Row(controls=[ft.Text("Jogaplar:")]),
+            ft.Row(controls=[ft.Text("Jogaplar:", size=18)]),
             ft.Container(
                 content=self.__answers_grid,
                 margin=ft.margin.only(top=25)
