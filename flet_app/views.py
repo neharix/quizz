@@ -329,12 +329,13 @@ class ChallengePage(ft.View):
         self.__questions_menu = components.QuestionsMenu(
             [components.Question(question) for question in questions_data]
         )
+        self.current_question_index = 0
 
         self.route = "/challenge"
 
         self.__quizz_panel = ft.Column(scroll=ft.ScrollMode.AUTO)
 
-        self.floating_action_button = ft.FloatingActionButton(icon=ft.icons.ARROW_RIGHT, on_click=lambda e: print("Hello"), bgcolor=ft.colors.PRIMARY, foreground_color=ft.colors.WHITE)
+        self.floating_action_button = ft.FloatingActionButton(icon=ft.icons.ARROW_FORWARD, scale=1.1, width=110, height=45, on_click=lambda e: print("Hello"), bgcolor=ft.colors.PRIMARY, foreground_color=ft.colors.WHITE)
 
 
         self.__question_row = ft.Row(
@@ -345,7 +346,7 @@ class ChallengePage(ft.View):
                         controls=[
                             ft.Text
                             (
-                                'Contrary to popular belief, Lorem Ipsum is not simply random text.', 
+                                self.__questions_menu.controls[0].question, 
                                 expand=True,
                                 size=18,
                             )
@@ -362,12 +363,13 @@ class ChallengePage(ft.View):
         
         self.__answers_grid = ft.GridView(auto_scroll=True, runs_count=2, padding=10, height=295, child_aspect_ratio=5)
         
-        answer_containers = [
+        self.__answer_containers = [
             ft.Container(
-                on_click=lambda e: None,
+                on_click=self.__select,
                 bgcolor=ft.colors.SECONDARY_CONTAINER,
                 border_radius=30,
                 padding=15,
+                data=i,
                 content=ft.Row(
                     alignment=ft.MainAxisAlignment.START,
                     controls=[
@@ -376,10 +378,33 @@ class ChallengePage(ft.View):
                     scroll=ft.ScrollMode.AUTO,
                 ),
                 shadow=ft.BoxShadow(1, 7.5, "#e2e2e2"),
+                animate=ft.animation.Animation(150, ft.AnimationCurve.EASE_IN)
             )
             for i in range(3)
         ]
-        for container in answer_containers:
+        self.__answer_containers.append(
+            ft.Container(
+                on_click=self.__select,
+                bgcolor=ft.colors.SECONDARY_CONTAINER,
+                border_radius=30,
+                padding=15,
+                data=3,
+                content=ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    expand=True,
+                    controls=[
+                        ft.Text("image"),
+                        ft.IconButton(icon=ft.icons.ARROW_FORWARD_IOS, on_click=lambda e: print("It's me\n")),
+                    ],
+                    scroll=ft.ScrollMode.AUTO,
+                ),
+                shadow=ft.BoxShadow(1, 7.5, "#e2e2e2"),
+                animate=ft.animation.Animation(150, ft.AnimationCurve.EASE_IN),
+            )
+        )
+        self.__selected_answer = None
+
+        for container in self.__answer_containers:
             self.__answers_grid.controls.append(container)
         
         self.__quizz_panel.controls = [
@@ -417,8 +442,7 @@ class ChallengePage(ft.View):
             ),
             ft.Row(
                 controls=[
-                    ft.Container(content=self.__questions_menu,
-                                    alignment=ft.alignment.top_center),
+                    ft.Container(content=self.__questions_menu, alignment=ft.alignment.top_center),
                     ft.VerticalDivider(),
                     ft.Container(content=self.__quizz_panel, expand=True, alignment=ft.alignment.top_center),
                 ],    
@@ -427,3 +451,18 @@ class ChallengePage(ft.View):
                 alignment=ft.alignment.top_center,
             )
         ]
+
+    def __select(self, e: ft.ControlEvent):
+        for answer_container in self.__answer_containers:
+        
+            if answer_container.data != e.control.data:
+                answer_container.bgcolor = ft.colors.SECONDARY_CONTAINER
+            else:
+                if self.__selected_answer == e.control.data:
+                    self.__selected_answer = None
+                    answer_container.bgcolor = ft.colors.SECONDARY_CONTAINER
+                else:
+                    self.__selected_answer = answer_container.data
+                    answer_container.bgcolor = ft.colors.INVERSE_PRIMARY
+
+        self.page.update()
