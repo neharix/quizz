@@ -1,4 +1,5 @@
 import random
+from typing import List
 
 import components
 import flet as ft
@@ -318,8 +319,19 @@ class ChallengePage(ft.View):
         super().__init__()
         self.__token = token
         self.__challenge_pk = pk
+        self.__user_data = requests.request(
+            "GET",
+            f"{settings.API_URL}/api/v1/auth/users/",
+            headers={"Authorization": self.__token},
+        ).json()
         self.__challenge_data = requests.request(
             "GET", f"{settings.API_URL}/api/v1/challenge/{self.__challenge_pk}/", headers={"Authorization": self.__token}
+        ).json()
+        self.__session = requests.request(
+            "POST",
+            url=f"{settings.API_URL}/api/v1/test-session-create/",
+            headers={"Authorization": self.__token},
+            data={"challenge": self.__challenge_pk, "user": int(self.__user_data[0]["id"])},
         ).json()
 
         questions_data = requests.request(
@@ -337,21 +349,32 @@ class ChallengePage(ft.View):
 
         self.floating_action_button = ft.FloatingActionButton(icon=ft.icons.ARROW_FORWARD, scale=1.1, width=110, height=45, on_click=lambda e: print("Hello"), bgcolor=ft.colors.PRIMARY, foreground_color=ft.colors.WHITE)
 
+        question: components.Question = self.__questions_menu.controls[0].question
+
+        if question.is_image:
+            row = ft.Row(
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                expand=True,
+                controls=[
+                    ft.Text("Suraty görmek üçin basyň", weight=ft.FontWeight.BOLD),
+                    ft.IconButton(icon=ft.icons.ARROW_FORWARD_IOS, data=question.image, on_click=self.__show_image_dialog),
+                ],
+                spacing=10,
+            )
+        else:
+            row = ft.Row(
+                alignment=ft.MainAxisAlignment.START,
+                controls=[
+                    ft.Text(question.question),
+                ],
+                scroll=ft.ScrollMode.AUTO,
+            )
 
         self.__question_row = ft.Row(
             controls=[
                 ft.Container(
                     bgcolor=ft.colors.INVERSE_PRIMARY, 
-                    content=ft.Row(
-                        controls=[
-                            ft.Text
-                            (
-                                self.__questions_menu.controls[0].question, 
-                                expand=True,
-                                size=18,
-                            )
-                        ],
-                    ),
+                    content=row,
                     expand=True,
                     margin=ft.margin.only(10, 20, 10, 25),
                     padding=ft.padding.only(20, 15, 20, 15),
@@ -363,45 +386,7 @@ class ChallengePage(ft.View):
         
         self.__answers_grid = ft.GridView(auto_scroll=True, runs_count=2, padding=10, height=295, child_aspect_ratio=5)
         
-        self.__answer_containers = [
-            ft.Container(
-                on_click=self.__select,
-                bgcolor=ft.colors.SECONDARY_CONTAINER,
-                border_radius=30,
-                padding=15,
-                data=i,
-                content=ft.Row(
-                    alignment=ft.MainAxisAlignment.START,
-                    controls=[
-                        ft.Text("answer"),
-                    ],
-                    scroll=ft.ScrollMode.AUTO,
-                ),
-                shadow=ft.BoxShadow(1, 7.5, "#e2e2e2"),
-                animate=ft.animation.Animation(150, ft.AnimationCurve.EASE_IN)
-            )
-            for i in range(3)
-        ]
-        self.__answer_containers.append(
-            ft.Container(
-                on_click=self.__select,
-                bgcolor=ft.colors.SECONDARY_CONTAINER,
-                border_radius=30,
-                padding=15,
-                data=3,
-                content=ft.Row(
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    expand=True,
-                    controls=[
-                        ft.Text("image"),
-                        ft.IconButton(icon=ft.icons.ARROW_FORWARD_IOS, on_click=lambda e: print("It's me\n")),
-                    ],
-                    scroll=ft.ScrollMode.AUTO,
-                ),
-                shadow=ft.BoxShadow(1, 7.5, "#e2e2e2"),
-                animate=ft.animation.Animation(150, ft.AnimationCurve.EASE_IN),
-            )
-        )
+        self.__answer_containers = self.__build_answer_containers(self.__questions_menu.controls[0].question.answers)
         self.__selected_answer = None
 
         for container in self.__answer_containers:
@@ -452,6 +437,76 @@ class ChallengePage(ft.View):
             )
         ]
 
+    
+    def __build_image_dialog(self, image_url: str):
+        def close_dlg(e):
+            dlg_modal.open = False
+            self.page.update()
+
+        column = ft.Column(
+            controls=[
+                ft.Image(
+                    src=f"{settings.API_URL}{image_url}",
+                    expand=True,
+                ),
+            ]
+        )
+
+        container = ft.Container(content=column, height=600)
+
+        dlg_modal = ft.AlertDialog(
+            modal=True,
+            content=container,
+            actions=[
+                ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=close_dlg),
+            ],
+            actions_alignment=ft.MainAxisAlignment.START,
+        )
+        return dlg_modal
+
+    def __show_image_dialog(self, e: ft.ControlEvent):
+        dlg = self.__build_image_dialog(e.control.data)
+        dlg.open = True
+        self.page.overlay.append(dlg)
+        self.page.update()
+
+
+    def __build_answer_containers(self, answers: List[components.Answer]):
+        containers = []
+
+        for answer in answers:
+            if answer.is_image:
+                row = ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    expand=True,
+                    controls=[
+                        ft.Text("Suraty görmek üçin basyň", weight=ft.FontWeight.BOLD, color=ft.colors.PRIMARY),
+                        ft.IconButton(icon=ft.icons.ARROW_FORWARD_IOS, data=answer.image, on_click=self.__show_image_dialog),
+                    ],
+                    spacing=10,
+                )
+            else:
+                row = ft.Row(
+                    alignment=ft.MainAxisAlignment.START,
+                    controls=[
+                        ft.Text(answer.answer, color=ft.colors.PRIMARY),
+                    ],
+                    scroll=ft.ScrollMode.AUTO,
+                )
+            containers.append(
+                ft.Container(
+                    on_click=self.__select,
+                    bgcolor=ft.colors.SECONDARY_CONTAINER,
+                    border_radius=30,
+                    padding=15,
+                    data=answer,
+                    content=row,
+                    shadow=ft.BoxShadow(1, 7.5, "#e2e2e2"),
+                    animate=ft.animation.Animation(150, ft.AnimationCurve.EASE_IN)
+                )
+            )
+        return containers
+
     def __select(self, e: ft.ControlEvent):
         for answer_container in self.__answer_containers:
         
@@ -464,5 +519,20 @@ class ChallengePage(ft.View):
                 else:
                     self.__selected_answer = answer_container.data
                     answer_container.bgcolor = ft.colors.INVERSE_PRIMARY
-
+            
         self.page.update()
+
+    def __accept(self, e: ft.ControlEvent):
+        payload = {
+            "answer": self.__selected_answer,
+            "user": self.__user_data[0]["id"],
+        }
+
+        requests.request(
+            "POST",
+            f"{settings.API_URL}/api/v1/useranswer-create-by-id/",
+            data=payload,
+            headers={"Authorization": self.__token},
+        )
+        requests.request()
+        pass

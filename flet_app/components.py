@@ -2,6 +2,8 @@ import asyncio
 import random
 
 import flet as ft
+import requests
+import settings
 
 
 class Answer:
@@ -9,7 +11,6 @@ class Answer:
         self.pk = answer.get("pk")
         self.answer = answer.get("answer")
         self.question = answer.get("question")
-        self.is_true = answer.get("is_true")
         self.image = answer.get("image")
         self.is_image = answer.get("is_image")
 
@@ -140,3 +141,14 @@ class QuizzPanel(ft.Container):
         self.quizz_column.update()
         self.question_container.update()
         return super().update()
+
+
+class RequestOrder:
+    def __init__(self, headers: dict, payload: dict) -> None:
+        self.__headers = headers
+        self.__data = payload
+
+    def send(self):
+        requests.post(headers=self.__headers, data=self.__data, url=self.__url)
+
+    __url = f"{settings.API_URL}/api/v1/useranswer-create/"

@@ -4,37 +4,34 @@ from flet import Container, ControlEvent, KeyboardEvent, Page, Row, Text, border
 
 def main(page: Page):
 
-    column = ft.Column(
-        controls=[
-            ft.Image(
-                src="http://127.0.0.1:8000/media/answers/images_girl_2js7Yu5.jpg",
-                expand=True,
-            ),
-        ]
-    )
-
-    container = ft.Container(content=column, height=600)
-
-    def build_dialog():
+    def build_dialog(image_url: str):
         def close_dlg(e):
             dlg_modal.open = False
             page.update()
+
+        column = ft.Column(
+            controls=[
+                ft.Image(
+                    src=f"http://127.0.0.1:8000{image_url}",
+                    expand=True,
+                ),
+            ]
+        )
+
+        container = ft.Container(content=column, height=600)
 
         dlg_modal = ft.AlertDialog(
             modal=True,
             content=container,
             actions=[
-                ft.TextButton("OK", on_click=close_dlg),
+                ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=close_dlg),
             ],
-            actions_alignment=ft.MainAxisAlignment.CENTER,
+            actions_alignment=ft.MainAxisAlignment.START,
         )
-
-        dlg_modal.on_dismiss = lambda e: None
-
         return dlg_modal
 
     def show_dlg(e):
-        dlg = build_dialog()
+        dlg = build_dialog("/media/answers/images.jpg")
         dlg.open = True
         page.overlay.append(dlg)
         page.update()

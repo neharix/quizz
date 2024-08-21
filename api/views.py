@@ -214,7 +214,6 @@ def challenge_data_api_view(request: HttpRequest, challenge_pk):
                     "question": answer.question.pk,
                     "image": image_path,
                     "is_image": answer.is_image,
-                    "is_true": answer.is_true,
                 }
             )
         question_data["answers"] = answers_data
