@@ -1,5 +1,6 @@
 import asyncio
 import random
+from typing import List
 
 import flet as ft
 import requests
@@ -21,6 +22,7 @@ class Question:
         self.question = question.get("question")
         self.image = question.get("image")
         self.is_image = question.get("is_image")
+        self.is_answered = False
         self.answers = []
 
         for answer in question.get("answers"):
@@ -30,35 +32,50 @@ class Question:
 
 
 class NavigationItem(ft.Container):
-    def __init__(self, question: Question, index, on_click):
+    def __init__(self, question: Question, index, data, on_click):
         super().__init__()
         self.question = question
         self.ink = True
         self.padding = ft.padding.only(left=5, top=5, bottom=5, right=15)
         self.border_radius = 5
+        self.data = data
         self.icon = ft.Icon(
             name=ft.icons.QUESTION_MARK, color=ft.colors.PRIMARY, size=18
         )
-        self.text = f"Sorag №{index}"
+        self.text = ft.Text(f"Sorag №{index}")
+        # self.animate = ft.animation.Animation(150, ft.AnimationCurve.EASE_IN)
         self.content = ft.Row(
             controls=[
                 self.icon,
-                ft.Text(self.text),
+                self.text,
             ],
             expand=True,
         )
         self.on_click = on_click
 
 
-# FIXME
 class QuestionsMenu(ft.Column):
-    def __init__(self, questions: list) -> None:
+    def __init__(self, questions: list, on_click) -> None:
         super().__init__()
+        self.expand = 4
+        self.spacing = 5
+        self.selected_index = 0
+        self.controls: List[NavigationItem] = []
         for index in range(len(questions)):
             self.controls.append(
-                NavigationItem(questions[index], index + 1, lambda e: print(f"Clicked"))
+                NavigationItem(questions[index], index + 1, index, on_click)
             )
         self.scroll = ft.ScrollMode.ALWAYS
+
+    def before_update(self):
+        super().before_update()
+        self.update_selected_item()
+
+    # TODO создать ветвление для отслеживания отвеченных вопросов
+    def update_selected_item(self):
+        for item in self.controls:
+            item.bgcolor = None
+        self.controls[self.selected_index].bgcolor = ft.colors.SECONDARY_CONTAINER
 
 
 class CountDownText(ft.Text):
@@ -143,12 +160,43 @@ class QuizzPanel(ft.Container):
         return super().update()
 
 
-class RequestOrder:
-    def __init__(self, headers: dict, payload: dict) -> None:
+class RequestsQuene:
+    __quene: List[dict] = []
+
+    def __init__(self, api_url: str, headers: dict) -> None:
+        self.__api_url = api_url
         self.__headers = headers
-        self.__data = payload
 
-    def send(self):
-        requests.post(headers=self.__headers, data=self.__data, url=self.__url)
+    def __check_echo(self):
+        try:
+            requests.request("GET", f"{self.__api_url}/api/v1/")
+            success = True
+        except:
+            success = False
+        return success
 
-    __url = f"{settings.API_URL}/api/v1/useranswer-create/"
+    def __dequene(self):
+        status = self.__check_echo()
+        if status:
+            requests.post(
+                method="POST",
+                url=f"{self.__api_url}/api/v1/useranswer-create-plural/",
+                headers=self.__headers,
+                data=self.__quene,
+            )
+            self.__quene.clear()
+            return True
+        return False
+
+    def send(self, payload: dict):
+        status = self.__check_echo()
+        if status:
+            requests.post(
+                url=f"{self.__api_url}/api/v1/useranswer-create/",
+                headers=self.__headers,
+                data=payload,
+            )
+            if len(self.__quene) != 0:
+                self.__dequene()
+        else:
+            self.__quene.append(payload)

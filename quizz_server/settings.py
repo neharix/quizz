@@ -55,6 +55,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "quizz_server.wsgi.application"
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "quizz",
+#         "USER": "postgres",
+#         "PASSWORD": "2928",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#     }
+# }
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",

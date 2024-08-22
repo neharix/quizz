@@ -1,8 +1,10 @@
+import datetime
 import random
 from typing import List
 
 import components
 import flet as ft
+import pytz
 import requests
 import settings
 
@@ -338,18 +340,20 @@ class ChallengePage(ft.View):
             "GET", f"{settings.API_URL}/api/v1/challenge-data/{self.__challenge_pk}/", headers={"Authorization": self.__token}
         ).json()
         random.shuffle(questions_data)
-        self.__questions_menu = components.QuestionsMenu(
-            [components.Question(question) for question in questions_data]
+        self.__questions_menu: components.QuestionsMenu = components.QuestionsMenu(
+            [components.Question(question) for question in questions_data], self.__question_menu_item_clicked,
         )
-        self.current_question_index = 0
+
+        self.__requests_quene = components.RequestsQuene(settings.API_URL, {"Authorization": self.__token})
 
         self.route = "/challenge"
 
         self.__quizz_panel = ft.Column(scroll=ft.ScrollMode.AUTO)
 
-        self.floating_action_button = ft.FloatingActionButton(icon=ft.icons.ARROW_FORWARD, scale=1.1, width=110, height=45, on_click=lambda e: print("Hello"), bgcolor=ft.colors.PRIMARY, foreground_color=ft.colors.WHITE)
+        self.floating_action_button = ft.FloatingActionButton(icon=ft.icons.ARROW_FORWARD, scale=1.1, width=110, height=45, on_click=self.__accept, bgcolor=ft.colors.PRIMARY, foreground_color=ft.colors.WHITE)
 
-        question: components.Question = self.__questions_menu.controls[0].question
+        self.__current_question_index = 0
+        question: components.Question = self.__questions_menu.controls[self.__current_question_index].question
 
         if question.is_image:
             row = ft.Row(
@@ -389,8 +393,7 @@ class ChallengePage(ft.View):
         self.__answer_containers = self.__build_answer_containers(self.__questions_menu.controls[0].question.answers)
         self.__selected_answer = None
 
-        for container in self.__answer_containers:
-            self.__answers_grid.controls.append(container)
+        self.__answers_grid.controls = self.__answer_containers
         
         self.__quizz_panel.controls = [
             self.__question_row, 
@@ -523,16 +526,58 @@ class ChallengePage(ft.View):
         self.page.update()
 
     def __accept(self, e: ft.ControlEvent):
+        self.__current_question_index += 1
         payload = {
-            "answer": self.__selected_answer,
+            "answer": self.__selected_answer.pk,
             "user": self.__user_data[0]["id"],
+            "datetime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
+        self.__requests_quene.send(payload)
+        self.__questions_menu.selected_index = self.__current_question_index
+        self.__questions_menu.update_selected_item()
+        self.__update_page()
 
-        requests.request(
-            "POST",
-            f"{settings.API_URL}/api/v1/useranswer-create-by-id/",
-            data=payload,
-            headers={"Authorization": self.__token},
+    def __question_menu_item_clicked(self, e):
+        self.__current_question_index = e.control.data
+        self.__questions_menu.selected_index = e.control.data
+        self.__questions_menu.update_selected_item()
+        self.__update_page()
+
+    def __update_page(self):
+        question: components.Question = self.__questions_menu.controls[self.__current_question_index].question
+        if question.is_image:
+            row = ft.Row(
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                expand=True,
+                controls=[
+                    ft.Text("Suraty görmek üçin basyň", weight=ft.FontWeight.BOLD),
+                    ft.IconButton(icon=ft.icons.ARROW_FORWARD_IOS, data=question.image, on_click=self.__show_image_dialog),
+                ],
+                spacing=10,
+            )
+        else:
+            row = ft.Row(
+                alignment=ft.MainAxisAlignment.START,
+                controls=[
+                    ft.Text(question.question),
+                ],
+                scroll=ft.ScrollMode.AUTO,
+            )
+
+        self.__question_row = ft.Row(
+            controls=[
+                ft.Container(
+                    bgcolor=ft.colors.INVERSE_PRIMARY, 
+                    content=row,
+                    expand=True,
+                    margin=ft.margin.only(10, 20, 10, 25),
+                    padding=ft.padding.only(20, 15, 20, 15),
+                    shadow=ft.BoxShadow(1, 10, "#bdbdbd"),
+                    border_radius=30,
+                ),
+            ],
         )
-        requests.request()
-        pass
+        self.__quizz_panel.controls[0] = self.__question_row
+        self.__answer_containers = self.__build_answer_containers(self.__questions_menu.controls[self.__current_question_index].question.answers)
+        self.__answers_grid.controls = self.__answer_containers
+        self.page.update()

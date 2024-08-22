@@ -49,7 +49,7 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     page.on_route_change = route_change
     page.on_view_pop = view_pop
-    page.on_error = lambda e: print(e.data)
+    page.on_error = lambda e: print(f"{type(e.control)}: {e.data}")
     page.go(page.route)
 
     page.update()

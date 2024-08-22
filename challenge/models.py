@@ -19,7 +19,7 @@ class Question(models.Model):
     complexity = models.ForeignKey("Complexity", on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.question if self.question is not None else str(self.image)
+        return f"{self.pk}. {self.question}"
 
 
 class Challenge(models.Model):
@@ -51,7 +51,7 @@ class UserAnswer(models.Model):
     answer = models.ForeignKey("Answer", on_delete=models.CASCADE)
     is_true = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    answered_at = models.DateTimeField(auto_now_add=True)
+    answered_at = models.DateTimeField()
 
     def __str__(self):
         return str(self.is_true)

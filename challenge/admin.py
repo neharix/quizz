@@ -29,7 +29,7 @@ class ComplexityAdmin(admin.ModelAdmin):
 
 @admin.register(UserAnswer)
 class UserAnswerAdmin(admin.ModelAdmin):
-    list_display = ["id", "answer", "is_true", "question", "user"]
+    list_display = ["id", "answer", "is_true", "question", "user", "answered_at"]
     readonly_fields = ("answered_at",)
 
 
