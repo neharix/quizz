@@ -48,8 +48,9 @@ class Answer(models.Model):
 
 class UserAnswer(models.Model):
     question = models.ForeignKey("Question", on_delete=models.CASCADE)
-    answer = models.ForeignKey("Answer", on_delete=models.CASCADE)
+    answer = models.ForeignKey("Answer", on_delete=models.CASCADE, null=True)
     is_true = models.BooleanField(default=False)
+    is_empty = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     answered_at = models.DateTimeField()
 

@@ -15,6 +15,9 @@ class Answer:
         self.image = answer.get("image")
         self.is_image = answer.get("is_image")
 
+    def __str__(self):
+        return "{\n" + f"\t'pk':'{self.pk}',\n\t'answer':'{self.answer}'," + "\n}\n"
+
 
 class Question:
     def __init__(self, question: dict) -> None:
@@ -40,10 +43,11 @@ class NavigationItem(ft.Container):
         self.border_radius = 5
         self.data = data
         self.icon = ft.Icon(
-            name=ft.icons.QUESTION_MARK, color=ft.colors.PRIMARY, size=18
+            name=ft.icons.QUESTION_MARK,
+            color=ft.colors.PRIMARY,
+            size=18,
         )
         self.text = ft.Text(f"Sorag №{index}")
-        # self.animate = ft.animation.Animation(150, ft.AnimationCurve.EASE_IN)
         self.content = ft.Row(
             controls=[
                 self.icon,
@@ -71,11 +75,22 @@ class QuestionsMenu(ft.Column):
         super().before_update()
         self.update_selected_item()
 
-    # TODO создать ветвление для отслеживания отвеченных вопросов
     def update_selected_item(self):
         for item in self.controls:
-            item.bgcolor = None
+            if item.question.is_answered:
+                item.disabled = True
+                item.bgcolor = ft.colors.GREY_200
+                item.content.controls[0].color = ft.colors.GREY_400
+                item.content.controls[1].color = ft.colors.GREY_400
+            else:
+                item.bgcolor = None
+                item.content.controls[1].color = None
+            item.shadow = None
         self.controls[self.selected_index].bgcolor = ft.colors.SECONDARY_CONTAINER
+        self.controls[self.selected_index].content.controls[1].color = ft.colors.PRIMARY
+        self.controls[self.selected_index].shadow = ft.BoxShadow(
+            1, 10, ft.colors.BLUE_100
+        )
 
 
 class CountDownText(ft.Text):
@@ -139,26 +154,6 @@ class QuizzPanel(ft.Container):
     def __init__(self):
         super().__init__()
 
-    def set_data(self, question: Question):
-        if question.is_image:
-            self.question_container.content = ft.Row(
-                controls=[
-                    ft.Text("Suraty görmek"),
-                    ft.Icon(name=ft.icons.CHEVRON_RIGHT),
-                ],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                expand=True,
-            )
-        else:
-            self.question_container.content = ft.Text(question.question)
-
-        self.quizz_column.controls.append(self.question_container)
-
-    def update(self) -> None:
-        self.quizz_column.update()
-        self.question_container.update()
-        return super().update()
-
 
 class RequestsQuene:
     __quene: List[dict] = []
@@ -178,12 +173,12 @@ class RequestsQuene:
     def __dequene(self):
         status = self.__check_echo()
         if status:
-            requests.post(
-                method="POST",
-                url=f"{self.__api_url}/api/v1/useranswer-create-plural/",
-                headers=self.__headers,
-                data=self.__quene,
-            )
+            for payload in self.__quene:
+                requests.post(
+                    url=f"{self.__api_url}/api/v1/useranswer-create/",
+                    headers=self.__headers,
+                    data=payload,
+                )
             self.__quene.clear()
             return True
         return False
@@ -196,7 +191,7 @@ class RequestsQuene:
                 headers=self.__headers,
                 data=payload,
             )
-            if len(self.__quene) != 0:
+            if self.__quene != 0:
                 self.__dequene()
         else:
             self.__quene.append(payload)

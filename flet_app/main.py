@@ -51,7 +51,6 @@ def main(page: ft.Page):
     page.on_view_pop = view_pop
     page.on_error = lambda e: print(f"{type(e.control)}: {e.data}")
     page.go(page.route)
-
     page.update()
 
 

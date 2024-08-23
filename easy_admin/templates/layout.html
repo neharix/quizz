@@ -20,6 +20,7 @@
         {% endblock head %}
     </head>
     <body class="bg-smoke overpass def-cursor">
+        <div class="progress-bar" id="progressBar"></div>
         <nav id="navbar" class="navbar bg-dark navbar-expand-lg">
             <div class='container-fluid'>
                 <a class="navbar-brand m-2 text-light" href="{% url 'home' %}">IT Meýdança Quizz</a>
@@ -44,6 +45,7 @@
                 <i>Developed by neharix</i>
             </div>
         </footer>
+        <script src="{% static 'js/layout.js' %}"></script>
         <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
         <script src="{% static 'js/jquery.js' %}"></script>
         <script src="{% static 'js/bootstrap.js' %}"></script>

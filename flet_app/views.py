@@ -392,12 +392,17 @@ class ChallengePage(ft.View):
         
         self.__answer_containers = self.__build_answer_containers(self.__questions_menu.controls[0].question.answers)
         self.__selected_answer = None
+        self.__current_question = question.pk
+        self.__answered_questions_count = 0
+        self.__progress_ring = ft.ProgressRing(value=1)
+        self.__answered_questions_count_text = ft.Text(f"{self.__answered_questions_count}/{self.__challenge_data["question_count"]}   ")
 
         self.__answers_grid.controls = self.__answer_containers
         
         self.__quizz_panel.controls = [
+            ft.Row(controls=[ft.Text("Sorag:", size=18)], alignment=ft.MainAxisAlignment.CENTER),
             self.__question_row, 
-            ft.Row(controls=[ft.Text("Jogaplar:", size=18)]),
+            ft.Row(controls=[ft.Text("Jogaplar:", size=18)], alignment=ft.MainAxisAlignment.CENTER),
             ft.Container(
                 content=self.__answers_grid,
                 margin=ft.margin.only(top=25)
@@ -419,11 +424,8 @@ class ChallengePage(ft.View):
                     ),
                     ft.Row(
                         controls=[
-                            ft.ProgressRing(
-                                value=1,
-                            ),
-                            ft.Text(
-                                f"0/{self.__challenge_data["question_count"]}   ")
+                            self.__progress_ring,
+                            self.__answered_questions_count_text,
                         ],
                     )
                 ],
@@ -522,29 +524,59 @@ class ChallengePage(ft.View):
                 else:
                     self.__selected_answer = answer_container.data
                     answer_container.bgcolor = ft.colors.INVERSE_PRIMARY
-            
         self.page.update()
 
     def __accept(self, e: ft.ControlEvent):
-        self.__current_question_index += 1
-        payload = {
-            "answer": self.__selected_answer.pk,
-            "user": self.__user_data[0]["id"],
-            "datetime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        }
-        self.__requests_quene.send(payload)
-        self.__questions_menu.selected_index = self.__current_question_index
-        self.__questions_menu.update_selected_item()
-        self.__update_page()
+        print(self.__selected_answer)
+        if self.__selected_answer == None and e.control.data != "modal_accept":
+            self.__dlg_empty_answer_modal = self.__build_empty_answer_dialog("Jogap meýdançasy boş!", "Dowam eden ýagdaýyňyzda soragy bilmedigiňizi tassyklarsyňyz.")
+            self.page.overlay.append(self.__dlg_empty_answer_modal)
+            self.__dlg_empty_answer_modal.open = True
+            self.page.update()
+        else:
+            if e.control.data == "modal_accept":
+                self.__dlg_empty_answer_modal.open = False
+            self.__questions_menu.controls[self.__current_question_index].question.is_answered = True
+            try:
+                index = self.__current_question_index + 1
+                if not self.__questions_menu.controls[index].question.is_answered:
+                    self.__current_question_index += 1
+                else:
+                    # не бейте палками. лень новое исключение создавать
+                    raise IndexError
+            except IndexError:
+                for item in self.__questions_menu.controls:
+                    if not item.question.is_answered:
+                        self.__current_question_index = self.__questions_menu.controls.index(item)
+                        break
+                else:
+                    # TODO Create Chart View
+                    pass
+            payload = {
+                "answer": None if self.__selected_answer == None else self.__selected_answer.pk,
+                "question": self.__current_question,
+                "user": self.__user_data[0]["id"],
+                "datetime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            self.__questions_menu.selected_index = self.__current_question_index
+            self.__questions_menu.update_selected_item()
+            self.__answered_questions_count += 1
+            self.__progress_ring.value = 1 - (self.__answered_questions_count / self.__challenge_data["question_count"])
+            self.__answered_questions_count_text.value = f"{self.__answered_questions_count}/{self.__challenge_data["question_count"]}   "
+            self.__update_page()
+            self.__requests_quene.send(payload)
+            self.__selected_answer = None
 
     def __question_menu_item_clicked(self, e):
         self.__current_question_index = e.control.data
         self.__questions_menu.selected_index = e.control.data
         self.__questions_menu.update_selected_item()
         self.__update_page()
+        self.__selected_answer = None
 
     def __update_page(self):
         question: components.Question = self.__questions_menu.controls[self.__current_question_index].question
+        self.__current_question = question.pk
         if question.is_image:
             row = ft.Row(
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -577,7 +609,25 @@ class ChallengePage(ft.View):
                 ),
             ],
         )
-        self.__quizz_panel.controls[0] = self.__question_row
+        self.__quizz_panel.controls[1] = self.__question_row
         self.__answer_containers = self.__build_answer_containers(self.__questions_menu.controls[self.__current_question_index].question.answers)
         self.__answers_grid.controls = self.__answer_containers
         self.page.update()
+
+    def __build_empty_answer_dialog(self, dialog_title, dialog_message):
+        def close_dlg(e):
+            dlg_modal.open = False
+            self.page.update()
+
+        dlg_modal = ft.AlertDialog(
+            modal=True,
+            title=ft.Text(dialog_title),
+            content=ft.Text(dialog_message),
+            actions=[
+                ft.IconButton(icon=ft.icons.HIGHLIGHT_OFF, on_click=close_dlg),
+                ft.IconButton(icon=ft.icons.CHECK_CIRCLE_OUTLINE, on_click=self.__accept, data="modal_accept"),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+
+        return dlg_modal

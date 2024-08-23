@@ -3,6 +3,15 @@
     src: url(/static/fonts/Overpass/Overpass-Regular.ttf);
 }
 
+.progress-bar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 4px;
+    width: 0%;
+    background: linear-gradient(to right, #6406fb, #8119a4);
+}
+
 .overpass {
     font-family: Overpass !important;
 }

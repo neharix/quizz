@@ -187,42 +187,27 @@ class TestSessionUpdateAPIView(APIView):
 @api_view(http_method_names=["POST"])
 def user_answer_api_view(request: HttpRequest):
     if request.method == "POST":
-        answer = Answer.objects.get(pk=request.data["answer"])
-        question = Question.objects.get(pk=answer.question.pk)
+        if request.data.get("answer"):
+            answer = Answer.objects.get(pk=request.data["answer"])
+            is_empty = False
+        else:
+            answer = None
+            is_empty = True
+        question = Question.objects.get(pk=request.data["question"])
         user = User.objects.get(id=request.data["user"])
         date = datetime.datetime.strptime(request.data["datetime"], "%Y-%m-%d %H:%M:%S")
-        is_true = True if answer.is_true else False
+        if is_empty:
+            is_true = False
+        else:
+            is_true = True if answer.is_true else False
         UserAnswer.objects.create(
             question=question,
             answer=answer,
             is_true=is_true,
+            is_empty=is_empty,
             user=user,
             answered_at=date,
         )
-        return Response({"detail": "Success"})
-    else:
-        return Response({"detail": "Fail"})
-
-
-@permission_classes((IsAuthenticated,))
-@api_view()
-def user_answer_plural_api_view(request: HttpRequest):
-    if request.method == "POST":
-        for answer_data in request.data:
-            answer = Answer.objects.get(pk=answer_data["answer"])
-            question = Question.objects.get(pk=answer.question.pk)
-            user = User.objects.get(id=answer_data["user"])
-            date = datetime.datetime.strptime(
-                answer_data["datetime"], "%Y-%m-%d %H:%M:%S"
-            )
-            is_true = True if answer.is_true else False
-            UserAnswer.objects.create(
-                question=question,
-                answer=answer,
-                is_true=is_true,
-                user=user,
-                answered_at=date,
-            )
         return Response({"detail": "Success"})
     else:
         return Response({"detail": "Fail"})
