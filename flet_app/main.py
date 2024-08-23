@@ -15,9 +15,10 @@ def main(page: ft.Page):
     login_page = views.LoginPage()
     challenges_page = None
     challenge_page = None
+    results_page = None
 
     def route_change(e):
-        global challenges_page, challenge_page
+        global challenges_page, challenge_page, results_page
         page.views.clear()
         page.views.append(login_page)
         if page.route == "/challenges":
@@ -28,6 +29,11 @@ def main(page: ft.Page):
                 challenges_page.get_selected_challenge(), login_page.get_token()
             )
             page.views.append(challenge_page)
+        if page.route == "/results":
+            results_page = views.ResultsPage(
+                challenge_page.get_challenge_data(), login_page.get_token()
+            )
+            page.views.append(results_page)
 
         if page.route == "/":
             page.on_keyboard_event = login_page.focus

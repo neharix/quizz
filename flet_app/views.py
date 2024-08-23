@@ -551,7 +551,16 @@ class ChallengePage(ft.View):
                         break
                 else:
                     # TODO Create Chart View
-                    pass
+                    requests.post(
+                        url=f"{settings.API_URL}/api/v1/test-session-update/",
+                        headers={"Authorization": self.__token},
+                        data={
+                            "challenge": self.__challenge_data["pk"],
+                            "user": self.__user_data[0]["id"],
+                            "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        },
+                    )
+                    self.page.go("/results")
             payload = {
                 "answer": None if self.__selected_answer == None else self.__selected_answer.pk,
                 "question": self.__current_question,
@@ -631,3 +640,113 @@ class ChallengePage(ft.View):
         )
 
         return dlg_modal
+
+    def get_challenge_data(self):
+        return self.__challenge_data
+
+class ResultsPage(ft.View):
+    def __init__(self, challenge_data, token):
+        super().__init__()
+        self.__challenge_data = challenge_data
+        self.__token = token
+
+        # FIXME
+        # challenge_id = self.challenge_data[0]["id"]
+
+        # headers = {"Authorization": self.token}
+        # url = f"{api_url}/api/v1/useranswers/{challenge_id}/"
+        # challenge_url = f"{api_url}/api/v1/challenge/{challenge_id}/"
+
+        # response = requests.request("GET", url, headers=headers).json()
+        # challenge_data = requests.request("GET", challenge_url, headers=headers).json()
+
+
+        self.normal_radius = 100
+        self.hover_radius = 110
+        self.normal_title_style = ft.TextStyle(
+            size=12, color=ft.colors.WHITE, weight=ft.FontWeight.BOLD
+        )
+        self.hover_title_style = ft.TextStyle(
+            size=16,
+            color=ft.colors.WHITE,
+            weight=ft.FontWeight.BOLD,
+            shadow=ft.BoxShadow(blur_radius=2, color=ft.colors.BLACK54),
+        )
+        self.normal_badge_size = 40
+        self.hover_badge_size = 50
+
+        self.chart = ft.PieChart(
+            sections=[
+                ft.PieChartSection(
+                    40,
+                    title="40%",
+                    title_style=self.normal_title_style,
+                    color=ft.colors.BLUE,
+                    radius=self.normal_radius,
+                    badge=self.badge(ft.icons.AC_UNIT, self.normal_badge_size),
+                    badge_position=0.98,
+                ),
+                ft.PieChartSection(
+                    30,
+                    title="30%",
+                    title_style=self.normal_title_style,
+                    color=ft.colors.YELLOW,
+                    radius=self.normal_radius,
+                    badge=self.badge(ft.icons.ACCESS_ALARM, self.normal_badge_size),
+                    badge_position=0.98,
+                ),
+                ft.PieChartSection(
+                    15,
+                    title="15%",
+                    title_style=self.normal_title_style,
+                    color=ft.colors.PURPLE,
+                    radius=self.normal_radius,
+                    badge=self.badge(ft.icons.APPLE, self.normal_badge_size),
+                    badge_position=0.98,
+                ),
+                ft.PieChartSection(
+                    15,
+                    title="15%",
+                    title_style=self.normal_title_style,
+                    color=ft.colors.GREEN,
+                    radius=self.normal_radius,
+                    badge=self.badge(ft.icons.PEDAL_BIKE, self.normal_badge_size),
+                    badge_position=0.98,
+                ),
+            ],
+            sections_space=0,
+            center_space_radius=0,
+            on_chart_event=self.on_chart_event,
+            expand=True,
+        )
+
+        self.controls = [
+            ft.AppBar(
+                title=ft.Text("Netije"),
+                bgcolor=ft.colors.SURFACE_VARIANT,
+                center_title=True,
+            ),
+            ft.Row(controls=[self.chart])
+        ]
+
+
+
+    def badge(self, icon, size):
+        return ft.Container(
+            ft.Icon(icon),
+            width=size,
+            height=size,
+            border=ft.border.all(1, ft.colors.BROWN),
+            border_radius=size / 2,
+            bgcolor=ft.colors.WHITE,
+        )
+
+    async def on_chart_event(self, e: ft.PieChartEvent):
+        for idx, section in enumerate(self.chart.sections):
+            if idx == e.section_index:
+                section.radius = self.hover_radius
+                section.title_style = self.hover_title_style
+            else:
+                section.radius = self.normal_radius
+                section.title_style = self.normal_title_style
+        await self.chart.update_async()

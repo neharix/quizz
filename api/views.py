@@ -143,8 +143,8 @@ class UserAnswerByIdAPIView(APIView):
 class GetChallengeResultAPIView(APIView):
     def get(self, request, **kwargs):
         user = request.user
-        key = kwargs["id"]
-        challenge = Challenge.objects.get(id=key)
+        key = kwargs["pk"]
+        challenge = Challenge.objects.get(pk=key)
         questions = Question.objects.filter(challenge=challenge)
         user_answers = UserAnswer.objects.filter(user=user)
         answers = []

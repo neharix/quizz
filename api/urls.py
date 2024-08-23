@@ -14,7 +14,7 @@ urlpatterns = [
     path("useranswer-create/", user_answer_api_view),
     path("auth-journal/create", AuthJournalAPIView.as_view()),
     path("auth-journal/<str:username>/", AuthJournalFilterAPIView.as_view()),
-    path("useranswers/<int:id>/", GetChallengeResultAPIView.as_view()),
+    path("useranswers/<int:pk>/", GetChallengeResultAPIView.as_view()),
     path("test-session-create/", TestSessionAPIView.as_view()),
     path("test-session-update/", TestSessionUpdateAPIView.as_view()),
     path("session-auth/", include("rest_framework.urls")),
