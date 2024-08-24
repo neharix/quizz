@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import random
 from typing import List
 
@@ -94,9 +95,12 @@ class QuestionsMenu(ft.Column):
 
 
 class CountDownText(ft.Text):
-    def __init__(self, minutes):
+    def __init__(self, minutes, user_id, challenge_pk, token):
         super().__init__()
         self.seconds = minutes * 60
+        self.__user_id = user_id
+        self.__token = token
+        self.__challenge_pk = challenge_pk
 
     def did_mount(self):
         self.running = True
@@ -110,6 +114,25 @@ class CountDownText(ft.Text):
             dlg_modal.open = False
             self.page.update()
 
+        def dismiss_dlg(e):
+            requests.post(
+                url=f"{settings.API_URL}/api/v1/timeout/",
+                headers={"Authorization": self.__token},
+                data={
+                    "challenge": self.__challenge_pk,
+                },
+            )
+            requests.post(
+                url=f"{settings.API_URL}/api/v1/test-session-update/",
+                headers={"Authorization": self.__token},
+                data={
+                    "challenge": self.__challenge_pk,
+                    "user": self.__user_id,
+                    "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                },
+            )
+            self.page.go("/results")
+
         dlg_modal = ft.AlertDialog(
             modal=True,
             title=ft.Text(dialog_title),
@@ -120,7 +143,7 @@ class CountDownText(ft.Text):
             actions_alignment=ft.MainAxisAlignment.END,
         )
 
-        dlg_modal.on_dismiss = lambda e: self.page.window.close()
+        dlg_modal.on_dismiss = dismiss_dlg
 
         return dlg_modal
 

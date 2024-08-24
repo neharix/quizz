@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import random
 from typing import List
@@ -419,7 +420,7 @@ class ChallengePage(ft.View):
                         controls=[
                             ft.Icon(ft.icons.TIMER_SHARP),
                             components.CountDownText(
-                                self.__challenge_data["time_for_event"]),
+                                self.__challenge_data["time_for_event"], self.__user_data[0]["id"], self.__challenge_data["pk"], self.__token),
                         ],
                     ),
                     ft.Row(
@@ -527,7 +528,6 @@ class ChallengePage(ft.View):
         self.page.update()
 
     def __accept(self, e: ft.ControlEvent):
-        print(self.__selected_answer)
         if self.__selected_answer == None and e.control.data != "modal_accept":
             self.__dlg_empty_answer_modal = self.__build_empty_answer_dialog("Jogap meýdançasy boş!", "Dowam eden ýagdaýyňyzda soragy bilmedigiňizi tassyklarsyňyz.")
             self.page.overlay.append(self.__dlg_empty_answer_modal)
@@ -550,7 +550,6 @@ class ChallengePage(ft.View):
                         self.__current_question_index = self.__questions_menu.controls.index(item)
                         break
                 else:
-                    # TODO Create Chart View
                     requests.post(
                         url=f"{settings.API_URL}/api/v1/test-session-update/",
                         headers={"Authorization": self.__token},
@@ -564,7 +563,7 @@ class ChallengePage(ft.View):
             payload = {
                 "answer": None if self.__selected_answer == None else self.__selected_answer.pk,
                 "question": self.__current_question,
-                "user": self.__user_data[0]["id"],
+                "challenge": self.__challenge_data["pk"],
                 "datetime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             }
             self.__questions_menu.selected_index = self.__current_question_index
@@ -650,16 +649,18 @@ class ResultsPage(ft.View):
         self.__challenge_data = challenge_data
         self.__token = token
 
-        # FIXME
-        # challenge_id = self.challenge_data[0]["id"]
+    def did_mount(self):
+        self.running = True
+        self.page.run_task(self.__build_chart)
 
-        # headers = {"Authorization": self.token}
-        # url = f"{api_url}/api/v1/useranswers/{challenge_id}/"
-        # challenge_url = f"{api_url}/api/v1/challenge/{challenge_id}/"
+    def will_unmount(self):
+        self.running = False
 
-        # response = requests.request("GET", url, headers=headers).json()
-        # challenge_data = requests.request("GET", challenge_url, headers=headers).json()
+    async def __build_chart(self):
+        await asyncio.sleep(1)
+        headers = {"Authorization": self.__token}
 
+        response = requests.request("GET", f"{settings.API_URL}/api/v1/useranswers/{self.__challenge_data['pk']}/", headers=headers).json()
 
         self.normal_radius = 100
         self.hover_radius = 110
@@ -675,45 +676,88 @@ class ResultsPage(ft.View):
         self.normal_badge_size = 40
         self.hover_badge_size = 50
 
-        self.chart = ft.PieChart(
-            sections=[
+        self.__true_answer, self.__false_answer, self.__empty_answer = 0, 0, 0
+
+        print(response)
+        for answer in response:
+            if answer["is_true"]:
+                self.__true_answer += 1
+            else:
+                if answer["is_empty"]:
+                    self.__empty_answer += 1
+                else:
+                    self.__false_answer += 1
+
+        sections, legends = [], []
+        if not self.__true_answer == 0:
+            percent = (self.__true_answer / self.__challenge_data["question_count"]) * 100 
+            sections.append(
                 ft.PieChartSection(
-                    40,
-                    title="40%",
-                    title_style=self.normal_title_style,
-                    color=ft.colors.BLUE,
-                    radius=self.normal_radius,
-                    badge=self.badge(ft.icons.AC_UNIT, self.normal_badge_size),
-                    badge_position=0.98,
-                ),
-                ft.PieChartSection(
-                    30,
-                    title="30%",
-                    title_style=self.normal_title_style,
-                    color=ft.colors.YELLOW,
-                    radius=self.normal_radius,
-                    badge=self.badge(ft.icons.ACCESS_ALARM, self.normal_badge_size),
-                    badge_position=0.98,
-                ),
-                ft.PieChartSection(
-                    15,
-                    title="15%",
-                    title_style=self.normal_title_style,
-                    color=ft.colors.PURPLE,
-                    radius=self.normal_radius,
-                    badge=self.badge(ft.icons.APPLE, self.normal_badge_size),
-                    badge_position=0.98,
-                ),
-                ft.PieChartSection(
-                    15,
-                    title="15%",
+                    percent,
+                    title=f"{percent:.1f}%",
                     title_style=self.normal_title_style,
                     color=ft.colors.GREEN,
                     radius=self.normal_radius,
-                    badge=self.badge(ft.icons.PEDAL_BIKE, self.normal_badge_size),
+                    badge=self.badge(ft.icons.CHECK_CIRCLE_OUTLINE, self.normal_badge_size),
                     badge_position=0.98,
+                )
+            )
+            legends.append(
+                ft.Container(
+                    padding=ft.padding.only(left=5, top=5, bottom=5, right=15),
+                    content=ft.Row(
+                        controls=[ft.Icon(name=ft.icons.CHECK_CIRCLE_OUTLINE), ft.Text(f"Dogry jogap: {self.__true_answer}"),],
+                        expand=True
+                    )
                 ),
-            ],
+            )
+        if not self.__false_answer == 0:
+            percent = (self.__false_answer / self.__challenge_data["question_count"]) * 100 
+            sections.append(
+                ft.PieChartSection(
+                    percent,
+                    title=f"{percent:.1f}%",
+                    title_style=self.normal_title_style,
+                    color=ft.colors.RED,
+                    radius=self.normal_radius,
+                    badge=self.badge(ft.icons.HIGHLIGHT_OFF, self.normal_badge_size),
+                    badge_position=0.98,
+                )
+            )
+            legends.append(
+                ft.Container(
+                    padding=ft.padding.only(left=5, top=5, bottom=5, right=15),
+                    content=ft.Row(
+                        controls=[ft.Icon(name=ft.icons.HIGHLIGHT_OFF), ft.Text(f"Ýalňyş jogap: {self.__false_answer}"),],
+                        expand=True
+                    )
+                ),
+            )
+        if not self.__empty_answer == 0:
+            percent = (self.__empty_answer / self.__challenge_data["question_count"]) * 100
+            sections.append(
+                ft.PieChartSection(
+                    percent,
+                    title=f"{percent:.1f}%",
+                    title_style=self.normal_title_style,
+                    color=ft.colors.GREY,
+                    radius=self.normal_radius,
+                    badge=self.badge(ft.icons.DND_FORWARDSLASH, self.normal_badge_size),
+                    badge_position=0.98,
+                )
+            )
+            legends.append(
+                ft.Container(
+                    padding=ft.padding.only(left=5, top=5, bottom=5, right=15),
+                    content=ft.Row(
+                        controls=[ft.Icon(name=ft.icons.DND_FORWARDSLASH), ft.Text(f"Jogapsyz: {self.__empty_answer}"),],
+                        expand=True
+                    )
+                ),
+            )
+
+        self.chart = ft.PieChart(
+            sections=sections,
             sections_space=0,
             center_space_radius=0,
             on_chart_event=self.on_chart_event,
@@ -726,10 +770,10 @@ class ResultsPage(ft.View):
                 bgcolor=ft.colors.SURFACE_VARIANT,
                 center_title=True,
             ),
-            ft.Row(controls=[self.chart])
+            ft.Row(controls=[self.chart]),
+            ft.Row(controls=[ft.Column(controls=legends)], alignment=ft.MainAxisAlignment.CENTER),
         ]
-
-
+        self.page.update()
 
     def badge(self, icon, size):
         return ft.Container(

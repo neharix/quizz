@@ -63,7 +63,15 @@ class AnswerSerializer(serializers.ModelSerializer):
 class GetResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAnswer
-        fields = ("question", "answer", "is_true", "user", "answered_at")
+        fields = (
+            "question",
+            "challenge",
+            "answer",
+            "is_true",
+            "is_empty",
+            "user",
+            "answered_at",
+        )
 
 
 class AuthJournalSerializer(serializers.ModelSerializer):

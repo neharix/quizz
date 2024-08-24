@@ -142,17 +142,11 @@ class UserAnswerByIdAPIView(APIView):
 
 class GetChallengeResultAPIView(APIView):
     def get(self, request, **kwargs):
-        user = request.user
         key = kwargs["pk"]
         challenge = Challenge.objects.get(pk=key)
-        questions = Question.objects.filter(challenge=challenge)
-        user_answers = UserAnswer.objects.filter(user=user)
-        answers = []
-        for answer in user_answers:
-            if answer.question in questions:
-                answers.append(answer)
+        user_answers = UserAnswer.objects.filter(user=request.user, challenge=challenge)
 
-        queryset = answers
+        queryset = user_answers
         serializer = GetResultSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -193,14 +187,16 @@ def user_answer_api_view(request: HttpRequest):
         else:
             answer = None
             is_empty = True
+        challenge = Challenge.objects.get(pk=request.data["challenge"])
         question = Question.objects.get(pk=request.data["question"])
-        user = User.objects.get(id=request.data["user"])
+        user = User.objects.get(id=request.user.id)
         date = datetime.datetime.strptime(request.data["datetime"], "%Y-%m-%d %H:%M:%S")
         if is_empty:
             is_true = False
         else:
             is_true = True if answer.is_true else False
         UserAnswer.objects.create(
+            challenge=challenge,
             question=question,
             answer=answer,
             is_true=is_true,
@@ -250,3 +246,14 @@ def challenge_data_api_view(request: HttpRequest, challenge_pk):
         question_data["answers"] = answers_data
         questions_data.append(question_data)
     return Response(questions_data)
+
+
+@permission_classes((IsAuthenticated,))
+@api_view(http_method_names=["POST"])
+# FIXME
+def timeout_api_view(request: HttpRequest, challenge_pk):
+    if request.method == "POST":
+        challenge = Challenge.objects.get(pk=request.data["challenge"])
+        questions = Question.objects.filter(challenge=challenge)
+        user_answers = UserAnswer.objects.filter(user=request.user, challenge=challenge)
+    return Response({})
