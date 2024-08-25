@@ -1,1 +1,2 @@
 change "fields" variable at djoser.serializers.UserCreateSerializer
+add tuple ("first_name", "last_name") in "fields" variable at djoser.serializers.UserSerializer

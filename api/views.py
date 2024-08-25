@@ -59,20 +59,30 @@ class AuthJournalFilterAPIView(APIView):
 
 
 class ChallengeListAPIView(APIView):
-    def get(self, request):
+    def get(self, request: HttpRequest):
         date = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
         challenges_queryset = Challenge.objects.all().filter(
             date_finish__gte=date, date_start__lte=date, is_public=True
         )
-        challenges = [
-            ChallengeContainer(
-                challenge.pk,
-                challenge.name,
-                challenge.time_for_event,
-                len(Question.objects.filter(challenge=challenge.pk)),
+        challenges = []
+        for challenge in challenges_queryset:
+            is_participated = (
+                True
+                if len(
+                    TestSession.objects.filter(challenge=challenge, user=request.user)
+                )
+                != 0
+                else False
             )
-            for challenge in challenges_queryset
-        ]
+            challenges.append(
+                ChallengeContainer(
+                    challenge.pk,
+                    challenge.name,
+                    challenge.time_for_event,
+                    len(Question.objects.filter(challenge=challenge.pk)),
+                    is_participated,
+                )
+            )
 
         serializer = ChallengeSerializer(challenges, many=True)
         return Response(serializer.data)
@@ -250,10 +260,28 @@ def challenge_data_api_view(request: HttpRequest, challenge_pk):
 
 @permission_classes((IsAuthenticated,))
 @api_view(http_method_names=["POST"])
-# FIXME
-def timeout_api_view(request: HttpRequest, challenge_pk):
+def timeout_api_view(request: HttpRequest):
     if request.method == "POST":
         challenge = Challenge.objects.get(pk=request.data["challenge"])
         questions = Question.objects.filter(challenge=challenge)
         user_answers = UserAnswer.objects.filter(user=request.user, challenge=challenge)
-    return Response({})
+        unanswered_questions = []
+        for question in questions:
+            is_answered = False
+            for user_answer in user_answers:
+                if user_answer.question.pk == question.pk:
+                    is_answered = True
+                    break
+            if is_answered == False:
+                unanswered_questions.append(question)
+        for unanswered_question in unanswered_questions:
+            UserAnswer.objects.create(
+                challenge=challenge,
+                question=unanswered_question,
+                answer=None,
+                is_true=False,
+                is_empty=True,
+                user=request.user,
+                answered_at=datetime.datetime.now(),
+            )
+    return Response({"detail": "Success"})

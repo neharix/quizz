@@ -85,6 +85,7 @@ class ChallengeSerializer(serializers.Serializer):
     name = serializers.CharField()
     time_for_event = serializers.IntegerField()
     question_count = serializers.IntegerField()
+    is_participated = serializers.BooleanField()
 
 
 class QuestionSerializer(serializers.ModelSerializer):

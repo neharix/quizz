@@ -270,34 +270,64 @@ class ChallengesPage(ft.View):
             run_spacing=10,
         )
 
-        containers = [
-            ft.Container(
-                on_click=lambda e: self.__run_challenge(pk=e.control.data),
-                data=challenge["pk"],
-                bgcolor=ft.colors.SECONDARY_CONTAINER,
-                border_radius=5,
-                padding=15,
-                content=ft.Row(
-                    alignment=ft.MainAxisAlignment.START,
-                    controls=[
-                        ft.Icon(name=ft.icons.QUIZ_OUTLINED),
-                        ft.Column(
+        containers = []
+
+        for challenge in self.__challenges_list:
+            if challenge["is_participated"]:
+                containers.append(
+                    ft.Container(
+                        bgcolor=ft.colors.GREY_200,
+                        border_radius=5,
+                        padding=15,
+                        content=ft.Row(
+                            alignment=ft.MainAxisAlignment.START,
                             controls=[
-                                ft.Text(
-                                    challenge["name"],
-                                    weight=ft.FontWeight.W_500,
-                                    size=20,
+                                ft.Icon(name=ft.icons.QUIZ_OUTLINED, color=ft.colors.GREY_400),
+                                ft.Column(
+                                    controls=[
+                                        ft.Text(
+                                            challenge["name"],
+                                            weight=ft.FontWeight.W_500,
+                                            size=20,
+                                            color=ft.colors.GREY_400,
+                                        ),
+                                        ft.Text(f"Sorag sany: {
+                                                challenge['question_count']}", color=ft.colors.GREY_400),
+                                    ],
+                                    alignment=ft.MainAxisAlignment.CENTER,
                                 ),
-                                ft.Text(f"Sorag sany: {
-                                        challenge['question_count']}"),
                             ],
-                            alignment=ft.MainAxisAlignment.CENTER,
                         ),
-                    ],
-                ),
-            )
-            for challenge in self.__challenges_list
-        ]
+                    )
+                )
+            else:
+                containers.append(
+                    ft.Container(
+                        on_click=lambda e: self.__run_challenge(pk=e.control.data),
+                        data=challenge["pk"],
+                        bgcolor=ft.colors.SECONDARY_CONTAINER,
+                        border_radius=5,
+                        padding=15,
+                        content=ft.Row(
+                            alignment=ft.MainAxisAlignment.START,
+                            controls=[
+                                ft.Icon(name=ft.icons.QUIZ_OUTLINED),
+                                ft.Column(
+                                    controls=[
+                                        ft.Text(
+                                            challenge["name"],
+                                            weight=ft.FontWeight.W_500,
+                                            size=20,
+                                        ),
+                                        ft.Text(f"Sorag sany: {
+                                                challenge['question_count']}"),
+                                    ],
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                ),
+                            ],
+                        ),
+                    )
+                )
 
         for container in containers:
             self.__grid.controls.append(container)
@@ -678,7 +708,6 @@ class ResultsPage(ft.View):
 
         self.__true_answer, self.__false_answer, self.__empty_answer = 0, 0, 0
 
-        print(response)
         for answer in response:
             if answer["is_true"]:
                 self.__true_answer += 1
@@ -694,7 +723,7 @@ class ResultsPage(ft.View):
             sections.append(
                 ft.PieChartSection(
                     percent,
-                    title=f"{percent:.1f}%",
+                    title=f"{percent:.2f}%",
                     title_style=self.normal_title_style,
                     color=ft.colors.GREEN,
                     radius=self.normal_radius,
@@ -716,7 +745,7 @@ class ResultsPage(ft.View):
             sections.append(
                 ft.PieChartSection(
                     percent,
-                    title=f"{percent:.1f}%",
+                    title=f"{percent:.2f}%",
                     title_style=self.normal_title_style,
                     color=ft.colors.RED,
                     radius=self.normal_radius,
@@ -738,7 +767,7 @@ class ResultsPage(ft.View):
             sections.append(
                 ft.PieChartSection(
                     percent,
-                    title=f"{percent:.1f}%",
+                    title=f"{percent:.2f}%",
                     title_style=self.normal_title_style,
                     color=ft.colors.GREY,
                     radius=self.normal_radius,

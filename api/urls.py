@@ -12,6 +12,7 @@ urlpatterns = [
     path("challengelist/", ChallengeListAPIView.as_view()),
     path("challenge-data/<int:challenge_pk>/", challenge_data_api_view),
     path("useranswer-create/", user_answer_api_view),
+    path("timeout/", timeout_api_view),
     path("auth-journal/create", AuthJournalAPIView.as_view()),
     path("auth-journal/<str:username>/", AuthJournalFilterAPIView.as_view()),
     path("useranswers/<int:pk>/", GetChallengeResultAPIView.as_view()),
