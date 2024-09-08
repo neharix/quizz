@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/challenge_result.css' %}">
+{% endblock head %}
+{% block title %}
+Testi göni ýaýlymda yzarlamak
+{% endblock title %}
+{% block body %}
+<div class="container my-2">
+    <table class="table border-1">
+        <thead>
+            <tr class="border-bottom-line bg-light">
+                <th scope="col">
+                    №
+                </th>
+                <th scope="col">
+                    F.A.
+                </th>
+                <th scope="col">
+                    Başlan wagty
+                </th>
+                <th scope="col">
+                    Tamamlan wagty
+                </th>
+                <th scope="col">
+                    Dogry jogaplar
+                </th>
+                <th scope="col">
+                    Ýalňyş jogaplar
+                </th>
+                <th scope="col">
+                    Boş jogaplar
+                </th>
+                <th scope="col">
+                    Netije
+                </th>
+                <th scope="col">
+                    Statusy
+                </th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+</div>
+{% endblock body %}
+{% block scripts %}
+    {{ challenge_pk|json_script:"challenge-pk" }}
+    <script src="{% static 'js/real_time.js' %}"></script>
+{% endblock scripts %}

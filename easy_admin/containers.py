@@ -52,11 +52,16 @@ class UserResult:
             self.true_answer = sum(
                 [1 if answer.is_true else 0 for answer in user_answers]
             )
-            self.false_answer = sum(
-                [0 if answer.is_true else 1 for answer in user_answers]
+            self.empty_answer = sum(
+                [1 if answer.is_empty else 0 for answer in user_answers]
             )
-            self.percent = round((self.true_answer / questions_count) * 100)
+            self.false_answer = (
+                sum([0 if answer.is_true else 1 for answer in user_answers])
+                - self.empty_answer
+            )
+            self.percent = round((self.true_answer / questions_count) * 100, 2)
         else:
             self.true_answer = 0
             self.false_answer = 0
+            self.percent = 0
             self.percent = 0

@@ -117,3 +117,16 @@ class TestSessionSerializer(serializers.Serializer):
             "start": start,
             "end": end,
         }
+
+
+class UserResultSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField()
+    true_answer = serializers.IntegerField()
+    empty_answer = serializers.IntegerField()
+    false_answer = serializers.IntegerField()
+    percent = serializers.FloatField()
+    is_finished = serializers.BooleanField()

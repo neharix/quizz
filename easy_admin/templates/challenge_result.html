@@ -11,114 +11,45 @@
         <div class="dropdown">
             <button class="btn btn-primary dropbtn">Wagt boýunça almak</button>
             <div id="dr-content" class="dropdown-content">
-                <a href="/admin/challenges/{{ challenge_id }}/">Hemmesi</a>
+                <a href="/admin/challenges/{{ challenge_pk }}/">Hemmesi</a>
             </div>
         </div>
         <div class="my-2">
-            <a href="/admin/get_all/{{ challenge_id }}/{% if day and month and year %}by_date/{{ year }}/{{ month }}/{{ day }}/{% endif %}"
-               class="btn btn-primary">Ýükle <i class="bi bi-filetype-docx"></i></a>
+            <a href="/admin/get_all/{{ challenge_pk }}/{% if day and month and year %}by_date/{{ year }}/{{ month }}/{{ day }}/{% endif %}"
+                class="btn btn-primary">Ýükle <i class="bi bi-filetype-docx"></i></a>
         </div>
         <table class="table border-1">
             <thead>
                 <tr class="border-bottom-line bg-light">
                     <th scope="col">
-                        <a href="?order-by={% if ordered_by == 'index' %}-index{% elif ordered_by == '-index' %}{% else %}index{% endif %}"
-                           class="text-dark text-decoration-none">№
-                            {% if ordered_by == "index" %}
-                                <img src="{% static "svg/sort-up.svg" %}" width="14px" height="14px" alt="up">
-                            {% elif ordered_by == "-index" %}
-                                <img src="{% static "svg/sort-down.svg" %}" width="14px" height="14px" alt="down">
-                            {% else %}
-                                <img src="{% static "svg/sort.svg" %}" width="14px" height="14px" alt="sort">
-                            {% endif %}
-                        </a>
+                        №
                     </th>
                     <th scope="col">
-                        <a href="?order-by={% if ordered_by == 'full_name' %}-full_name{% elif ordered_by == '-full_name' %}{% else %}full_name{% endif %}"
-                           class="text-dark text-decoration-none">Familiýasy we Ady
-                            {% if ordered_by == "full_name" %}
-                                <img src="{% static "svg/sort-up.svg" %}" width="14px" height="14px" alt="up">
-                            {% elif ordered_by == "-full_name" %}
-                                <img src="{% static "svg/sort-down.svg" %}" width="14px" height="14px" alt="down">
-                            {% else %}
-                                <img src="{% static "svg/sort.svg" %}" width="14px" height="14px" alt="sort">
-                            {% endif %}
-                        </a>
+                        F.A
                     </th>
                     <th scope="col">
-                        <a href="?order-by={% if ordered_by == 'start' %}-start{% elif ordered_by == '-start' %}{% else %}start{% endif %}"
-                           class="text-dark text-decoration-none">Başlan wagty
-                            {% if ordered_by == "start" %}
-                                <img src="{% static "svg/sort-up.svg" %}" width="14px" height="14px" alt="up">
-                            {% elif ordered_by == "-start" %}
-                                <img src="{% static "svg/sort-down.svg" %}" width="14px" height="14px" alt="down">
-                            {% else %}
-                                <img src="{% static "svg/sort.svg" %}" width="14px" height="14px" alt="sort">
-                            {% endif %}
-                        </a>
+                        Başlan wagty
                     </th>
                     <th scope="col">
-                        <a href="?order-by={% if ordered_by == 'end' %}-end{% elif ordered_by == '-end' %}{% else %}end{% endif %}"
-                           class="text-dark text-decoration-none">Tamamlan wagty
-                            {% if ordered_by == "end" %}
-                                <img src="{% static "svg/sort-up.svg" %}" width="14px" height="14px" alt="up">
-                            {% elif ordered_by == "-end" %}
-                                <img src="{% static "svg/sort-down.svg" %}" width="14px" height="14px" alt="down">
-                            {% else %}
-                                <img src="{% static "svg/sort.svg" %}" width="14px" height="14px" alt="sort">
-                            {% endif %}
-                        </a>
+                        Tamamlan wagty
                     </th>
                     <th scope="col">
-                        <a href="?order-by={% if ordered_by == 'true' %}-true{% elif ordered_by == '-true' %}{% else %}true{% endif %}"
-                           class="text-dark text-decoration-none">Dogry jogaplar
-                            {% if ordered_by == "true" %}
-                                <img src="{% static "svg/sort-up.svg" %}" width="14px" height="14px" alt="up">
-                            {% elif ordered_by == "-true" %}
-                                <img src="{% static "svg/sort-down.svg" %}" width="14px" height="14px" alt="down">
-                            {% else %}
-                                <img src="{% static "svg/sort.svg" %}" width="14px" height="14px" alt="sort">
-                            {% endif %}
-                        </a>
+                        Dogry jogaplar
                     </th>
                     <th scope="col">
-                        <a href="?order-by={% if ordered_by == 'false' %}-false{% elif ordered_by == '-false' %}{% else %}false{% endif %}"
-                           class="text-dark text-decoration-none">Ýalňyş jogaplar
-                            {% if ordered_by == "false" %}
-                                <img src="{% static "svg/sort-up.svg" %}" width="14px" height="14px" alt="up">
-                            {% elif ordered_by == "-false" %}
-                                <img src="{% static "svg/sort-down.svg" %}" width="14px" height="14px" alt="down">
-                            {% else %}
-                                <img src="{% static "svg/sort.svg" %}" width="14px" height="14px" alt="sort">
-                            {% endif %}
-                        </a>
+                        Ýalňyş jogaplar
                     </th>
                     <th scope="col">
-                        <a href="?order-by={% if ordered_by == 'result' %}-result{% elif ordered_by == '-result' %}{% else %}result{% endif %}"
-                           class="text-dark text-decoration-none">Netije
-                            {% if ordered_by == "result" %}
-                                <img src="{% static "svg/sort-up.svg" %}" width="14px" height="14px" alt="up">
-                            {% elif ordered_by == "-result" %}
-                                <img src="{% static "svg/sort-down.svg" %}" width="14px" height="14px" alt="down">
-                            {% else %}
-                                <img src="{% static "svg/sort.svg" %}" width="14px" height="14px" alt="sort">
-                            {% endif %}
-                        </a>
+                        Boş jogaplar
                     </th>
                     <th scope="col">
-                        <a href="?order-by={% if ordered_by == 'status' %}-status{% elif ordered_by == '-status' %}{% else %}status{% endif %}"
-                           class="text-dark text-decoration-none">Statusy
-                            {% if ordered_by == "status" %}
-                                <img src="{% static "svg/sort-up.svg" %}" width="14px" height="14px" alt="up">
-                            {% elif ordered_by == "-status" %}
-                                <img src="{% static "svg/sort-down.svg" %}" width="14px" height="14px" alt="down">
-                            {% else %}
-                                <img src="{% static "svg/sort.svg" %}" width="14px" height="14px" alt="sort">
-                            {% endif %}
-                        </a>
+                        Netije
                     </th>
-                    <th scope="col">Hususy DOCX</th>
-                    <th scope="col">Umumy DOCX</th>
+                    <th scope="col">
+                        Statusy
+                    </th>
+                    <th scope="col">Hususy</th>
+                    <th scope="col">Umumy</th>
                 </tr>
             </thead>
             <tbody>
@@ -130,6 +61,7 @@
                         <td>{{ row.end }}</td>
                         <td>{{ row.true_answer }}</td>
                         <td>{{ row.false_answer }}</td>
+                        <td>{{ row.empty_answer }}</td>
                         <td>{{ row.percent }}%</td>
                         {% if row.is_finished %}
                             <td class="true">

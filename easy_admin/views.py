@@ -71,11 +71,9 @@ def challenges(request: HttpRequest):
 
 
 def challenge_result(
-    request: HttpRequest, challenge_id: int, year=None, month=None, day=None
+    request: HttpRequest, challenge_pk: int, year=None, month=None, day=None
 ):
-    if request.method == "GET":
-        ordered_by = request.GET.get("order-by", "")
-    challenge = Challenge.objects.get(pk=challenge_id)
+    challenge = Challenge.objects.get(pk=challenge_pk)
     if year and month and day:
         sessions = TestSession.objects.filter(
             challenge=challenge, start__year=year, start__month=month, start__day=day
@@ -119,47 +117,6 @@ def challenge_result(
         )
     dates = get_available_dates(challenge)
 
-    if ordered_by != "" and ordered_by in [
-        "index",
-        "-index",
-        "full_name",
-        "-full_name",
-        "start",
-        "-start",
-        "end",
-        "-end",
-        "true",
-        "-true",
-        "false",
-        "-false",
-        "result",
-        "-result",
-        "status",
-        "-status",
-    ]:
-        if "index" in ordered_by:
-            order_func = lambda e: e.id
-        elif "full_name" in ordered_by:
-            order_func = lambda e: f"{e.last_name} {e.first_name}"
-        elif "start" in ordered_by:
-            order_func = lambda e: e.start
-        elif "end" in ordered_by:
-            order_func = lambda e: e.end
-        elif "true" in ordered_by:
-            order_func = lambda e: e.true_answer
-        elif "false" in ordered_by:
-            order_func = lambda e: e.false_answer
-        elif "result" in ordered_by:
-            order_func = lambda e: e.percent
-        elif "status" in ordered_by:
-            order_func = lambda e: e.is_finished
-
-        user_results.sort(key=order_func)
-        user_results.reverse()
-
-        if ordered_by[0] == "-":
-            user_results.reverse()
-
     paginator = Paginator(user_results, 10)
     page_number = request.GET.get("page", 1)
     try:
@@ -182,8 +139,7 @@ def challenge_result(
             "day": day,
             "month": month,
             "year": year,
-            "challenge_id": challenge_id,
-            "ordered_by": ordered_by,
+            "challenge_pk": challenge_pk,
         },
     )
 
@@ -221,18 +177,24 @@ def export_user_result_short(
 
     if len(user_answers) != 0:
         true_answer = sum([1 if answer.is_true else 0 for answer in user_answers])
-        false_answer = sum([0 if answer.is_true else 1 for answer in user_answers])
-        percent = round((true_answer / (true_answer + false_answer)) * 100)
+        empty_answer = sum([1 if answer.is_empty else 0 for answer in user_answers])
+        false_answer = (
+            sum([0 if answer.is_true else 1 for answer in user_answers]) - empty_answer
+        )
+        percent = round(
+            (true_answer / (true_answer + false_answer + empty_answer)) * 100
+        )
     else:
         true_answer = 0
+        empty_answer = 0
         false_answer = 0
         percent = 0
 
     start = session.start.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
-        "%Y-%m-%d %H:%M:%S"
+        "%d-%m-%Y %H:%M:%S"
     )
     end = session.end.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
-        "%Y-%m-%d %H:%M:%S"
+        "%d-%m-%Y %H:%M:%S"
     )
 
     document = Document()
@@ -253,9 +215,10 @@ def export_user_result_short(
     document.add_paragraph(f"Familiýasy: {user.last_name}")
     document.add_paragraph(f"Başlan wagty: {start}")
     document.add_paragraph(f"Gutaran wagty: {end}")
-    document.add_paragraph(f"Netije: {percent}")
-    document.add_paragraph(f"Sorag sany: {true_answer + false_answer}")
+    document.add_paragraph(f"Netije: {percent}%")
+    document.add_paragraph(f"Sorag sany: {true_answer + false_answer + empty_answer}")
     document.add_paragraph(f"Dogry jogaplaryň sany: {true_answer}")
+    document.add_paragraph(f"Boş jogaplaryň sany: {empty_answer}")
     document.add_paragraph(f"Ýalňyş jogaplaryň sany: {false_answer}")
 
     document.add_paragraph("")
@@ -315,18 +278,22 @@ def export_user_result(
 
     if len(user_answers) != 0:
         true_answer = sum([1 if answer.is_true else 0 for answer in user_answers])
+        empty_answer = sum([1 if answer.is_empty else 0 for answer in user_answers])
         false_answer = sum([0 if answer.is_true else 1 for answer in user_answers])
-        percent = round((true_answer / (true_answer + false_answer)) * 100)
+        percent = round(
+            (true_answer / (true_answer + false_answer + empty_answer)) * 100
+        )
     else:
         true_answer = 0
+        empty_answer = 0
         false_answer = 0
         percent = 0
 
     start = session.start.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
-        "%Y-%m-%d %H:%M:%S"
+        "%d-%m-%Y %H:%M:%S"
     )
     end = session.end.astimezone(pytz.timezone("Asia/Ashgabat")).strftime(
-        "%Y-%m-%d %H:%M:%S"
+        "%d-%m-%Y %H:%M:%S"
     )
 
     document = Document()
@@ -346,9 +313,10 @@ def export_user_result(
     document.add_paragraph(f"Familiýasy: {user.last_name}")
     document.add_paragraph(f"Başlan wagty: {start}")
     document.add_paragraph(f"Gutaran wagty: {end}")
-    document.add_paragraph(f"Netije: {percent}")
-    document.add_paragraph(f"Sorag sany: {true_answer + false_answer}")
+    document.add_paragraph(f"Netije: {percent}%")
+    document.add_paragraph(f"Sorag sany: {true_answer + false_answer + empty_answer}")
     document.add_paragraph(f"Dogry jogaplaryň sany: {true_answer}")
+    document.add_paragraph(f"Boş jogaplaryň sany: {empty_answer}")
     document.add_paragraph(f"Ýalňyş jogaplaryň sany: {false_answer}")
     document.add_paragraph(f"")
 
@@ -375,20 +343,31 @@ def export_user_result(
         if user_answer.is_true:
             run.font.color.rgb = RGBColor(0, 255, 0)
         else:
-            run.font.color.rgb = RGBColor(255, 0, 0)
+            if user_answer.is_empty:
+                run.font.color.rgb = RGBColor(97, 97, 97)
+            else:
+                run.font.color.rgb = RGBColor(255, 0, 0)
 
-        if user_answer.answer.is_image:
-            document.add_paragraph(f"Berlen jogap: Jogap ID: {user_answer.answer.pk}")
-        else:
-            document.add_paragraph(f"Berlen jogap: {user_answer.answer.answer}")
+        try:
+            if user_answer.answer.is_image:
+                document.add_paragraph(
+                    f"Berlen jogap: Jogap ID: {user_answer.answer.pk}"
+                )
+            else:
+                document.add_paragraph(f"Berlen jogap: {user_answer.answer.answer}")
+        except AttributeError:
+            document.add_paragraph(f"Berlen jogap: Boş")
 
         true_ans = Answer.objects.get(question=user_answer.question, is_true=True)
 
-        document.add_paragraph(f"Dogry jogap: {true_ans.answer}")
+        if true_ans.is_image:
+            document.add_paragraph(f"Dogry jogap: Jogap ID:{true_ans.pk}")
+        else:
+            document.add_paragraph(f"Dogry jogap: {true_ans.answer}")
 
         answered_at = user_answer.answered_at.astimezone(
             pytz.timezone("Asia/Ashgabat")
-        ).strftime("%Y-%m-%d %H:%M:%S")
+        ).strftime("%d-%m-%Y %H:%M:%S")
         document.add_paragraph(f"Jogap berlen wagt: {answered_at}")
 
         document.add_paragraph("")
@@ -475,7 +454,7 @@ def export_all_results(
     run.font.name = "Times New Roman"
     run.font.bold = True
 
-    table = document.add_table(rows=len(user_results) + 1, cols=7)
+    table = document.add_table(rows=len(user_results) + 1, cols=8)
     table.style = "Table Grid"
 
     for index in range(8):
@@ -496,6 +475,8 @@ def export_all_results(
         elif index == 5:
             run = paragraph.add_run("Ýalňyş jogaplar")
         elif index == 6:
+            run = paragraph.add_run("Boş jogaplar")
+        elif index == 7:
             run = paragraph.add_run("Netije")
 
         run.font.bold = True
@@ -519,7 +500,8 @@ def export_all_results(
         table.cell(row_id, 3).text = f"{end}"
         table.cell(row_id, 4).text = f"{user_result.true_answer}"
         table.cell(row_id, 5).text = f"{user_result.false_answer}"
-        table.cell(row_id, 6).text = f"{user_result.percent}%"
+        table.cell(row_id, 6).text = f"{user_result.empty_answer}"
+        table.cell(row_id, 7).text = f"{user_result.percent}%"
 
         row_id += 1
 
@@ -857,3 +839,44 @@ def check_get(request: HttpRequest):
     testsession = TestSession.objects.get(pk=54)
     print(testsession.__dict__)
     return HttpResponse(status=200)
+
+
+def real_time_update(
+    request: HttpRequest, challenge_pk: int, year=None, month=None, day=None
+):
+    challenge = Challenge.objects.get(pk=challenge_pk)
+
+    return render(
+        request,
+        "online_change_board.html",
+        {
+            "challenge": challenge,
+            "challenge_pk": challenge_pk,
+        },
+    )
+
+
+def real_time_chart_update(
+    request: HttpRequest, challenge_pk: int, year=None, month=None, day=None
+):
+    challenge = Challenge.objects.get(pk=challenge_pk)
+
+    return render(
+        request,
+        "online_chart.html",
+        {
+            "challenge": challenge,
+            "challenge_pk": challenge_pk,
+        },
+    )
+
+
+def real_time_challenges(request: HttpRequest):
+    challenges = Challenge.objects.all()
+    challenge_results = []
+    for index in range(len(challenges)):
+        challenge_results.append(ChallengeResult(index + 1, challenges[index]))
+
+    return render(
+        request, "real_time_challenges.html", {"challenges": challenge_results}
+    )

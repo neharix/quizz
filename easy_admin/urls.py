@@ -6,6 +6,7 @@ from .views import *
 urlpatterns = [
     path("", main, name="easy_tools"),
     path("challenges/", challenges, name="challenges"),
+    path("real_time_challenges/", real_time_challenges, name="real_time_monitoring"),
     path("editable_challenges/", editable_challenges, name="editable_challenges"),
     path("editable_challenges/add/", add_challenge),
     path("editable_challenges/delete/<int:challenge_id>/", delete_challenge),
@@ -38,10 +39,15 @@ urlpatterns = [
         "editable_challenges/edit/<int:challenge_id>/add_question/",
         add_question,
     ),
-    path("challenges/<int:challenge_id>/", challenge_result),
+    path("challenges/<int:challenge_pk>/", challenge_result),
     path(
-        "challenges/<int:challenge_id>/by_date/<int:year>/<int:month>/<int:day>/",
+        "challenges/<int:challenge_pk>/by_date/<int:year>/<int:month>/<int:day>/",
         challenge_result,
+    ),
+    path("real_time_challenges/<int:challenge_pk>/real-time/", real_time_update),
+    path(
+        "real_time_challenges/<int:challenge_pk>/real-time/chart/",
+        real_time_chart_update,
     ),
     path("get_private/<int:challenge_id>/<int:user_id>/", export_user_result_short),
     path(

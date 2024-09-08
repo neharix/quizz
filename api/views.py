@@ -1,17 +1,18 @@
 import datetime
 
+import pytz
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.request import HttpRequest
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from challenge.models import Answer, Challenge, Question, TestSession, UserAnswer
 
-from .custom_containers import ChallengeContainer
+from .custom_containers import ChallengeContainer, UserResult
 from .models import AuthJournal
 from .serializers import *
 
@@ -285,3 +286,48 @@ def timeout_api_view(request: HttpRequest):
                 answered_at=datetime.datetime.now(),
             )
     return Response({"detail": "Success"})
+
+
+@permission_classes((IsAuthenticated))
+@api_view(http_method_names=["GET"])
+def get_current_user_data(request: HttpRequest, challenge_pk: int):
+    if request.method == "GET":
+        challenge = Challenge.objects.get(pk=challenge_pk)
+        sessions = TestSession.objects.filter(challenge=challenge)
+        users = [session.user for session in sessions]
+        questions = Question.objects.filter(challenge=challenge)
+
+        user_results = []
+        pk = 0
+        for user in users:
+            session = TestSession.objects.get(challenge=challenge, user=user)
+            now = datetime.datetime.now(datetime.timezone.utc)
+
+            timezone = pytz.timezone("Asia/Ashgabat")
+            if session.end > now.astimezone(timezone):
+                is_finished = False
+            else:
+                is_finished = True
+
+            pk += 1
+            user_answers = []
+            for question in questions:
+                try:
+                    user_answers.append(
+                        UserAnswer.objects.get(user=user, question=question)
+                    )
+                except:
+                    pass
+            user_results.append(
+                UserResult(
+                    pk,
+                    challenge.pk,
+                    user,
+                    user_answers,
+                    session,
+                    is_finished,
+                    len(questions),
+                )
+            )
+        serializer = UserResultSerializer(user_results, many=True)
+        return Response(serializer.data)

@@ -5,6 +5,7 @@ from .views import *
 
 urlpatterns = [
     path("", echo),
+    path("get-current-data/<int:challenge_pk>/", get_current_user_data),
     path("create_profile/", UserProfileAPIView.as_view()),
     path("answerlist/", AnswerListAPIView.as_view()),
     path("answerfilter/<int:pk>/", AnswerFilterAPIView.as_view()),
