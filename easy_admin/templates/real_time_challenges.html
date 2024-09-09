@@ -15,7 +15,8 @@
                     <th scope="col">Dowamlylygy</th>
                     <th scope="col">Başlamaly wagty</th>
                     <th scope="col">Soňlanmaly wagty</th>
-                    <th scope="col"></th>
+                    <th scope="col">Tablisa</th>
+                    <th scope="col">Diagramma</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,6 +29,9 @@
                         <td>{{ row.end }}</td>
                         <td>
                             <a href="{{ row.pk }}/real-time/" class="btn btn-primary"><i class="bi bi-eye"></i></a>
+                        </td>
+                        <td>
+                            <a href="{{ row.pk }}/real-time/chart/" class="btn btn-primary"><i class="bi bi-eye"></i></a>
                         </td>
                     </tr>
                 {% endfor %}

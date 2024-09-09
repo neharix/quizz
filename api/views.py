@@ -331,3 +331,50 @@ def get_current_user_data(request: HttpRequest, challenge_pk: int):
             )
         serializer = UserResultSerializer(user_results, many=True)
         return Response(serializer.data)
+
+
+@permission_classes((IsAuthenticated))
+@api_view(http_method_names=["GET"])
+def get_current_user_data_for_chart(request: HttpRequest, challenge_pk: int):
+    if request.method == "GET":
+        challenge = Challenge.objects.get(pk=challenge_pk)
+        sessions = TestSession.objects.filter(challenge=challenge)
+        users = [session.user for session in sessions]
+        questions = Question.objects.filter(challenge=challenge)
+
+        user_results = []
+        pk = 0
+        for user in users:
+            session = TestSession.objects.get(challenge=challenge, user=user)
+            now = datetime.datetime.now(datetime.timezone.utc)
+
+            timezone = pytz.timezone("Asia/Ashgabat")
+            if session.end > now.astimezone(timezone):
+                is_finished = False
+            else:
+                is_finished = True
+
+            pk += 1
+            user_answers = []
+            for question in questions:
+                try:
+                    user_answers.append(
+                        UserAnswer.objects.get(user=user, question=question)
+                    )
+                except:
+                    pass
+            user_results.append(
+                UserResult(
+                    pk,
+                    challenge.pk,
+                    user,
+                    user_answers,
+                    session,
+                    is_finished,
+                    len(questions),
+                )
+            )
+            user_results.sort(key=lambda e: e.true_answer)
+            user_results.reverse()
+        serializer = UserResultSerializer(user_results, many=True)
+        return Response(serializer.data)
