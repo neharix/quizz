@@ -1,0 +1,39 @@
+{% extends "layouts/main.html" %}
+{% load static %}
+{% block title %}
+    Testler
+{% endblock title %}
+{% block navbar %}
+    <li class="nav-item active">
+        <a class="nav-link" href="{% url 'home' %}">Testler</a>
+    </li>
+{% endblock navbar %}
+{% block body %}
+    <div class="row my-4">
+        {% for challenge in challenges %}
+            <div class="col-md-6">
+                <div class="row g-0 border rounded-1 overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                    <div class="col p-4 d-flex flex-column position-static"
+                         onclick="location.href='/hello/';">
+                        <strong class="d-inline-block mb-2 text-ui-color">{{ challenge.questions_count }} sorag</strong>
+                        <h3 class="mb-0">{{ challenge.name }}</h3>
+                        <div class="mb-1 text-muted">Berlen wagt: {{ challenge.time_for_event }} minut</div>
+                        <div class="mb-1">Başlan wagty: {{ challenge.date_start|date:"d.m.Y" }}</div>
+                        <div class="mb-1">Tamamlanmaly wagty: {{ challenge.date_finish|date:"d.m.Y" }}</div>
+                        {% if challenge.with_confirmation %}
+                            <p class="mb-auto text-danger">Şahsyýet tassyklamasy möhüm</p>
+                        {% else %}
+                            <p class="mb-auto text-success">Şahsyýet tassyklamasy möhüm däl</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-auto border d-none d-lg-block">
+                        <img width="200"
+                             height="250"
+                             class="img-c"
+                             src="{% if challenge.image %}/media/{{ challenge.image }}{% else %}{% static 'challenge/img/icon.png' %}{% endif %}">
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock body %}

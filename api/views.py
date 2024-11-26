@@ -11,7 +11,7 @@ from rest_framework.request import HttpRequest
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from challenge.models import Answer, Challenge, Question, TestSession, UserAnswer
+from challenge.models import *
 
 from .custom_containers import ChallengeContainer, UserResult
 from .models import *

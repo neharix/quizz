@@ -32,6 +32,8 @@ class Challenge(models.Model):
     time_for_event = models.IntegerField(default=30)
     is_public = models.BooleanField(default=False)
     questions_count = models.IntegerField()
+    with_confirmation = models.BooleanField()
+    image = models.ImageField(upload_to="challenge_covers/", blank=True, null=True)
 
     # add time for challenge
     def __str__(self):
@@ -77,6 +79,16 @@ class Complexity(models.Model):
 
     def __str__(self):
         return self.level
+
+
+class ConfirmationImage(models.Model):
+    image = models.ImageField(upload_to="confirmation/")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    challenge = models.ForeignKey("Challenge", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.last_name} {self.user.first_name} {self.date}"
 
 
 @receiver(post_save, sender=User)

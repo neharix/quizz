@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            {% block title %}
+            {% endblock title %}
+        | Sanly Çözgüt "IT meýdança" HJ</title>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <link rel='stylesheet'
+              href="{% static 'challenge/css/bootstrap.min.css' %}">
+        <link rel='stylesheet' href="{% static 'challenge/css/main.css' %}">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-custom navbar-dark navbar-mainbg">
+            <a class="navbar-brand navbar-logo" href="#">Sanly Çözgüt "IT meýdança" HJ</a>
+            <button class="navbar-toggler mr-4"
+                    type="button"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="1.5rem"
+                     fill="white"
+                     viewBox="0 0 512 512">
+                    <path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z" />
+                </svg>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+                    <div class="hori-selector">
+                        <div class="left"></div>
+                        <div class="right"></div>
+                    </div>
+                    {% block navbar %}
+                    {% endblock navbar %}
+                    {% comment %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0);"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+                    </li> {% endcomment %}
+                </ul>
+            </div>
+        </nav>
+        <main class="container">
+            {% block body %}
+            {% endblock body %}
+        </main>
+        <script src="{% static 'challenge/js/jquery-3.4.1.min.js' %}"></script>
+        <script src="{% static 'challenge/js/popper.min.js' %}"></script>
+        <script src="{% static 'challenge/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'challenge/js/main.js' %}"></script>
+    </body>
+</html>

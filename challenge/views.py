@@ -1,5 +1,7 @@
+import datetime
 import random
 
+import pytz
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -19,7 +21,6 @@ def logout_view(request: HttpRequest):
 def login_view(request):
     if request.user.is_authenticated:
         return redirect("home")
-
     if request.method == "POST":
         if request.POST.get("first_name", False) and request.POST.get(
             "last_name", False
@@ -60,5 +61,21 @@ def index(request: HttpRequest):
         if request.user.is_superuser or request.user.is_staff:
             return redirect("easy_tools")
         else:
-            return redirect("/superuser/login/")
-    return redirect("/superuser/login/")
+            date = (
+                datetime.datetime.now()
+                .astimezone(pytz.timezone("Asia/Ashgabat"))
+                .strftime("%Y-%m-%d %H:%M:%S")
+            )
+            challenges = Challenge.objects.filter(
+                is_public=True, date_finish__gte=date, date_start__lte=date
+            )
+            available_challenges = []
+            for challenge in challenges:
+                if not TestSession.objects.filter(
+                    user=request.user, challenge=challenge
+                ).exists():
+                    available_challenges.append(challenge)
+            return render(
+                request, "views/home.html", {"challenges": available_challenges}
+            )
+    return redirect("login_page")
