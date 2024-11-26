@@ -18,6 +18,7 @@ from docx.shared import Inches, Pt, RGBColor
 from challenge.models import *
 
 from .containers import ChallengeResult, FQuestion, UserResult
+from .decorators import staff_only
 from .forms import AnswerForm, ChallengeForm, QuestionForm
 
 
@@ -35,24 +36,12 @@ def get_available_dates(challenge: Challenge):
     return dates_str
 
 
-def logout_view(request: HttpRequest):
-    logout(request)
-    return redirect("home")
-
-
+@staff_only
 def profile_redirect(request: HttpRequest):
     return redirect("home")
 
 
-def index(request: HttpRequest):
-    if request.user.is_authenticated:
-        if request.user.is_superuser or request.user.is_staff:
-            return redirect("easy_tools")
-        else:
-            return redirect("/superuser/login/")
-    return redirect("/superuser/login/")
-
-
+@staff_only
 def main(request: HttpRequest):
     if request.user.is_superuser:
         users = User.objects.filter(is_superuser=False, is_staff=False)
@@ -61,6 +50,7 @@ def main(request: HttpRequest):
     return redirect("home")
 
 
+@staff_only
 def challenges(request: HttpRequest):
     challenges = Challenge.objects.all()
     challenge_results = []
@@ -70,6 +60,7 @@ def challenges(request: HttpRequest):
     return render(request, "challenges.html", {"challenges": challenge_results})
 
 
+@staff_only
 def challenge_result(
     request: HttpRequest, challenge_pk: int, year=None, month=None, day=None
 ):
@@ -112,7 +103,7 @@ def challenge_result(
                 user_answers,
                 session,
                 is_finished,
-                len(questions),
+                challenge.questions_count,
             )
         )
     dates = get_available_dates(challenge)
@@ -144,6 +135,7 @@ def challenge_result(
     )
 
 
+@staff_only
 def export_user_result_short(
     request: HttpRequest,
     challenge_id: int,
@@ -246,6 +238,7 @@ def export_user_result_short(
     return response
 
 
+@staff_only
 def export_user_result(
     request: HttpRequest,
     challenge_id: int,
@@ -272,7 +265,12 @@ def export_user_result(
     user_answers = []
     for question in questions:
         try:
-            user_answers.append(UserAnswer.objects.get(user=user, question=question))
+            user_answers.append(
+                UserAnswer.objects.get(
+                    user=user,
+                    question=question,
+                )
+            )
         except:
             pass
 
@@ -395,6 +393,7 @@ def export_user_result(
     return response
 
 
+@staff_only
 def export_all_results(
     request: HttpRequest, challenge_id: int, year=None, month=None, day=None
 ):
@@ -437,7 +436,7 @@ def export_all_results(
                 user_answers,
                 session,
                 is_finished,
-                len(questions),
+                challenge.questions_count,
             )
         )
 
@@ -519,6 +518,7 @@ def export_all_results(
     return response
 
 
+@staff_only
 def editable_challenges(request: HttpRequest):
     challenges = Challenge.objects.all()
     challenge_results = []
@@ -530,12 +530,14 @@ def editable_challenges(request: HttpRequest):
     )
 
 
+@staff_only
 def delete_challenge(request: HttpRequest, challenge_id: int):
     challenge = Challenge.objects.get(pk=challenge_id)
     challenge.delete()
     return redirect(request.META["HTTP_REFERER"])
 
 
+@staff_only
 def edit_challenge(request: HttpRequest, challenge_id: int):
     challenge = Challenge.objects.get(pk=challenge_id)
     questions = Question.objects.filter(challenge=challenge).order_by("complexity")
@@ -548,6 +550,7 @@ def edit_challenge(request: HttpRequest, challenge_id: int):
     return render(request, "edit_challenge.html", context)
 
 
+@staff_only
 def add_challenge(request: HttpRequest):
     if request.method == "POST":
         form = ChallengeForm(request.POST, request.FILES)
@@ -558,6 +561,7 @@ def add_challenge(request: HttpRequest):
     return render(request, "add_challenge.html", context)
 
 
+@staff_only
 def add_question(request: HttpRequest, challenge_id: int):
     challenge = Challenge.objects.get(pk=challenge_id)
 
@@ -586,6 +590,7 @@ def add_question(request: HttpRequest, challenge_id: int):
     return render(request, "add_question.html", context)
 
 
+@staff_only
 def edit_question(request: HttpRequest, challenge_id: int, question_id: int):
     question = Question.objects.get(pk=question_id)
     if request.method == "POST":
@@ -622,12 +627,14 @@ def edit_question(request: HttpRequest, challenge_id: int, question_id: int):
     return render(request, "edit_question.html", context)
 
 
+@staff_only
 def delete_question(request: HttpRequest, challenge_id: int, question_id: int):
     question = Question.objects.get(pk=question_id)
     question.delete()
     return redirect(request.META["HTTP_REFERER"])
 
 
+@staff_only
 def add_answer(request: HttpRequest, challenge_id: int, question_id: int):
     question = Question.objects.get(pk=question_id)
 
@@ -660,6 +667,7 @@ def add_answer(request: HttpRequest, challenge_id: int, question_id: int):
     return render(request, "add_answer.html", context)
 
 
+@staff_only
 def delete_answer(
     request: HttpRequest, challenge_id: int, question_id: int, answer_id: int
 ):
@@ -668,6 +676,7 @@ def delete_answer(
     return redirect(request.META["HTTP_REFERER"])
 
 
+@staff_only
 def edit_answer(
     request: HttpRequest, challenge_id: int, question_id: int, answer_id: int
 ):
@@ -700,6 +709,7 @@ def edit_answer(
     return render(request, "edit_answer.html", context)
 
 
+@staff_only
 def import_from_xlsx(request: HttpRequest, challenge_id: int):
     if request.method == "POST":
         dataframe = pd.read_excel(request.FILES.get("excel"))
@@ -832,6 +842,7 @@ def import_from_xlsx(request: HttpRequest, challenge_id: int):
     return render(request, "import_from_xlsx.html")
 
 
+@staff_only
 def check_get(request: HttpRequest):
     if request.method == "GET":
         print(request.GET)
@@ -841,6 +852,7 @@ def check_get(request: HttpRequest):
     return HttpResponse(status=200)
 
 
+@staff_only
 def real_time_update(
     request: HttpRequest, challenge_pk: int, year=None, month=None, day=None
 ):
@@ -856,6 +868,7 @@ def real_time_update(
     )
 
 
+@staff_only
 def real_time_chart_update(
     request: HttpRequest, challenge_pk: int, year=None, month=None, day=None
 ):
@@ -871,6 +884,7 @@ def real_time_chart_update(
     )
 
 
+@staff_only
 def real_time_challenges(request: HttpRequest):
     challenges = Challenge.objects.all()
     challenge_results = []

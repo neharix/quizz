@@ -16,6 +16,10 @@ urlpatterns = [
     path("challenge/<int:pk>/", ChallengeAPIView.as_view()),
     path("challengelist/", ChallengeListAPIView.as_view()),
     path("challenge-data/<int:challenge_pk>/", challenge_data_api_view),
+    path(
+        "equalize-question-complexity/<int:challenge_pk>/",
+        equalize_question_complexity_amount,
+    ),
     path("useranswer-create/", user_answer_api_view),
     path("timeout/", timeout_api_view),
     path("auth-journal/create", AuthJournalAPIView.as_view()),
@@ -23,6 +27,7 @@ urlpatterns = [
     path("useranswers/<int:pk>/", GetChallengeResultAPIView.as_view()),
     path("test-session-create/", TestSessionAPIView.as_view()),
     path("test-session-update/", TestSessionUpdateAPIView.as_view()),
+    path("confirmation/", confirmation_api_view),
     path("session-auth/", include("rest_framework.urls")),
     path("auth/", include("djoser.urls")),
     re_path(r"^auth/", include("djoser.urls.authtoken")),

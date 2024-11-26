@@ -7,7 +7,7 @@ SECRET_KEY = "django-insecure-3j84sd@+dl0sq5g$e*mak8t$77mhie67%kywo)o%gw&2zs3!1@
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "jazzmin",
@@ -35,7 +35,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "quizz_server.urls"
+ROOT_URLCONF = "server.urls"
 
 TEMPLATES = [
     {
@@ -53,7 +53,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "quizz_server.wsgi.application"
+WSGI_APPLICATION = "server.wsgi.application"
 
 # DATABASES = {
 #     "default": {

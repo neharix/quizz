@@ -16,38 +16,20 @@
         </div>
         <div class="my-2">
             <a href="/admin/get_all/{{ challenge_pk }}/{% if day and month and year %}by_date/{{ year }}/{{ month }}/{{ day }}/{% endif %}"
-                class="btn btn-primary">Ýükle <i class="bi bi-filetype-docx"></i></a>
+               class="btn btn-primary">Ýükle <i class="bi bi-filetype-docx"></i></a>
         </div>
         <table class="table border-1">
             <thead>
                 <tr class="border-bottom-line bg-light">
-                    <th scope="col">
-                        №
-                    </th>
-                    <th scope="col">
-                        F.A
-                    </th>
-                    <th scope="col">
-                        Başlan wagty
-                    </th>
-                    <th scope="col">
-                        Tamamlan wagty
-                    </th>
-                    <th scope="col">
-                        Dogry jogaplar
-                    </th>
-                    <th scope="col">
-                        Ýalňyş jogaplar
-                    </th>
-                    <th scope="col">
-                        Boş jogaplar
-                    </th>
-                    <th scope="col">
-                        Netije
-                    </th>
-                    <th scope="col">
-                        Statusy
-                    </th>
+                    <th scope="col">№</th>
+                    <th scope="col">F.A</th>
+                    <th scope="col">Başlan wagty</th>
+                    <th scope="col">Tamamlan wagty</th>
+                    <th scope="col">Dogry jogaplar</th>
+                    <th scope="col">Ýalňyş jogaplar</th>
+                    <th scope="col">Boş jogaplar</th>
+                    <th scope="col">Netije</th>
+                    <th scope="col">Statusy</th>
                     <th scope="col">Hususy</th>
                     <th scope="col">Umumy</th>
                 </tr>
@@ -87,6 +69,7 @@
         {% if users.paginator.num_pages != 1 %}
             {% include "pagination.html" with page=users paginator_range=paginator_range %}
         {% endif %}
+        <div style="height: 20vh !important"></div>
     </div>
 {% endblock body %}
 {% block scripts %}

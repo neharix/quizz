@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Profile(models.Model):
@@ -29,6 +31,7 @@ class Challenge(models.Model):
     date_finish = models.DateTimeField()
     time_for_event = models.IntegerField(default=30)
     is_public = models.BooleanField(default=False)
+    questions_count = models.IntegerField()
 
     # add time for challenge
     def __str__(self):
@@ -74,3 +77,9 @@ class Complexity(models.Model):
 
     def __str__(self):
         return self.level
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)

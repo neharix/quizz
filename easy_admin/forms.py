@@ -20,10 +20,19 @@ class ChallengeForm(forms.ModelForm):
     time_for_event = forms.IntegerField(
         label="Test üçin berlen wagt", widget=forms.NumberInput(attrs=bootstrap_attr)
     )
+    questions_count = forms.IntegerField(
+        label="Soraglaryň sany", widget=forms.NumberInput(attrs=bootstrap_attr)
+    )
 
     class Meta:
         model = Challenge
-        fields = ("name", "date_start", "date_finish", "time_for_event")
+        fields = (
+            "name",
+            "date_start",
+            "date_finish",
+            "time_for_event",
+            "questions_count",
+        )
 
 
 class QuestionForm(forms.ModelForm):

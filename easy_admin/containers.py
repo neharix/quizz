@@ -1,3 +1,4 @@
+import pytz
 from django.contrib.auth.models import User
 
 from challenge.models import Challenge, Question, TestSession
@@ -45,8 +46,8 @@ class UserResult:
         self.challenge_id = challenge_id
         self.first_name = user.first_name
         self.last_name = user.last_name
-        self.start = session.start
-        self.end = session.end
+        self.start = session.start.astimezone(pytz.timezone("Asia/Ashgabat"))
+        self.end = session.end.astimezone(pytz.timezone("Asia/Ashgabat"))
         self.is_finished = is_finished
         if len(user_answers) != 0:
             self.true_answer = sum(
@@ -63,5 +64,5 @@ class UserResult:
         else:
             self.true_answer = 0
             self.false_answer = 0
-            self.percent = 0
+            self.empty_answer = 0
             self.percent = 0

@@ -1,4 +1,5 @@
 import datetime
+import random
 
 import pytz
 from django.http import HttpRequest, HttpResponse
@@ -13,7 +14,7 @@ from rest_framework.views import APIView
 from challenge.models import Answer, Challenge, Question, TestSession, UserAnswer
 
 from .custom_containers import ChallengeContainer, UserResult
-from .models import AuthJournal
+from .models import *
 from .serializers import *
 
 
@@ -80,7 +81,7 @@ class ChallengeListAPIView(APIView):
                     challenge.pk,
                     challenge.name,
                     challenge.time_for_event,
-                    len(Question.objects.filter(challenge=challenge.pk)),
+                    challenge.questions_count,
                     is_participated,
                 )
             )
@@ -107,9 +108,7 @@ class ChallengeAPIView(APIView):
                     "pk": challenge.pk,
                     "name": challenge.name,
                     "time_for_event": challenge.time_for_event,
-                    "question_count": len(
-                        Question.objects.filter(challenge=challenge.pk)
-                    ),
+                    "question_count": challenge.questions_count,
                 }
             )
         except:
@@ -224,7 +223,45 @@ def user_answer_api_view(request: HttpRequest):
 @api_view()
 def challenge_data_api_view(request: HttpRequest, challenge_pk):
     challenge = Challenge.objects.get(pk=challenge_pk)
-    questions = Question.objects.filter(challenge=challenge)
+
+    share_of_questions = challenge.questions_count // 3
+    rest_of_questions = challenge.questions_count % 3
+
+    easy_temp = [
+        question
+        for question in Question.objects.filter(
+            challenge=challenge, complexity=Complexity.objects.get(level="Ýeňil")
+        )
+    ]
+    random.shuffle(easy_temp)
+    medium_temp = [
+        question
+        for question in Question.objects.filter(
+            challenge=challenge, complexity=Complexity.objects.get(level="Ortaça")
+        )
+    ]
+    random.shuffle(medium_temp)
+    hard_temp = [
+        question
+        for question in Question.objects.filter(
+            challenge=challenge, complexity=Complexity.objects.get(level="Kyn")
+        )
+    ]
+    random.shuffle(hard_temp)
+
+    easy_questions = easy_temp[:share_of_questions]
+    medium_questions = medium_temp[:share_of_questions]
+    hard_questions = hard_temp[:share_of_questions]
+
+    questions = easy_questions + medium_questions + hard_questions
+
+    for i in range(rest_of_questions):
+        questions.append(
+            random.choice(
+                Question.objects.exclude(pk__in=[question.pk for question in questions])
+            )
+        )
+
     questions_data = []
     for question in questions:
         try:
@@ -288,7 +325,7 @@ def timeout_api_view(request: HttpRequest):
     return Response({"detail": "Success"})
 
 
-@permission_classes((IsAuthenticated))
+@permission_classes((IsAdminUser))
 @api_view(http_method_names=["GET"])
 def get_current_user_data(request: HttpRequest, challenge_pk: int):
     if request.method == "GET":
@@ -326,14 +363,14 @@ def get_current_user_data(request: HttpRequest, challenge_pk: int):
                     user_answers,
                     session,
                     is_finished,
-                    len(questions),
+                    challenge.questions_count,
                 )
             )
         serializer = UserResultSerializer(user_results, many=True)
         return Response(serializer.data)
 
 
-@permission_classes((IsAuthenticated))
+@permission_classes((IsAdminUser))
 @api_view(http_method_names=["GET"])
 def get_current_user_data_for_chart(request: HttpRequest, challenge_pk: int):
     if request.method == "GET":
@@ -371,10 +408,50 @@ def get_current_user_data_for_chart(request: HttpRequest, challenge_pk: int):
                     user_answers,
                     session,
                     is_finished,
-                    len(questions),
+                    challenge.questions_count,
                 )
             )
             user_results.sort(key=lambda e: e.true_answer)
             user_results.reverse()
         serializer = UserResultSerializer(user_results, many=True)
         return Response(serializer.data)
+
+
+@permission_classes((IsAdminUser,))
+@api_view(http_method_names=["GET"])
+def equalize_question_complexity_amount(request: HttpRequest, challenge_pk: int):
+    challenge = Challenge.objects.get(pk=challenge_pk)
+
+    questions = Question.objects.filter(challenge=challenge)
+
+    share_of_questions = len(questions) // 3
+    rest_of_questions = len(questions) % 3
+
+    complexities = Complexity.objects.all()
+    complexity_index = 0
+    counter = 0
+    for question in questions:
+        try:
+            if counter < share_of_questions:
+                question.complexity = complexities[complexity_index]
+            question.save()
+            counter += 1
+            if counter == share_of_questions:
+                complexity_index += 1
+                counter = 0
+
+        except IndexError:
+            question.complexity = random.choice(complexities)
+            question.save()
+    return Response({"detail": "Success"})
+
+
+@permission_classes((IsAuthenticated,))
+@api_view(http_method_names=["POST"])
+def confirmation_api_view(request: HttpRequest):
+    if request.FILES.get("photo"):
+        ConfirmationImage.objects.create(
+            image=request.FILES["photo"], user=request.user
+        )
+        return Response({"detail": "Success"})
+    return Response({"detail": "File not found"})
