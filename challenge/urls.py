@@ -6,4 +6,5 @@ from .views import *
 urlpatterns = [
     path("", index, name="home"),
     path("login/", login_view, name="login_page"),
+    path("confirmation/<int:challenge_id>/", confirmation),
 ]

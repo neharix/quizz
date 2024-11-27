@@ -214,3 +214,25 @@ body {
 .text-ui-color {
     color: #9195b4;
 }
+
+
+.btn-ui-design {
+    color: #ffffff;
+    background-color: #9195b4;
+    border-color: #9195b4;
+}
+
+
+.btn-ui-design:hover {
+    color: #fff;
+    background-color: #888997;
+    border-color: #888997;
+}
+
+
+
+.btn-ui-design:focus {
+    color: #fff;
+    background-color: #888997;
+    border-color: #888997;
+}

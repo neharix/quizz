@@ -1,0 +1,20 @@
+{% extends "layouts/main.html" %}
+{% load static %}
+{% block title %}
+    Testler
+{% endblock title %}
+{% block navbar %}
+    <li class="nav-item active">
+        <a class="nav-link" href="{% url 'home' %}">Testler</a>
+    </li>
+{% endblock navbar %}
+{% block body %}
+    {% csrf_token %}
+    <div class="my-4">
+        <h2 class="text-center">Tassyklama üçin passportyňyz bilen bilelikde surata düşmegiňiz haýyş edilýär</h2>
+    </div>
+    <div id="content"></div>
+{% endblock body %}
+{% block scripts %}
+    <script src="{% static 'challenge/js/capture.js' %}"></script>
+{% endblock scripts %}

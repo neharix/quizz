@@ -16,7 +16,7 @@
     </head>
     <body>
         <nav class="navbar navbar-expand-custom navbar-dark navbar-mainbg">
-            <a class="navbar-brand navbar-logo" href="#">Sanly Çözgüt "IT meýdança" HJ</a>
+            <a class="navbar-brand navbar-logo" href="{% url 'home' %}">Sanly Çözgüt "IT meýdança" HJ</a>
             <button class="navbar-toggler mr-4"
                     type="button"
                     aria-controls="navbarSupportedContent"
@@ -52,5 +52,7 @@
         <script src="{% static 'challenge/js/popper.min.js' %}"></script>
         <script src="{% static 'challenge/js/bootstrap.min.js' %}"></script>
         <script src="{% static 'challenge/js/main.js' %}"></script>
+        {% block scripts %}
+        {% endblock scripts %}
     </body>
 </html>

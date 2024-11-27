@@ -69,6 +69,7 @@ class TestSession(models.Model):
     end = models.DateTimeField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
+    questions_json = models.CharField(max_length=500)
 
     def __str__(self):
         return f"{self.user.username} {self.challenge.name}"

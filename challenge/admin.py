@@ -1,14 +1,6 @@
 from django.contrib import admin
 
-from .models import (
-    Answer,
-    Challenge,
-    Complexity,
-    Profile,
-    Question,
-    TestSession,
-    UserAnswer,
-)
+from .models import *
 
 
 @admin.register(Profile)
@@ -70,3 +62,8 @@ class QuestionAdmin(admin.ModelAdmin):
 class TestSessionAdmin(admin.ModelAdmin):
     list_display = ["id", "start", "end", "user", "challenge"]
     readonly_fields = ("start",)
+
+
+@admin.register(ConfirmationImage)
+class ConfirmationImageAdmin(admin.ModelAdmin):
+    list_display = ["user", "image", "date", "challenge"]

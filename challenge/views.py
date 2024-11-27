@@ -5,7 +5,7 @@ import pytz
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest
 from django.shortcuts import redirect, render
 
 from challenge.models import *
@@ -79,3 +79,32 @@ def index(request: HttpRequest):
                 request, "views/home.html", {"challenges": available_challenges}
             )
     return redirect("login_page")
+
+
+def play_challenge(request: HttpRequest):
+    pass
+
+
+def confirmation(request: HttpRequest, challenge_id):
+    if Challenge.objects.filter(id=challenge_id).exists():
+        challenge = Challenge.objects.get(id=challenge_id)
+    else:
+        return redirect("home")
+
+    if challenge.with_confirmation:
+        if request.method == "POST":
+            if request.FILES.get("image", False):
+                ConfirmationImage.objects.create(
+                    challenge=challenge, user=request.user, image=request.FILES["image"]
+                )
+                return redirect(play_challenge, challenge_id=challenge_id)
+            return render(request, "views/confirmation.html")
+        else:
+            if ConfirmationImage.objects.filter(
+                challenge=challenge, user=request.user
+            ).exists():
+                return redirect(play_challenge, challenge_id=challenge_id)
+            else:
+                return render(request, "views/confirmation.html")
+    else:
+        return redirect(play_challenge, challenge_id=challenge_id)
