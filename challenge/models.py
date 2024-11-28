@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 class Profile(models.Model):
@@ -13,15 +14,13 @@ class Profile(models.Model):
 
 
 class Question(models.Model):
-    question = models.TextField(null=True, blank=True)
-    is_image = models.BooleanField(default=False)
-    image = models.ImageField(upload_to="questions/", null=True, blank=True)
+    content = CKEditor5Field("Text", config_name="extends")
     challenge = models.ForeignKey("Challenge", on_delete=models.CASCADE)
     point = models.IntegerField(default=1)
     complexity = models.ForeignKey("Complexity", on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.pk}. {self.question}"
+        return f"{self.pk}. {self.content[:20]}"
 
 
 class Challenge(models.Model):
@@ -41,14 +40,12 @@ class Challenge(models.Model):
 
 
 class Answer(models.Model):
-    answer = models.TextField(null=True, blank=True)
-    image = models.ImageField(upload_to="answers/", blank=True, null=True)
+    content = CKEditor5Field("Text", config_name="extends")
     question = models.ForeignKey("Question", on_delete=models.CASCADE)
-    is_image = models.BooleanField(default=False)
     is_true = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.pk}. {self.answer}"
+        return f"{self.pk}. {self.content[:20]}"
 
 
 class UserAnswer(models.Model):

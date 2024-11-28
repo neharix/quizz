@@ -11,7 +11,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ["id", "answer", "is_true", "question", "image", "is_image"]
+    list_display = ["id", "content", "is_true", "question"]
 
 
 @admin.register(Complexity)
@@ -49,11 +49,9 @@ class ChallengeAdmin(admin.ModelAdmin):
 class QuestionAdmin(admin.ModelAdmin):
     list_display = [
         "id",
-        "question",
+        "content",
         "challenge",
         "point",
-        "image",
-        "is_image",
         "complexity",
     ]
 

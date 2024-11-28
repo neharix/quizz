@@ -13,6 +13,8 @@
         <link rel='stylesheet'
               href="{% static 'challenge/css/bootstrap.min.css' %}">
         <link rel='stylesheet' href="{% static 'challenge/css/main.css' %}">
+        {% block head %}
+        {% endblock head %}
     </head>
     <body>
         <nav class="navbar navbar-expand-custom navbar-dark navbar-mainbg">
@@ -30,7 +32,7 @@
                 </svg>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
+                <ul class="navbar-nav mx-auto">
                     <div class="hori-selector">
                         <div class="left"></div>
                         <div class="right"></div>
@@ -50,7 +52,7 @@
         </main>
         <script src="{% static 'challenge/js/jquery-3.4.1.min.js' %}"></script>
         <script src="{% static 'challenge/js/popper.min.js' %}"></script>
-        <script src="{% static 'challenge/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'challenge/js/bootstrap.bundle.min.js' %}"></script>
         <script src="{% static 'challenge/js/main.js' %}"></script>
         {% block scripts %}
         {% endblock scripts %}

@@ -15,6 +15,7 @@ urlpatterns = [
     path("", include("challenge.urls")),
     path("logout/", logout_view, name="logout"),
     path("accounts/profile/", profile_redirect, name="profile"),
+    path("ckeditor5/", include("django_ckeditor_5.urls")),
 ]
 
 if settings.DEBUG:

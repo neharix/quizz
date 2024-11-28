@@ -1,0 +1,4 @@
+.image img, .image image {
+    width: 100% !important;
+    height: max-content !important;
+}
