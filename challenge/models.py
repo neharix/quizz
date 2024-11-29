@@ -55,6 +55,9 @@ class UserAnswer(models.Model):
     is_true = models.BooleanField(default=False)
     is_empty = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    confirmation = models.ImageField(
+        upload_to="ww_confirmation/", null=True, blank=True
+    )
     answered_at = models.DateTimeField()
 
     def __str__(self):

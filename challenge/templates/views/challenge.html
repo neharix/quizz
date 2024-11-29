@@ -22,36 +22,58 @@
            data-bs-target="#offcanvasRight"
            aria-controls="offcanvasRight">Soraglar</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" id="next-btn" role="button">Indiki</a>
+    </li>
 {% endblock navbar %}
 {% block body %}
-    <h3 class="text-center my-3">Sorag:</h3>
-    <div class="row m-4">
-        <div class="p-3 text-light" id="question">{{ question.content|safe }}</div>
-    </div>
-    <h3 class="text-center my-3">Jogaplar:</h3>
-    <div class="offcanvas offcanvas-end"
-         tabindex="-1"
-         id="offcanvasRight"
-         aria-labelledby="offcanvasRightLabel">
-        <div class="offcanvas-header">
-            <h5 id="offcanvasRightLabel">Soragyň jogaplary</h5>
-            <button type="button"
-                    class="btn-close text-reset"
-                    data-bs-dismiss="offcanvas"
-                    aria-label="Close"></button>
+    {% csrf_token %}
+    <div id="quiz-panel">
+        <h3 class="text-center my-3">Sorag:</h3>
+        <div class="row m-4">
+            <div class="p-3 text-light" id="question">{{ question.content|safe }}</div>
         </div>
-        <div class="offcanvas-body">
-            {% for loop_question in questions %}
-                {% if loop_question.is_answered %}
-                    <button class="btn btn-outline-dark disabled w-100">Sorag №{{ forloop.counter }}</button>
-                {% else %}
-                    {% if loop_question.id == question.id %}
-                        <button class="btn btn-primary w-100">Sorag №{{ forloop.counter }}</button>
-                    {% else %}
-                        <button class="btn btn-outline-primary w-100">Sorag №{{ forloop.counter }}</button>
-                    {% endif %}
-                {% endif %}
+        <h3 class="text-center my-3">Jogaplar:</h3>
+        <div>
+            {% for answer in answers %}
+                <div data="{{ answer.id }}" class="row m-4 answer">
+                    <div class="col-1 d-flex align-items-center">
+                        <input type="radio" name="answer">
+                    </div>
+                    <div class="col-11 p-3 text-light">{{ answer.content|safe }}</div>
+                </div>
             {% endfor %}
         </div>
+        <div class="offcanvas offcanvas-end"
+             tabindex="-1"
+             id="offcanvasRight"
+             aria-labelledby="offcanvasRightLabel">
+            <div class="offcanvas-header">
+                <h5 id="offcanvasRightLabel">Soragyň jogaplary</h5>
+                <button type="button"
+                        class="btn-close text-reset"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                {% for loop_question in questions %}
+                    {% if loop_question.is_answered %}
+                        <button class="btn btn-outline-dark disabled w-100">Sorag №{{ forloop.counter }}</button>
+                    {% else %}
+                        {% if loop_question.id == question.id %}
+                            <button class="btn btn-primary w-100">Sorag №{{ forloop.counter }}</button>
+                        {% else %}
+                            <button class="btn btn-outline-primary w-100">Sorag №{{ forloop.counter }}</button>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
     </div>
+    {% if challenge.with_confirmation %}<div id="content" class="d-none"></div>{% endif %}
 {% endblock body %}
+{% block scripts %}
+    {{ challenge.with_confirmation|json_script:"confirmation" }}
+    {{ question.id|json_script:"question-id" }}
+    <script src="{% static 'challenge/js/challenge.js' %}"></script>
+{% endblock scripts %}

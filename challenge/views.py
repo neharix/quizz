@@ -91,6 +91,10 @@ def index(request: HttpRequest):
 
 
 def play_challenge(request: HttpRequest, challenge_id):
+    if request.method == "POST":
+        print(request.POST)
+        print(request.FILES)
+
     if Challenge.objects.filter(id=challenge_id).exists():
         challenge = Challenge.objects.get(id=challenge_id)
     else:
@@ -126,6 +130,10 @@ def play_challenge(request: HttpRequest, challenge_id):
                     "test_session": test_session,
                     "questions": questions,
                     "question": question,
+                    "answers": Answer.objects.filter(
+                        question=Question.objects.get(id=question.id)
+                    ),
+                    "challenge": challenge,
                 },
             )
     else:
@@ -201,6 +209,10 @@ def play_challenge(request: HttpRequest, challenge_id):
                 "test_session": test_session,
                 "questions": question_containers,
                 "question": question,
+                "answers": Answer.objects.filter(
+                    question=Question.objects.get(id=question.id)
+                ),
+                "challenge": challenge,
             },
         )
 

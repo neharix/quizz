@@ -2,3 +2,17 @@
     background-color: #bbbdcb;
     border-radius: 1.5rem;
 }
+
+.answer {
+    background-color: #9fa7df;
+    border-radius: 1.5rem;
+    transition: all ease-out .5s;
+
+}
+
+
+.selected {
+    background-color: #99d3ed;
+    border-radius: 1rem;
+    transition: all ease-out .25s;
+}

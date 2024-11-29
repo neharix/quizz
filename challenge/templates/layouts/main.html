@@ -17,7 +17,7 @@
         {% endblock head %}
     </head>
     <body>
-        <nav class="navbar navbar-expand-custom navbar-dark navbar-mainbg">
+        <nav class="navbar fixed-top navbar-expand-custom navbar-dark navbar-mainbg">
             <a class="navbar-brand navbar-logo" href="{% url 'home' %}">Sanly Çözgüt "IT meýdança" HJ</a>
             <button class="navbar-toggler mr-4"
                     type="button"
@@ -46,6 +46,7 @@
                 </ul>
             </div>
         </nav>
+        <div style="height: 10vh !important;"></div>
         <main class="container">
             {% block body %}
             {% endblock body %}
