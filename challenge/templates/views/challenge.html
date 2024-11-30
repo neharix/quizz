@@ -10,17 +10,14 @@
 {% endblock head %}
 {% block navbar %}
     <li class="nav-item active">
-        <a class="nav-link" role="button">Timer field</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" role="button">Challenge status bar</a>
+        <a class="nav-link" role="button" id="timer">--:--:--</a>
     </li>
     <li class="nav-item">
         <a class="nav-link"
            role="button"
            data-bs-toggle="offcanvas"
            data-bs-target="#offcanvasRight"
-           aria-controls="offcanvasRight">Soraglar</a>
+           aria-controls="offcanvasRight">Soraglar: {{ user_answers_count }}/{{ questions|length }}</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" id="next-btn" role="button">Indiki</a>
@@ -58,12 +55,13 @@
             <div class="offcanvas-body">
                 {% for loop_question in questions %}
                     {% if loop_question.is_answered %}
-                        <button class="btn btn-outline-dark disabled w-100">Sorag №{{ forloop.counter }}</button>
+                        <button class="btn btn-secondary disabled w-100 my-1">Sorag №{{ forloop.counter }}</button>
                     {% else %}
                         {% if loop_question.id == question.id %}
-                            <button class="btn btn-primary w-100">Sorag №{{ forloop.counter }}</button>
+                            <button class="btn btn-primary w-100 my-1">Sorag №{{ forloop.counter }}</button>
                         {% else %}
-                            <button class="btn btn-outline-primary w-100">Sorag №{{ forloop.counter }}</button>
+                            <button onclick="location.href='/change-question/{{ challenge.id }}/{{ loop_question.id }}/'"
+                                    class="btn btn-outline-primary w-100 my-1">Sorag №{{ forloop.counter }}</button>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
@@ -74,6 +72,9 @@
 {% endblock body %}
 {% block scripts %}
     {{ challenge.with_confirmation|json_script:"confirmation" }}
+    {{ test_session.end|json_script:"date-end" }}
+    {{ test_session.id|json_script:"session-id" }}
+    {{ challenge.id|json_script:"challenge-id" }}
     {{ question.id|json_script:"question-id" }}
     <script src="{% static 'challenge/js/challenge.js' %}"></script>
 {% endblock scripts %}

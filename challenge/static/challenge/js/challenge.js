@@ -37,17 +37,19 @@ answers.forEach((element) => {
 var payload = null;
 
 next_btn.onclick = (e) => {
+  let csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0];
+  if (selected_answer != null) {
+    payload = JSON.stringify({
+      answer_id: Number(selected_answer.getAttribute("data")),
+      question_id: question_id,
+    });
+  } else {
+    payload = JSON.stringify({ answer_id: null, question_id: question_id });
+  }
   if (confirmation) {
-    if (selected_answer != null) {
-      payload = JSON.stringify({answer_id: Number(selected_answer.getAttribute("data")),question_id: question_id,});
-    } else {
-      payload = JSON.stringify({answer_id: null,question_id: question_id,});
-    }
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     let isUploaded = false;
     let contentContainer = document.querySelector("#content");
-    let csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0];
-
     contentContainer.classList.remove("d-none");
     document.querySelector("#quiz-panel").classList.add("d-none");
 
@@ -177,5 +179,49 @@ next_btn.onclick = (e) => {
         }, 500);
       });
     }
+  } else {
+    contentContainer.innerHTML = `
+      <form method="post" enctype="multipart/form-data">
+          <input type="hidden" value='${payload}' name="payload">
+          <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken.value}">
+          <input type="submit" id="submitBtn" value="Submit">
+      </form>`;
+    document.getElementById("submitBtn").click();
   }
+};
+
+// TIMER
+let date_end = new Date(
+  JSON.parse(document.querySelector("#date-end").textContent)
+);
+let session_id = JSON.parse(document.querySelector("#session-id").textContent);
+let challenge_id = JSON.parse(
+  document.querySelector("#challenge-id").textContent
+);
+
+function timer() {
+  var nowDate = new Date();
+  var achiveDate = date_end;
+  var result = achiveDate - nowDate + 1000;
+  if (result < 0) {
+    var elmnt = document.getElementById("timer");
+    elmnt.innerHTML = " - : - - : - - : - - ";
+    return undefined;
+  }
+  var seconds = Math.floor((result / 1000) % 60);
+  var minutes = Math.floor((result / 1000 / 60) % 60);
+  var hours = Math.floor((result / 1000 / 60 / 60) % 24);
+  var days = Math.floor(result / 1000 / 60 / 60 / 24);
+  if (seconds < 10) seconds = "0" + seconds;
+  if (minutes < 10) minutes = "0" + minutes;
+  if (hours < 10) hours = "0" + hours;
+  var elmnt = document.getElementById("timer");
+  elmnt.innerHTML = `${hours}:${minutes}:${seconds}`;
+  if (hours == "00" && minutes == "00" && seconds == "00") {
+    location.href = `/timeout/${challenge_id}/${session_id}/`;
+  }
+  setTimeout(timer, 1000);
+}
+window.onload = function () {
+  timer();
 };

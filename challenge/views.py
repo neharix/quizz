@@ -90,15 +90,77 @@ def index(request: HttpRequest):
     return redirect("login_page")
 
 
-def play_challenge(request: HttpRequest, challenge_id):
-    if request.method == "POST":
-        print(request.POST)
-        print(request.FILES)
-
+def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = None):
     if Challenge.objects.filter(id=challenge_id).exists():
         challenge = Challenge.objects.get(id=challenge_id)
+
     else:
         return redirect("home")
+
+    if request.method == "POST":
+        print(request.POST)
+
+        print(request.FILES)
+
+        if request.POST.get("payload", False):
+            payload = json.loads(request.POST["payload"])
+            if payload.get("answer_id", False) and payload.get("question_id", False):
+                question = Question.objects.get(id=payload["question_id"])
+                if payload["answer_id"] != None:
+                    answer = Answer.objects.get(id=payload["answer_id"])
+                    is_true = True if answer.is_true else False
+                    user_answer = UserAnswer.objects.create(
+                        challenge=challenge,
+                        question=question,
+                        answer=answer,
+                        is_true=is_true,
+                        is_empty=False,
+                        user=request.user,
+                        answered_at=datetime.datetime.now().astimezone(
+                            pytz.timezone("Asia/Ashgabat")
+                        ),
+                    )
+                    if challenge.with_confirmation:
+                        user_answer.confirmation = request.FILES.get("image", None)
+                        user_answer.save()
+
+                    test_session = TestSession.objects.get(
+                        user=request.user, challenge=challenge
+                    )
+                    questions_sequence = json.loads(test_session.questions_json)
+                    questions = [
+                        QuestionContainer(question, request.user)
+                        for question in Question.objects.filter(
+                            id__in=questions_sequence
+                        )
+                    ]
+
+                    prepositioned_questions = [None] * len(questions)
+                    for q in questions:
+                        prepositioned_questions[questions_sequence.index(q.id)] = q
+                    questions = prepositioned_questions
+                    del prepositioned_questions
+                    # FIXME RESULT
+                    question = None
+                    for q in questions:
+                        if not q.is_answered:
+                            question = q
+
+                    if question != None:
+                        return redirect(
+                            play_challenge,
+                            challenge_id=challenge_id,
+                            question_id=question.id,
+                        )
+                    else:
+                        # TODO RESULT
+                        pass
+
+                return redirect(play_challenge, challenge_id=challenge_id)
+            else:
+                return redirect(play_challenge, challenge_id=challenge_id)
+        else:
+            return redirect(play_challenge, challenge_id=challenge_id)
 
     if TestSession.objects.filter(user=request.user, challenge=challenge).exists():
         test_session = TestSession.objects.get(user=request.user, challenge=challenge)
@@ -107,21 +169,45 @@ def play_challenge(request: HttpRequest, challenge_id):
         ) <= datetime.datetime.now(pytz.timezone("Asia/Ashgabat")):
             return redirect("home")
         else:
+            questions_sequence = json.loads(test_session.questions_json)
             questions = [
                 QuestionContainer(question, request.user)
-                for question in Question.objects.filter(
-                    id__in=json.loads(test_session.questions_json)
-                )
+                for question in Question.objects.filter(id__in=questions_sequence)
             ]
-            question = None
+
+            prepositioned_questions = [None] * len(questions)
             for q in questions:
-                if not q.is_answered:
-                    question = q
+                prepositioned_questions[questions_sequence.index(q.id)] = q
+            questions = prepositioned_questions
+            del prepositioned_questions
+            question = None
+
+            if question_id == None:
+                for q in questions:
+                    if not q.is_answered:
+                        question = q
+                        break
+            else:
+                question = QuestionContainer(
+                    Question.objects.get(id=question_id), request.user
+                )
 
             # FIXME it means, that, a challenge haven't questions anymore
             if question == None:
                 print("help")
             # FIXME
+
+            user_answers_count = UserAnswer.objects.filter(
+                user=request.user, challenge=challenge
+            ).count()
+
+            answers = [
+                ans
+                for ans in Answer.objects.filter(
+                    question=Question.objects.get(id=question.id)
+                )
+            ]
+            random.shuffle(answers)
 
             return render(
                 request,
@@ -130,16 +216,15 @@ def play_challenge(request: HttpRequest, challenge_id):
                     "test_session": test_session,
                     "questions": questions,
                     "question": question,
-                    "answers": Answer.objects.filter(
-                        question=Question.objects.get(id=question.id)
-                    ),
+                    "answers": answers,
+                    "user_answers_count": user_answers_count,
                     "challenge": challenge,
                 },
             )
     else:
         end = datetime.datetime.now(
             pytz.timezone("Asia/Ashgabat")
-        ) + datetime.timedelta(minutes=30)
+        ) + datetime.timedelta(minutes=challenge.time_for_event)
 
         share_of_questions = challenge.questions_count // 3
         rest_of_questions = challenge.questions_count % 3
@@ -192,15 +277,34 @@ def play_challenge(request: HttpRequest, challenge_id):
             QuestionContainer(question, request.user) for question in questions
         ]
 
-        question = None
-        for q in question_containers:
-            if not q.is_answered:
-                question = q
+        questions_sequence = json.loads(test_session.questions_json)
+        questions = [
+            QuestionContainer(question, request.user)
+            for question in Question.objects.filter(id__in=questions_sequence)
+        ]
+
+        prepositioned_questions = [None] * len(questions)
+        for q in questions:
+            prepositioned_questions[questions_sequence.index(q.id)] = q
+        questions = prepositioned_questions
+        del prepositioned_questions
 
         # FIXME it means, that, a challenge haven't questions anymore
         if question == None:
             print("help")
         # FIXME
+
+        user_answers_count = UserAnswer.objects.filter(
+            user=request.user, challenge=challenge
+        ).count()
+
+        answers = [
+            ans
+            for ans in Answer.objects.filter(
+                question=Question.objects.get(id=question.id)
+            )
+        ]
+        random.shuffle(answers)
 
         return render(
             request,
@@ -209,9 +313,8 @@ def play_challenge(request: HttpRequest, challenge_id):
                 "test_session": test_session,
                 "questions": question_containers,
                 "question": question,
-                "answers": Answer.objects.filter(
-                    question=Question.objects.get(id=question.id)
-                ),
+                "answers": answers,
+                "user_answers_count": user_answers_count,
                 "challenge": challenge,
             },
         )
@@ -238,5 +341,51 @@ def confirmation(request: HttpRequest, challenge_id):
                 return redirect(play_challenge, challenge_id=challenge_id)
             else:
                 return render(request, "views/confirmation.html")
+    else:
+        return redirect(play_challenge, challenge_id=challenge_id)
+
+
+def timeout(request: HttpRequest, challenge_id: int, test_session_id: int):
+    if Challenge.objects.filter(id=challenge_id).exists():
+        challenge = Challenge.objects.get(id=challenge_id)
+    else:
+        return redirect("home")
+
+    if TestSession.objects.filter(id=test_session_id).exists():
+        test_session = TestSession.objects.get(id=test_session_id)
+    else:
+        return redirect("home")
+
+    questions = Question.objects.filter(id__in=json.loads(test_session.questions_json))
+    unanswered_questions = []
+    for question in questions:
+        if not UserAnswer.objects.filter(question=question, user=request.user).exists():
+            unanswered_questions.append(question)
+    for unanswered_question in unanswered_questions:
+        UserAnswer.objects.create(
+            challenge=challenge,
+            question=unanswered_question,
+            answer=None,
+            is_true=False,
+            is_empty=True,
+            user=request.user,
+            answered_at=datetime.datetime.now().astimezone(
+                pytz.timezone("Asia/Ashgabat")
+            ),
+        )
+
+    return redirect("home")
+
+
+def change_question(request: HttpRequest, challenge_id: int, question_id: int):
+    if Challenge.objects.filter(id=challenge_id).exists():
+        challenge = Challenge.objects.get(id=challenge_id)
+    else:
+        return redirect("home")
+
+    if Question.objects.filter(id=question_id).exists():
+        return redirect(
+            play_challenge, challenge_id=challenge_id, question_id=question_id
+        )
     else:
         return redirect(play_challenge, challenge_id=challenge_id)
