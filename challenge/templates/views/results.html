@@ -1,0 +1,39 @@
+{% extends "layouts/main.html" %}
+{% load static %}
+{% block title %}
+    Netije
+{% endblock title %}
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'home' %}">Baş sahypa</a>
+    </li>
+    <li class="nav-item active">
+        <a class="nav-link" role="button">Netije</a>
+    </li>
+{% endblock navbar %}
+{% block body %}
+    <div class="row my-3 justify-content-center">
+        <div class="col col-lg-4 col-md-12">
+            <div class="chart-wrap">
+                <canvas id="chart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-5">
+        <div class="col col-3">
+            <p class="text-center">Dogry jogaplar: {{ user_result.true_answer }}</p>
+            <p class="text-center">Ýalňyş jogaplar: {{ user_result.false_answer }}</p>
+        </div>
+        <div class="col col-3">
+            <p class="text-center">Jogapsyz soraglar: {{ user_result.empty_answer }}</p>
+            <p class="text-center">Ýetişik: {{ user_result.percent }}%</p>
+        </div>
+    </div>
+{% endblock body %}
+{% block scripts %}
+    {{ user_result.true_answer|json_script:"true-answers" }}
+    {{ user_result.false_answer|json_script:"false-answers" }}
+    {{ user_result.empty_answer|json_script:"empty-answers" }}
+    <script src="{% static 'challenge/js/chart.js' %}"></script>
+    <script src="{% static 'challenge/js/results_chart.js' %}"></script>
+{% endblock scripts %}

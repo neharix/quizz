@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 
-from .containers import QuestionContainer
+from .containers import *
 from .models import *
 from .utils import *
 
@@ -153,8 +153,7 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
                             question_id=question.id,
                         )
                     else:
-                        # TODO RESULT
-                        pass
+                        return redirect(results, challenge_id=challenge.id)
 
                 return redirect(play_challenge, challenge_id=challenge_id)
             else:
@@ -194,7 +193,7 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
 
             # FIXME it means, that, a challenge haven't questions anymore
             if question == None:
-                print("help")
+                return redirect(results, challenge_id=challenge.id)
             # FIXME
 
             user_answers_count = UserAnswer.objects.filter(
@@ -291,7 +290,7 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
 
         # FIXME it means, that, a challenge haven't questions anymore
         if question == None:
-            print("help")
+            return redirect(results, challenge_id=challenge.id)
         # FIXME
 
         user_answers_count = UserAnswer.objects.filter(
@@ -389,3 +388,30 @@ def change_question(request: HttpRequest, challenge_id: int, question_id: int):
         )
     else:
         return redirect(play_challenge, challenge_id=challenge_id)
+
+
+def results(request: HttpRequest, challenge_id: int):
+    if Challenge.objects.filter(id=challenge_id).exists():
+        challenge = Challenge.objects.get(id=challenge_id)
+    else:
+        return redirect("home")
+
+    test_session = TestSession.objects.get(challenge=challenge, user=request.user)
+    if test_session.end >= datetime.datetime.now().astimezone(
+        pytz.timezone("Asia/Ashgabat")
+    ):
+        test_session.end = datetime.datetime.now().astimezone(
+            pytz.timezone("Asia/Ashgabat")
+        )
+        test_session.save()
+    user_answers = UserAnswer.objects.filter(user=request.user, challenge=challenge)
+    user_result = UserResult(
+        1,
+        challenge.id,
+        request.user,
+        user_answers,
+        test_session,
+        True,
+        challenge.questions_count,
+    )
+    return render(request, "views/results.html", {"user_result": user_result})

@@ -13,6 +13,7 @@ urlpatterns = [
         name="play_challenge",
     ),
     path("confirmation/<int:challenge_id>/", confirmation),
+    path("results/<int:challenge_id>/", results),
     path("timeout/<int:challenge_id>/<int:test_session_id>/", timeout),
     path("change-question/<int:challenge_id>/<int:question_id>/", change_question),
 ]
