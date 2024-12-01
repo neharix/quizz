@@ -98,10 +98,6 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
         return redirect("home")
 
     if request.method == "POST":
-        print(request.POST)
-
-        print(request.FILES)
-
         if request.POST.get("payload", False):
             payload = json.loads(request.POST["payload"])
             if payload.get("answer_id", False) and payload.get("question_id", False):
