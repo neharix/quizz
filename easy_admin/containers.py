@@ -20,9 +20,7 @@ class ChallengeResult:
 class FQuestion:
     def __init__(self, number: int, question: Question):
         self.id = number
-        self.question = question.question
-        self.is_image = question.is_image
-        self.image = question.image
+        self.content = question.content
         self.complexity = question.complexity
         self.pk = question.pk
 

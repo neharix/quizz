@@ -1,4 +1,5 @@
 from django import forms
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 from challenge.models import Answer, Challenge, Complexity, Question
 
@@ -36,35 +37,36 @@ class ChallengeForm(forms.ModelForm):
 
 
 class QuestionForm(forms.ModelForm):
-    question = forms.CharField(
-        label="Sorag",
-        widget=forms.Textarea(attrs=bootstrap_for_textarea),
-        required=False,
-    )
-    image = forms.ImageField(
-        label="Sorag", widget=forms.FileInput(attrs=bootstrap_attr), required=False
-    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["content"].required = False
 
     class Meta:
         model = Question
-        fields = ("question", "image", "challenge", "complexity")
+        fields = ("content", "challenge", "complexity")
+        widgets = {
+            "content": CKEditor5Widget(
+                attrs={"class": "django_ckeditor_5"}, config_name="extends"
+            )
+        }
 
 
 class AnswerForm(forms.ModelForm):
-    answer = forms.CharField(
-        label="Jogap",
-        widget=forms.Textarea(attrs=bootstrap_for_textarea),
-        required=False,
-    )
-    image = forms.ImageField(
-        label="Jogap", widget=forms.FileInput(attrs=bootstrap_attr), required=False
-    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["content"].required = False
+
     is_true = forms.BooleanField(
-        label="",
+        label="Jogap dogrymy?",
         widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
         required=False,
     )
 
     class Meta:
         model = Answer
-        fields = ("answer", "image", "question", "is_true")
+        fields = ("content", "question", "is_true")
+        widgets = {
+            "content": CKEditor5Widget(
+                attrs={"class": "django_ckeditor_5"}, config_name="extends"
+            )
+        }

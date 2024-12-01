@@ -23,7 +23,6 @@
                     <tr class="border-bottom-line bg-light">
                         <th scope="col">№</th>
                         <th scope="col">Sorag</th>
-                        <th scope="col">Suratmy?</th>
                         <th scope="col">Derejesi</th>
                         <th scope="col"></th>
                     </tr>
@@ -32,20 +31,7 @@
                     {% for row in questions %}
                         <tr class="border-y-line">
                             <th scope="row">{{ row.id }}</th>
-                            {% if row.is_image %}
-                                <td>
-                                    <a class="link link-dark" href="/media/{{ row.image }}/">Sorag ID: {{ row.pk }}</a>
-                                </td>
-                                <td>
-                                    <i class="bi bi-check-circle-fill"
-                                       style="color: rgb(0, 215, 0) !important"></i>
-                                </td>
-                            {% else %}
-                                <td>{{ row.question|truncatewords:16 }}</td>
-                                <td>
-                                    <i class="bi bi-x-circle-fill" style="color: red !important"></i>
-                                </td>
-                            {% endif %}
+                            <td>Sorag ID: {{ row.pk }}</td>
                             <td>{{ row.complexity.level }}</td>
                             <td>
                                 <a href="edit_question/{{ row.pk }}/" class="btn btn-primary"><i class="bi bi-gear"></i></a> <a href="delete_question/{{ row.pk }}/" class="btn btn-danger"><i class="bi bi-trash3"></i></a>

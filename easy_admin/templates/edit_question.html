@@ -4,55 +4,26 @@
     Soragy üýtgetmek
 {% endblock title %}
 {% block head %}
-    <link rel="stylesheet" href="{% static 'css/toggle.css' %}">
 {% endblock head %}
 {% block body %}
     <div class="container my-4">
         <div class="row bg-light rounded p-2">
-            <div class="d-flex justify-content-center">
-                <div class="toggle">
-                    <input type="radio" id="choice1" name="choice">
-                    <label for="choice1">Surat</label>
-                    <input type="radio" id="choice2" name="choice">
-                    <label style="padding-left: 60px;" for="choice2">Tekst</label>
-                    <div id="flap">
-                        <span class="content">Surat</span>
-                    </div>
-                </div>
-            </div>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div>
-                    <label for="id_question">Sorag:</label>
-                    <textarea name="question"
-                              cols="40"
-                              rows="1"
-                              required
-                              class="form-control my-2"
-                              id="id_question">{% if question.question is not None %}{{ question.question }}{% endif %}</textarea>
-                </div>
-                <div style="display: none;">
-                    <label for="id_image">Sorag:</label>
-                    <input type="file"
-                           name="image"
-                           class="form-control my-2"
-                           accept="image/*"
-                           id="id_image">
-                </div>
-                <div style="font-size: 0.8rem; cursor: default;">
-                    {% if question.is_image %}
-                        <div>
-                            <b>Görnüşi:</b> Surat
-                        </div>
-                        <div>
-                            <b>Salgy:</b> <a class="link link-primary" href="/media/{{ question.image }}">{{ question.image }}</a>
-                        </div>
-                    {% else %}
-                        <div>
-                            <b>Görnüşi:</b> Tekst
-                        </div>
-                        <div style="color: transparent;">0</div>
-                    {% endif %}
+                    <div class="ck-editor-container">
+                        <textarea id="id_text" name="text" class="django_ckeditor_5">
+                            {{ question.content }}
+                        </textarea>
+                        <div></div>
+                        <!-- this div or any empty element is required -->
+                        <span class="word-count" id="id_text_script-word-count"></span>
+                    </div>
+                    <input type="hidden"
+                           id="id_text_script-ck-editor-5-upload-url"
+                           data-upload-url="/ckeditor5/image_upload/"
+                           data-csrf_cookie_name="new_csrf_cookie_name">
+                    <span id="id_text_script-span"><script id="id_text_script" type="application/json">"extends"</script></span>
                 </div>
                 <div>
                     <label for="id_point">Utuk sany:</label>
