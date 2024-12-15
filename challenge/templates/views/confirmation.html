@@ -13,6 +13,32 @@
     <div class="my-4">
         <h2 class="text-center">Tassyklama üçin passportyňyz bilen bilelikde surata düşmegiňiz haýyş edilýär</h2>
     </div>
+    <button type="button"
+            class="d-none"
+            id="policy"
+            data-bs-toggle="modal"
+            data-bs-target="#staticBackdrop">Policy</button>
+    <div class="modal fade"
+         id="staticBackdrop"
+         data-bs-backdrop="static"
+         data-bs-keyboard="false"
+         tabindex="-1"
+         aria-labelledby="staticBackdropLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Web-sahypa syýasaty</h5>
+                </div>
+                <div class="modal-body">
+                    "Tassyklamak" düwmä basmaklyk bilen, siz test başlamazdan öň, öz şahsyýetiňizi pasportyňyz bilen bilelikde düşen suratyňyz bilen tassyklajakdygyňyza we soragdan soraga geçilen wagty öz şahsyýetiňizi tassyklamana dowam etjekdigiňize güwä geçmiş hasaplanýarsyňyz. Jogapkärçilikli hereket etmegiňizi haýyş edýäris!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ui-design" data-bs-dismiss="modal">Tassyklamak</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="content"></div>
 {% endblock body %}
 {% block scripts %}

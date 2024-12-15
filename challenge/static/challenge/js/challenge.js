@@ -46,10 +46,11 @@ next_btn.onclick = (e) => {
   } else {
     payload = JSON.stringify({ answer_id: null, question_id: question_id });
   }
+  let contentContainer = document.querySelector("#content");
+
   if (confirmation) {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     let isUploaded = false;
-    let contentContainer = document.querySelector("#content");
     contentContainer.classList.remove("d-none");
     document.querySelector("#quiz-panel").classList.add("d-none");
 

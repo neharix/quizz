@@ -1,11 +1,10 @@
 import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = "django-insecure-3j84sd@+dl0sq5g$e*mak8t$77mhie67%kywo)o%gw&2zs3!1@"
 
-DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -87,12 +86,6 @@ WSGI_APPLICATION = "server.wsgi.application"
 #     }
 # }
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {

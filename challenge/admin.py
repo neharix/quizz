@@ -1,6 +1,83 @@
+import io
+
 from django.contrib import admin
+from django.core.management import call_command
+from django.http import HttpResponse
 
 from .models import *
+from .utils import *
+
+
+class UserAnswerAdmin(admin.ModelAdmin):
+    actions = ["export_as_sql"]
+
+    list_display = [
+        "id",
+        "answer",
+        "is_true",
+        "is_empty",
+        "question",
+        "user",
+        "answered_at",
+    ]
+    readonly_fields = ("answered_at",)
+
+    def export_as_sql(self, request, queryset):
+        data = []
+        for obj in queryset:
+            model_data = {}
+            for field in obj._meta.fields:
+                value = getattr(obj, field.name)
+                model_data[field.name] = value
+            data.append(model_data)
+
+        json_data = json.dumps(data, ensure_ascii=False, indent=4, default=json_encoder)
+
+        table_name = "challenge__useranswer"
+        sql_data = json_to_sql(json_data, table_name)
+
+        response = HttpResponse(sql_data, content_type="application/sql")
+        response["Content-Disposition"] = (
+            f'attachment; filename="data-useranswers-{datetime.now().strftime("%d-%m-%Y")}.sql"'
+        )
+        return response
+
+    export_as_sql.short_description = "SQL export"
+
+
+admin.site.register(UserAnswer, UserAnswerAdmin)
+
+
+class TestSessionAdmin(admin.ModelAdmin):
+    actions = ["export_as_sql"]
+
+    list_display = ["id", "start", "end", "user", "challenge"]
+    readonly_fields = ("start",)
+
+    def export_as_sql(self, request, queryset):
+        data = []
+        for obj in queryset:
+            model_data = {}
+            for field in obj._meta.fields:
+                value = getattr(obj, field.name)
+                model_data[field.name] = value
+            data.append(model_data)
+
+        json_data = json.dumps(data, ensure_ascii=False, indent=4, default=json_encoder)
+
+        table_name = "challenge__testsession"
+        sql_data = json_to_sql(json_data, table_name)
+
+        response = HttpResponse(sql_data, content_type="application/sql")
+        response["Content-Disposition"] = (
+            f'attachment; filename="data-testsessions-{datetime.now().strftime("%d-%m-%Y")}.sql"'
+        )
+        return response
+
+    export_as_sql.short_description = "SQL export"
+
+
+admin.site.register(TestSession, TestSessionAdmin)
 
 
 @admin.register(Profile)
@@ -17,20 +94,6 @@ class AnswerAdmin(admin.ModelAdmin):
 @admin.register(Complexity)
 class ComplexityAdmin(admin.ModelAdmin):
     list_display = ["id", "level"]
-
-
-@admin.register(UserAnswer)
-class UserAnswerAdmin(admin.ModelAdmin):
-    list_display = [
-        "id",
-        "answer",
-        "is_true",
-        "is_empty",
-        "question",
-        "user",
-        "answered_at",
-    ]
-    readonly_fields = ("answered_at",)
 
 
 @admin.register(Challenge)
@@ -54,12 +117,6 @@ class QuestionAdmin(admin.ModelAdmin):
         "point",
         "complexity",
     ]
-
-
-@admin.register(TestSession)
-class TestSessionAdmin(admin.ModelAdmin):
-    list_display = ["id", "start", "end", "user", "challenge"]
-    readonly_fields = ("start",)
 
 
 @admin.register(ConfirmationImage)

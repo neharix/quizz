@@ -15,8 +15,9 @@ from .utils import *
 
 
 def logout_view(request: HttpRequest):
-    logout(request)
-    return redirect("home")
+    if request.user.is_authenticated:
+        logout(request)
+    return redirect("login_page")
 
 
 def login_view(request):
@@ -57,6 +58,7 @@ def login_view(request):
     return render(request, "views/login.html", context)
 
 
+@login_required(login_url="/login/")
 def index(request: HttpRequest):
     if request.user.is_authenticated:
         if request.user.is_superuser or request.user.is_staff:
@@ -90,6 +92,7 @@ def index(request: HttpRequest):
     return redirect("login_page")
 
 
+@login_required(login_url="/login/")
 def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = None):
     if Challenge.objects.filter(id=challenge_id).exists():
         challenge = Challenge.objects.get(id=challenge_id)
@@ -141,6 +144,7 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
                     for q in questions:
                         if not q.is_answered:
                             question = q
+                            break
 
                     if question != None:
                         return redirect(
@@ -256,8 +260,8 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
             questions.append(
                 random.choice(
                     Question.objects.exclude(
-                        pk__in=[question.pk for question in questions]
-                    )
+                        pk__in=[question.pk for question in questions],
+                    ).filter(challenge=challenge)
                 )
             )
 
@@ -284,10 +288,11 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
         questions = prepositioned_questions
         del prepositioned_questions
 
-        # FIXME it means, that, a challenge haven't questions anymore
+        if len(questions) > 0:
+            question = questions[0]
+
         if question == None:
             return redirect(results, challenge_id=challenge.id)
-        # FIXME
 
         user_answers_count = UserAnswer.objects.filter(
             user=request.user, challenge=challenge
@@ -315,6 +320,7 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
         )
 
 
+@login_required(login_url="/login/")
 def confirmation(request: HttpRequest, challenge_id):
     if Challenge.objects.filter(id=challenge_id).exists():
         challenge = Challenge.objects.get(id=challenge_id)
@@ -340,6 +346,7 @@ def confirmation(request: HttpRequest, challenge_id):
         return redirect(play_challenge, challenge_id=challenge_id)
 
 
+@login_required(login_url="/login/")
 def timeout(request: HttpRequest, challenge_id: int, test_session_id: int):
     if Challenge.objects.filter(id=challenge_id).exists():
         challenge = Challenge.objects.get(id=challenge_id)
@@ -372,6 +379,7 @@ def timeout(request: HttpRequest, challenge_id: int, test_session_id: int):
     return redirect("home")
 
 
+@login_required(login_url="/login/")
 def change_question(request: HttpRequest, challenge_id: int, question_id: int):
     if Challenge.objects.filter(id=challenge_id).exists():
         challenge = Challenge.objects.get(id=challenge_id)
@@ -386,6 +394,7 @@ def change_question(request: HttpRequest, challenge_id: int, question_id: int):
         return redirect(play_challenge, challenge_id=challenge_id)
 
 
+@login_required(login_url="/login/")
 def results(request: HttpRequest, challenge_id: int):
     if Challenge.objects.filter(id=challenge_id).exists():
         challenge = Challenge.objects.get(id=challenge_id)

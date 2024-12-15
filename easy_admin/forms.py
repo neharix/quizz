@@ -24,6 +24,12 @@ class ChallengeForm(forms.ModelForm):
     questions_count = forms.IntegerField(
         label="Soraglaryň sany", widget=forms.NumberInput(attrs=bootstrap_attr)
     )
+    with_confirmation = forms.BooleanField(
+        label="Tassyklama hökmanmy?",
+    )
+    is_public = forms.BooleanField(
+        label="Publikmi?",
+    )
 
     class Meta:
         model = Challenge
@@ -33,6 +39,8 @@ class ChallengeForm(forms.ModelForm):
             "date_finish",
             "time_for_event",
             "questions_count",
+            "with_confirmation",
+            "is_public",
         )
 
 

@@ -68,7 +68,7 @@
             </div>
         </div>
     </div>
-    {% if challenge.with_confirmation %}<div id="content" class="d-none"></div>{% endif %}
+    <div id="content" class="d-none"></div>
 {% endblock body %}
 {% block scripts %}
     {{ challenge.with_confirmation|json_script:"confirmation" }}

@@ -1,0 +1,8 @@
+FROM python:3.12.0
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /code
+
+RUN pip install --upgrade pip

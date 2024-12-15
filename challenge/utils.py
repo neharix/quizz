@@ -1,3 +1,5 @@
+import json
+from datetime import date, datetime
 from re import search
 
 
@@ -61,3 +63,31 @@ def transliterate(text):
 
 def contains_cyrillic(text):
     return bool(search(r"[А-Яа-яЁё]", text))
+
+
+def json_encoder(obj):
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    return str(obj)
+
+
+def json_to_sql(json_data, table_name):
+    try:
+        data = json.loads(json_data)
+        if isinstance(data, list):
+            sql_statements = []
+            for record in data:
+                columns = ", ".join([f'"{key}"' for key in record.keys()])
+                values = ", ".join(
+                    [
+                        f"'{value}'" if value is not None else "NULL"
+                        for value in record.values()
+                    ]
+                )
+                sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values});"
+                sql_statements.append(sql)
+            return "\n".join(sql_statements)
+        else:
+            return f"-- Неожиданный формат данных: {type(data)}"
+    except json.JSONDecodeError as e:
+        return f"-- Ошибка обработки JSON: {e}"

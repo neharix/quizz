@@ -3,15 +3,14 @@ let isUploaded = false;
 let contentContainer = document.querySelector("#content");
 let csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0];
 
-
 function toggleBtn(e) {
-    if (isMobile) {
-      if (isUploaded) {
-        document.getElementById("submitBtn").click();
-      } else {
-        document.getElementById("cameraInput").click();
-      }
+  if (isMobile) {
+    if (isUploaded) {
+      document.getElementById("submitBtn").click();
+    } else {
+      document.getElementById("cameraInput").click();
     }
+  }
 }
 
 if (isMobile) {
@@ -78,7 +77,8 @@ if (isMobile) {
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
   const fileInput = document.getElementById("file-input");
-  navigator.mediaDevices.getUserMedia({ video: true })
+  navigator.mediaDevices
+    .getUserMedia({ video: true })
     .then((stream) => {
       video.srcObject = stream;
       video.play();
@@ -120,6 +120,10 @@ if (isMobile) {
       const event = new Event("change");
       fileInput.dispatchEvent(event);
     }, "image/png");
-    setTimeout(() => {document.getElementById("submitBtn").click();}, 500);
+    setTimeout(() => {
+      document.getElementById("submitBtn").click();
+    }, 500);
   });
 }
+
+document.querySelector("#policy").click();
