@@ -11,7 +11,7 @@ from django.shortcuts import redirect, render
 
 from .containers import *
 from .models import *
-from .utils import *
+from .utils import contains_cyrillic, remove_turkmen_letter, transliterate
 
 
 def logout_view(request: HttpRequest):
@@ -65,7 +65,7 @@ def index(request: HttpRequest):
             return redirect("easy_tools")
         else:
             date = (
-                datetime.now()
+                datetime.datetime.now()
                 .astimezone(pytz.timezone("Asia/Ashgabat"))
                 .strftime("%Y-%m-%d %H:%M:%S")
             )
@@ -80,7 +80,9 @@ def index(request: HttpRequest):
                     test_session = TestSession.objects.get(
                         user=request.user, challenge=challenge
                     )
-                    if test_session.end > datetime.now(pytz.timezone("Asia/Ashgabat")):
+                    if test_session.end > datetime.datetime.now(
+                        pytz.timezone("Asia/Ashgabat")
+                    ):
                         available_challenges.append(challenge)
                 else:
                     available_challenges.append(challenge)
@@ -113,7 +115,7 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
                         is_true=is_true,
                         is_empty=False,
                         user=request.user,
-                        answered_at=datetime.now().astimezone(
+                        answered_at=datetime.datetime.now().astimezone(
                             pytz.timezone("Asia/Ashgabat")
                         ),
                     )
@@ -161,9 +163,9 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
 
     if TestSession.objects.filter(user=request.user, challenge=challenge).exists():
         test_session = TestSession.objects.get(user=request.user, challenge=challenge)
-        if test_session.end.astimezone(pytz.timezone("Asia/Ashgabat")) <= datetime.now(
+        if test_session.end.astimezone(
             pytz.timezone("Asia/Ashgabat")
-        ):
+        ) <= datetime.datetime.now(pytz.timezone("Asia/Ashgabat")):
             return redirect("home")
         else:
             questions_sequence = json.loads(test_session.questions_json)
@@ -219,9 +221,9 @@ def play_challenge(request: HttpRequest, challenge_id: int, question_id: int = N
                 },
             )
     else:
-        end = datetime.now(pytz.timezone("Asia/Ashgabat")) + datetime.timedelta(
-            minutes=challenge.time_for_event
-        )
+        end = datetime.datetime.now(
+            pytz.timezone("Asia/Ashgabat")
+        ) + datetime.datetime.timedelta(minutes=challenge.time_for_event)
 
         share_of_questions = challenge.questions_count // 3
         rest_of_questions = challenge.questions_count % 3
@@ -369,7 +371,9 @@ def timeout(request: HttpRequest, challenge_id: int, test_session_id: int):
             is_true=False,
             is_empty=True,
             user=request.user,
-            answered_at=datetime.now().astimezone(pytz.timezone("Asia/Ashgabat")),
+            answered_at=datetime.datetime.now().astimezone(
+                pytz.timezone("Asia/Ashgabat")
+            ),
         )
 
     return redirect("home")
@@ -398,8 +402,12 @@ def results(request: HttpRequest, challenge_id: int):
         return redirect("home")
 
     test_session = TestSession.objects.get(challenge=challenge, user=request.user)
-    if test_session.end >= datetime.now().astimezone(pytz.timezone("Asia/Ashgabat")):
-        test_session.end = datetime.now().astimezone(pytz.timezone("Asia/Ashgabat"))
+    if test_session.end >= datetime.datetime.now().astimezone(
+        pytz.timezone("Asia/Ashgabat")
+    ):
+        test_session.end = datetime.datetime.now().astimezone(
+            pytz.timezone("Asia/Ashgabat")
+        )
         test_session.save()
     user_answers = UserAnswer.objects.filter(user=request.user, challenge=challenge)
     user_result = UserResult(
